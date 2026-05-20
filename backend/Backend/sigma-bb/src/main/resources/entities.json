@@ -1,0 +1,146 @@
+{
+  "Brand": [
+    {
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Siemens",
+      "deleted": false
+    },
+    {
+      "id": "a1b2c3d4-0001-4000-8000-000000000002",
+      "name": "General Electric",
+      "deleted": false
+    }
+  ],
+  "Manufacturer": [
+    {
+      "id": "a1b2c3d4-0002-4000-8000-000000000001",
+      "name": "Medtronic",
+      "countryId": "a1b2c3d4-0005-4000-8000-000000000001",
+      "deleted": false
+    },
+    {
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Philips Healthcare",
+      "countryId": "a1b2c3d4-0005-4000-8000-000000000002",
+      "deleted": false
+    }
+  ],
+  "EquipmentType": [
+    {
+      "id": "a1b2c3d4-0003-4000-8000-000000000001",
+      "equipmentTypeName": "Resonador Magn\u00e9tico",
+      "technicalDefinition": "Equipo de diagn\u00f3stico por imagen que utiliza campos magn\u00e9ticos y ondas de radio para generar im\u00e1genes detalladas del interior del cuerpo.",
+      "careRecommendations": "Mantener en ambiente con control de temperatura. Calibraci\u00f3n mensual del campo magn\u00e9tico. Limpieza diaria de la superficie externa con soluci\u00f3n desinfectante no corrosiva.",
+      "voltage": 220,
+      "amperage": 15.5,
+      "predominantTechnology": "Superconductividad",
+      "verifiable": true,
+      "unitMaintenanceValue": 3500000,
+      "deleted": false
+    },
+    {
+      "id": "a1b2c3d4-0003-4000-8000-000000000002",
+      "equipmentTypeName": "Ventilador Mec\u00e1nico",
+      "technicalDefinition": "Dispositivo que proporciona soporte respiratorio artificial a pacientes que no pueden respirar por s\u00ed mismos.",
+      "careRecommendations": "Cambio de filtros cada 500 horas de uso. Verificaci\u00f3n semanal de alarmas y sensores de flujo. Desinfecci\u00f3n del circuito externo despu\u00e9s de cada paciente.",
+      "voltage": 110,
+      "amperage": 3.2,
+      "predominantTechnology": "Microprocesador",
+      "verifiable": true,
+      "unitMaintenanceValue": 1200000,
+      "deleted": false
+    }
+  ],
+  "Model": [
+    {
+      "id": "a1b2c3d4-0004-4000-8000-000000000001",
+      "name": "MAGNETOM Vida",
+      "manufacturerId": "a1b2c3d4-0002-4000-8000-000000000001",
+      "equipmentId": "a1b2c3d4-0003-4000-8000-000000000001",
+      "deleted": false
+    },
+    {
+      "id": "a1b2c3d4-0004-4000-8000-000000000002",
+      "name": "Trilogy Evo",
+      "manufacturerId": "a1b2c3d4-0002-4000-8000-000000000002",
+      "equipmentId": "a1b2c3d4-0003-4000-8000-000000000002",
+      "deleted": false
+    }
+  ],
+  "TechnicalVerification": [
+    {
+      "id": "a1b2c3d4-0006-4000-8000-000000000001",
+      "description": "Verificaci\u00f3n de calibraci\u00f3n del campo magn\u00e9tico en los 3 ejes (X, Y, Z) seg\u00fan est\u00e1ndar IEC 60601-2-33.",
+      "verificationType": "CALIBRACION",
+      "deleted": false
+    },
+    {
+      "id": "a1b2c3d4-0006-4000-8000-000000000002",
+      "description": "Prueba funcional de alarmas y sensores de flujo inspiratorio y espiratorio seg\u00fan protocolo interno.",
+      "verificationType": "FUNCIONAL",
+      "deleted": false
+    }
+  ],
+  "MetrologicalData": [
+    {
+      "id": {
+        "value": 1.5,
+        "type": "TESLA",
+        "equipmentTypeId": "a1b2c3d4-0003-4000-8000-000000000001"
+      },
+      "deleted": false
+    },
+    {
+      "id": {
+        "value": 500.0,
+        "type": "ML_VOLUMEN",
+        "equipmentTypeId": "a1b2c3d4-0003-4000-8000-000000000002"
+      },
+      "deleted": false
+    }
+  ],
+  "Equipment": [
+    {
+      "id": "a1b2c3d4-0007-4000-8000-000000000001",
+      "equipmentType": {
+        "id": "a1b2c3d4-0003-4000-8000-000000000001",
+        "equipmentTypeName": "Resonador Magn\u00e9tico",
+        "technicalDefinition": "Equipo de diagn\u00f3stico por imagen que utiliza campos magn\u00e9ticos y ondas de radio para generar im\u00e1genes detalladas del interior del cuerpo.",
+        "careRecommendations": "Mantener en ambiente con control de temperatura. Calibraci\u00f3n mensual del campo magn\u00e9tico. Limpieza diaria de la superficie externa con soluci\u00f3n desinfectante no corrosiva.",
+        "voltage": 220,
+        "amperage": 15.5,
+        "predominantTechnology": "Superconductividad",
+        "verifiable": true,
+        "unitMaintenanceValue": 3500000,
+        "deleted": false
+      },
+      "brand": {
+        "id": "a1b2c3d4-0001-4000-8000-000000000001",
+        "name": "Siemens",
+        "deleted": false
+      },
+      "deleted": false
+    },
+    {
+      "id": "a1b2c3d4-0007-4000-8000-000000000002",
+      "equipmentType": {
+        "id": "a1b2c3d4-0003-4000-8000-000000000002",
+        "equipmentTypeName": "Ventilador Mec\u00e1nico",
+        "technicalDefinition": "Dispositivo que proporciona soporte respiratorio artificial a pacientes que no pueden respirar por s\u00ed mismos.",
+        "careRecommendations": "Cambio de filtros cada 500 horas de uso. Verificaci\u00f3n semanal de alarmas y sensores de flujo. Desinfecci\u00f3n del circuito externo despu\u00e9s de cada paciente.",
+        "voltage": 110,
+        "amperage": 3.2,
+        "predominantTechnology": "Microprocesador",
+        "verifiable": true,
+        "unitMaintenanceValue": 1200000,
+        "deleted": false
+      },
+      "brand": {
+        "id": "a1b2c3d4-0001-4000-8000-000000000002",
+        "name": "General Electric",
+        "deleted": false
+      },
+      "deleted": false
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Variables de entorno
+.env
+.env.*
+*.env
+
+# /data
+DataBase/data/
