@@ -46,7 +46,7 @@ src/
 │   └── equipments/           ← RD-03, RD-04, RD-05    
 │       ├── components/
 │       ├── hooks/
-│       └── services/
+│       └── services/         ← Se centralizan las peticiones HTTP
 ├── shared/
 │   ├── components/           ← Botones, inputs, modales reutilizables
 │   ├── hooks/                ← useAuth, useFetch, useRole
