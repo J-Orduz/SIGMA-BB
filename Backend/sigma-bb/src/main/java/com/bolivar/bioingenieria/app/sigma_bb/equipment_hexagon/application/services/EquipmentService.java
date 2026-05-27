@@ -2,6 +2,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ser
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.EquipmentServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.EquipmentPersistencePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.EquipmentPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.CreateEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.DeleteEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.UpdateEquipmentCommand;
@@ -66,6 +67,16 @@ public class EquipmentService implements EquipmentServicePort {
         equipment.deleteEquipment();
         persistencePort.delete(command.id());
         dispatchEvents(equipment);
+    }
+
+    @Override
+    public Equipment patchUpdate(String id, EquipmentPatchCommand command) {
+        Equipment equipment = persistencePort.findById(id)
+                .orElseThrow(() -> new EquipmentNotFoundException(id));
+        equipment.updateEquipmentPatch(command.equipmentTypeId(), command.brandId());
+        equipment = persistencePort.update(id, equipment);
+        dispatchEvents(equipment);
+        return equipment;
     }
 
     private void dispatchEvents(Equipment aggregate) {

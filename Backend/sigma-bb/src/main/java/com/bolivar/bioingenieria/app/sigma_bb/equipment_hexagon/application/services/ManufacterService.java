@@ -2,6 +2,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ser
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.ManufacturerServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.ManufacturerPersistencePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.ManufacturerPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.CreateManufacturerCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.DeleteManufacturerCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.UpdateManufacturerCommand;
@@ -64,6 +65,16 @@ public class ManufacterService implements ManufacturerServicePort {
         manufacturer.deleteManufacturer();
         manufacterPersistencePort.delete(command.id());
         dispatchEvents(manufacturer);
+    }
+
+    @Override
+    public Manufacturer patchUpdate(String id, ManufacturerPatchCommand command) {
+        Manufacturer manufacturer = manufacterPersistencePort.findById(id)
+                .orElseThrow(() -> new ManufacturerNotFoundException(id));
+        manufacturer.updateManufacturerPatch(command.name(), command.countryId());
+        manufacterPersistencePort.update(id, manufacturer);
+        dispatchEvents(manufacturer);
+        return manufacturer;
     }
 
     private void dispatchEvents(Manufacturer aggregate) {

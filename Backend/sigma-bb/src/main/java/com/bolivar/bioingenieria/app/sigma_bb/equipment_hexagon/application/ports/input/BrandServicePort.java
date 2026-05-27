@@ -1,5 +1,6 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input;
 
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.BrandPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.CreateBrandCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.DeleteBrandCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.UpdateBrandCommand;
@@ -13,4 +14,5 @@ public interface BrandServicePort {
     Brand save(CreateBrandCommand createBrandCommand);
     Brand update(String id, UpdateBrandCommand updateBrandCommand);
     void delete(DeleteBrandCommand deleteBrandCommand);
+    Brand patchUpdate(String id, BrandPatchCommand command);
 }

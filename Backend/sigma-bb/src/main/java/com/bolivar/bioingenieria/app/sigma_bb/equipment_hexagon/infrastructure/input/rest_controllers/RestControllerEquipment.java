@@ -1,11 +1,13 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.EquipmentServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.EquipmentPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.CreateEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.DeleteEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.UpdateEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.equipment.Equipment;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.mapper.EquipmentRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.EquipmentPatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.EquipmentRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.EquipmentReponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,6 +74,19 @@ public class RestControllerEquipment {
         UpdateEquipmentCommand cmd = new UpdateEquipmentCommand(
                 request.getEquipmentTypeId(), request.getBrandId());
         Equipment updated = servicePort.update(id, cmd);
+        return ResponseEntity.ok(restMapper.toEquipmentResponse(updated));
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente un equipo",
+            description = "Actualiza únicamente los campos enviados de un equipo existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<EquipmentReponse> patchEquipment(
+            @Parameter(description = "Identificador único del equipo a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody EquipmentPatchRequest request) {
+        EquipmentPatchCommand command = new EquipmentPatchCommand(request.getEquipmentTypeId(), request.getBrandId());
+        Equipment updated = servicePort.patchUpdate(id, command);
         return ResponseEntity.ok(restMapper.toEquipmentResponse(updated));
     }
 

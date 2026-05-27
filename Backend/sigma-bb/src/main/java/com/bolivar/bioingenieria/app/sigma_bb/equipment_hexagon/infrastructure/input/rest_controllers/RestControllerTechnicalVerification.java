@@ -1,11 +1,13 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.TechnicalVerificationServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.TechnicalVerificationPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.CreateTechnicalVerificationCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.DeleteTechnicalVerificationCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.UpdateTechnicalVerificationCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.technical_verification.TechnicalVerification;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.mapper.TechnicalVerificationRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.TechnicalVerificationPatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.TechnicalVerificationRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.TechnicalVerificationResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,6 +74,20 @@ public class RestControllerTechnicalVerification {
         UpdateTechnicalVerificationCommand cmd = new UpdateTechnicalVerificationCommand(
                 request.getDescription(), request.getVerificationType());
         TechnicalVerification updated = servicePort.update(id, cmd);
+        return ResponseEntity.ok(restMapper.toTechnicalVerificationResponse(updated));
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente una verificación técnica",
+            description = "Actualiza únicamente los campos enviados de una verificación técnica existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<TechnicalVerificationResponse> patchTechnicalVerification(
+            @Parameter(description = "Identificador único de la verificación técnica a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody TechnicalVerificationPatchRequest request) {
+        TechnicalVerificationPatchCommand command = new TechnicalVerificationPatchCommand(
+                request.getDescription(), request.getVerificationType());
+        TechnicalVerification updated = servicePort.patchUpdate(id, command);
         return ResponseEntity.ok(restMapper.toTechnicalVerificationResponse(updated));
     }
 

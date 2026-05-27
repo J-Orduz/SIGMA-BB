@@ -1,5 +1,6 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input;
 
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.EquipmentTypePatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.CreateEquipmentTypeCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.DeleteEquipmentTypeCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.UpdateEquipmentTypeCommand;
@@ -16,6 +17,7 @@ public interface EquipmentTypeServicePort {
     EquipmentType save(CreateEquipmentTypeCommand command);
     EquipmentType update(String id, UpdateEquipmentTypeCommand command);
     void delete(DeleteEquipmentTypeCommand command);
+    EquipmentType patchUpdate(String id, EquipmentTypePatchCommand command);
 
     EquipmentType addMetrologicalData(String  equipmentTypeId,
                                              MetrologicalDataCommand command);

@@ -1,34 +1,26 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
-
-WORKDIR /build
-
-# Instalar Maven y dependencias necesarias
-RUN apk add --no-cache maven git
-
-# Copiar pom.xml
-COPY ./pom.xml .
-
-# Copiar código fuente
-COPY ./src ./src
-
-# Compilar y empaquetar con Maven
-RUN mvn clean package -DskipTests
-
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21 AS build
 
 WORKDIR /app
 
-# Copiar JAR desde builder
-COPY --from=builder /build/target/sigma-bb-0.0.1-SNAPSHOT.jar app.jar
+# 1. Copiar archivos de dependencias
+COPY pom.xml .
+COPY .mvn .mvn
+COPY mvnw .
 
-# Crear directorio de logs
-RUN mkdir -p ./logs
+# 2. Descargar dependencias
+RUN ./mvnw dependency:go-offline
 
-# Variables de entorno
-ENV PORT=8100
-ENV JAVA_OPTS=""
+# 3. Ahora copiar el código
+COPY src src
 
-EXPOSE 8100
+# 4. Compilar
+RUN ./mvnw clean package -DskipTests
 
-# Ejecutar con spring.config.additional-location para soporte de variables de entorno mejorado
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Runtime
+FROM eclipse-temurin:21
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+CMD ["java", "-jar", "app.jar"]

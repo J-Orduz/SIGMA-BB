@@ -2,6 +2,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ser
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.TechnicalVerificationServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.TechnicalVerificationPersistencePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.TechnicalVerificationPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.CreateTechnicalVerificationCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.DeleteTechnicalVerificationCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.technical_verification_services.commands.UpdateTechnicalVerificationCommand;
@@ -64,6 +65,16 @@ public class TechnicalVerificationService implements TechnicalVerificationServic
         tv.deleteTechnicalVerification();
         persistencePort.delete(command.id());
         dispatchEvents(tv);
+    }
+
+    @Override
+    public TechnicalVerification patchUpdate(String id, TechnicalVerificationPatchCommand command) {
+        TechnicalVerification tv = persistencePort.findById(id)
+                .orElseThrow(() -> new TechnicalVerificationNotFoundException(id));
+        tv.updateTechnicalVerificationPatch(command.description(), command.verificationType());
+        persistencePort.update(id, tv);
+        dispatchEvents(tv);
+        return tv;
     }
 
     private void dispatchEvents(TechnicalVerification aggregate) {

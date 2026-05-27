@@ -1,11 +1,13 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.ManufacturerServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.ManufacturerPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.CreateManufacturerCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.DeleteManufacturerCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.manufacturer_services.commands.UpdateManufacturerCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.manufacturer.Manufacturer;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.mapper.ManufacturerRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.ManufacturerPatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.ManufacturerRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.ManufacturerResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -86,6 +88,19 @@ public class RestControllerManufacturer {
         ManufacturerResponse response = manufacturerRestMapper.toManufacturerResponse(updated);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente un fabricante",
+            description = "Actualiza únicamente los campos enviados de un fabricante existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<ManufacturerResponse> patchManufacturer(
+            @Parameter(description = "Identificador único del fabricante a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody ManufacturerPatchRequest request) {
+        ManufacturerPatchCommand command = new ManufacturerPatchCommand(request.getName(), request.getCountryId());
+        Manufacturer updated = manufacturerServicePort.patchUpdate(id, command);
+        return ResponseEntity.ok(manufacturerRestMapper.toManufacturerResponse(updated));
     }
 
     @Operation(

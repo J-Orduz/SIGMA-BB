@@ -1,4 +1,4 @@
-package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output;
+package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.persistence;
 
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.person_model.Person;
 

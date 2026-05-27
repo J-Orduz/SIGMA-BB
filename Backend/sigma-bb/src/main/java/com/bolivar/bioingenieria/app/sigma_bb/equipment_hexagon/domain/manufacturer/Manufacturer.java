@@ -49,6 +49,22 @@ public class Manufacturer extends AggregateRoot {
                 new ManufacturerPayload(this.name, this.countryId)));
     }
 
+    public void updateManufacturerPatch(String name, String countryId) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (countryId != null) {
+            this.countryId = countryId;
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "Manufacturer", "manufacturer.patch", 1, Instant.now(), this.id.toString());
+
+        registerEvent(new ManufacturerUpdatedEvent(metadata,
+                new ManufacturerPayload(this.name, this.countryId)));
+    }
+
     public void deleteManufacturer() {
         EventMetadata metadata = new EventMetadata(
                 "events-domain",

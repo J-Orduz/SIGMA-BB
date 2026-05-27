@@ -1,4 +1,4 @@
-package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.controller;
+package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.controller.global;
 
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.exception.PersonNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.error_model.ErrorResponse;

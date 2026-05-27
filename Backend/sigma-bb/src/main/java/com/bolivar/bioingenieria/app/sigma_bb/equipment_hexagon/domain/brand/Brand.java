@@ -43,6 +43,18 @@ public class Brand extends AggregateRoot {
         registerEvent(new BrandUpdatedEvent(metadata, new BrandPayload(this.name)));
     }
 
+    public void updateBrandPatch(String name) {
+        if (name != null) {
+            this.name = name;
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "Brand", "brand.patch", 1, Instant.now(), this.id.toString());
+
+        registerEvent(new BrandUpdatedEvent(metadata, new BrandPayload(this.name)));
+    }
+
     public void deleteBrand() {
         EventMetadata metadata = new EventMetadata("events-domain",
                 UUID.randomUUID().toString(), "Brand", "brand.deleted", 1, Instant.now(), this.id.toString());

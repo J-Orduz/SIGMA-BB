@@ -52,6 +52,25 @@ public class Model extends AggregateRoot {
                 new ModelPayload(this.invima, this.manufacturerId.toString(), this.equipmentId.toString())));
     }
 
+    public void updateModelPatch(String invima, String manufacturerId, String equipmentId) {
+        if (invima != null) {
+            this.invima = invima;
+        }
+        if (manufacturerId != null) {
+            this.manufacturerId = UUID.fromString(manufacturerId);
+        }
+        if (equipmentId != null) {
+            this.equipmentId = UUID.fromString(equipmentId);
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "Model", "model.patch", 1, Instant.now(), this.id.toString());
+
+        registerEvent(new ModelUpdatedEvent(metadata,
+                new ModelPayload(this.invima, this.manufacturerId.toString(), this.equipmentId.toString())));
+    }
+
     public void deleteModel() {
         EventMetadata metadata = new EventMetadata(
                 "events-domain",

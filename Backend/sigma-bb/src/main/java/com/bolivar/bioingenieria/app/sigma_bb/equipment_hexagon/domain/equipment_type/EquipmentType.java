@@ -94,6 +94,44 @@ public class EquipmentType extends AggregateRoot {
                 this.voltage, this.amperage, this.predominantTechnology, this.verifiable, this.unitMaintenanceValue)));
     }
 
+    public void updateEquipmentTypePatch(
+            String equipmentTypeName, String technicalDefinition, String careRecommendations,
+            Integer voltage, BigDecimal amperage, String predominantTechnology,
+            Boolean verifiable, Long unitMaintenanceValue) {
+        if (equipmentTypeName != null) {
+            this.equipmentTypeName = equipmentTypeName;
+        }
+        if (technicalDefinition != null) {
+            this.technicalDefinition = technicalDefinition;
+        }
+        if (careRecommendations != null) {
+            this.careRecommendations = careRecommendations;
+        }
+        if (voltage != null) {
+            this.voltage = voltage;
+        }
+        if (amperage != null) {
+            this.amperage = amperage;
+        }
+        if (predominantTechnology != null) {
+            this.predominantTechnology = predominantTechnology;
+        }
+        if (verifiable != null) {
+            this.verifiable = verifiable;
+        }
+        if (unitMaintenanceValue != null) {
+            this.unitMaintenanceValue = unitMaintenanceValue;
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "EquipmentType", "equipmentType.patch", 1, Instant.now(), this.id.toString());
+
+        registerEvent(new EquipmentTypeUpdatedEvent(metadata, new EquipmentTypePayload(
+                this.equipmentTypeName, this.technicalDefinition, this.careRecommendations,
+                this.voltage, this.amperage, this.predominantTechnology, this.verifiable, this.unitMaintenanceValue)));
+    }
+
     public void deleteEquipmentType() {
         EventMetadata metadata = new EventMetadata(
                 "events-domain",

@@ -2,6 +2,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ser
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.BrandServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.BrandPersistencePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.BrandPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.CreateBrandCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.DeleteBrandCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.UpdateBrandCommand;
@@ -64,6 +65,16 @@ public class BrandService implements BrandServicePort {
         brand.deleteBrand();
         brandPersistencePort.delete(command.id());
         dispatchEvents(brand);
+    }
+
+    @Override
+    public Brand patchUpdate(String id, BrandPatchCommand command) {
+        Brand brand = brandPersistencePort.findById(id)
+                .orElseThrow(() -> new BrandNotFoundException(id));
+        brand.updateBrandPatch(command.name());
+        brandPersistencePort.update(id, brand);
+        dispatchEvents(brand);
+        return brand;
     }
 
     private void dispatchEvents(Brand aggregate) {

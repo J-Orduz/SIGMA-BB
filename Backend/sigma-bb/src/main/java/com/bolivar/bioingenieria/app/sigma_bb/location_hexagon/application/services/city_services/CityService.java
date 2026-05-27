@@ -3,6 +3,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.serv
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.ports.input.CityServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.ports.output.CityPersistencePort;
 import com.bolivar.bioingenieria.app.sigma_bb.shared.application.ports.output.EventDispatcherPort;
+import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.CityPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.CreateCityCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.DeleteCityCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.UpdateCityCommand;
@@ -63,6 +64,16 @@ public class CityService implements CityServicePort {
         city.deleteCity();
         cityPersistencePort.delete(deleteCityCommand.id());
         dispatchEvents(city);
+    }
+
+    @Override
+    public City patchUpdate(String id, CityPatchCommand command) {
+        City city = cityPersistencePort.findById(id)
+                .orElseThrow(() -> new CityNotFoundException(id));
+        city.updateCityPatch(command.name(), command.countryId());
+        cityPersistencePort.update(id, city);
+        dispatchEvents(city);
+        return city;
     }
 
     private void dispatchEvents(City aggregate) {

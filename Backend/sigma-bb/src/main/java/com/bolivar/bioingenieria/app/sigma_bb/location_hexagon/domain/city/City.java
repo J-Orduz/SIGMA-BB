@@ -47,6 +47,21 @@ public class City extends AggregateRoot {
         registerEvent(new CityUpdatedEvent(metadata, new CityPayload(this.name, this.countryId)));
     }
 
+    public void updateCityPatch(String name, String countryId) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (countryId != null) {
+            this.countryId = countryId;
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "City", "city.patch", 1, Instant.now(), this.id);
+
+        registerEvent(new CityUpdatedEvent(metadata, new CityPayload(this.name, this.countryId)));
+    }
+
     public void deleteCity() {
         EventMetadata metadata = new EventMetadata(
                 "events-domain",

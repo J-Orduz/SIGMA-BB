@@ -1,11 +1,13 @@
 package com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.ports.input.CityServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.CityPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.CreateCityCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.DeleteCityCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.UpdateCityCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.domain.city.City;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.mapper.CityRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.model.request.CityPatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.model.request.CityRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.model.response.CityResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -96,6 +98,19 @@ public class RestControllerCity {
         CityResponse response = cityRestMapper.toCityResponse(updated);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente una ciudad",
+            description = "Actualiza únicamente los campos enviados de una ciudad existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<CityResponse> patchCity(
+            @Parameter(description = "Identificador único de la ciudad a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody CityPatchRequest request) {
+        CityPatchCommand command = new CityPatchCommand(request.getId(), request.getName(), request.getCountryId());
+        City updated = cityServicePort.patchUpdate(id, command);
+        return ResponseEntity.ok(cityRestMapper.toCityResponse(updated));
     }
 
     @Operation(

@@ -52,6 +52,22 @@ public class Equipment extends AggregateRoot {
                 new EquipmentPayload(this.equipmentTypeId.toString(), this.brandId.toString())));
     }
 
+    public void updateEquipmentPatch(String equipmentTypeId, String brandId) {
+        if (equipmentTypeId != null) {
+            this.equipmentTypeId = UUID.fromString(equipmentTypeId);
+        }
+        if (brandId != null) {
+            this.brandId = UUID.fromString(brandId);
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "Equipment", "equipment.patch", 1, Instant.now(), this.id.toString());
+
+        registerEvent(new EquipmentUpdatedEvent(metadata,
+                new EquipmentPayload(this.equipmentTypeId.toString(), this.brandId.toString())));
+    }
+
     public void deleteEquipment() {
         EventMetadata metadata = new EventMetadata(
                 "events-domain",

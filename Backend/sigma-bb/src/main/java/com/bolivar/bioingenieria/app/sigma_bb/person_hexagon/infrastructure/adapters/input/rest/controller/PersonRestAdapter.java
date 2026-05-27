@@ -1,21 +1,19 @@
 package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.controller;
 
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.input.PersonServicePort;
-import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.mapper.EmailPersonRestMapper;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.mapper.PersonRestMapper;
-import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.mapper.PhonePersonRestMapper;
-import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.request.EmailPersonCreateRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.request.PersonCreateRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.request.PersonUpdateRequest;
-import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.request.PhonePersonCreateRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.response.PersonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -62,7 +60,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Obtener todas las personas",
             description = "Recupera la lista completa de personas registradas en el sistema.")
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden acceder a esta información
     @GetMapping("/v1/api")
     public List<?> getAllPersons() {
         return personRestMapper.toPersonResponseList(personServicePort.findAll());
@@ -80,6 +78,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Obtener persona por ID",
             description = "Recupera la información de una persona específica utilizando su identificador único (UUID).")
+    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden acceder a esta información
     @GetMapping("/v1/api/{id}")
     public Object getPersonById(
             @Parameter(description = "Identificador único de la persona (UUID)", required = true)
@@ -102,12 +101,87 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Crear nueva persona",
             description = "Crea una nueva persona en el sistema a partir de los datos proporcionados.")
+    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden crear personas
     @PostMapping("/v1/api")
     public ResponseEntity<?> createPerson(
             @Valid @RequestBody PersonCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(personRestMapper.toPersonResponse(
                         personServicePort.save(personRestMapper.toPerson(request))));
+    }
+
+    /**
+     * Registra un nuevo ingeniero en el sistema.
+     *
+     * Este endpoint recibe los datos de la persona con rol de ingeniero, los valida
+     * y los transforma a una entidad de dominio para ser persistida. Luego, convierte
+     * el resultado a un objeto de respuesta.
+     *
+     * Retorna una respuesta con estado HTTP 201 (CREATED).
+     *
+     * @param request Datos del ingeniero a registrar
+     * @return ResponseEntity con el ingeniero registrado en formato de respuesta (DTO)
+     */
+    @Operation(
+            summary = "Registrar nuevo ingeniero",
+            description = "Registra una nueva persona con rol de ingeniero en el sistema a partir de los datos proporcionados.")
+    @PreAuthorize("hasAuthority('admin.full')")// Solo los usuarios con autoridad 'admin.full' pueden registrar ingenieros
+    @PostMapping("/vi/api/register/engineer")
+    public ResponseEntity<?> registerEngineer(
+            @Valid @RequestBody PersonCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(personRestMapper.toPersonResponse(
+                        personServicePort.registerEngineer(personRestMapper.toPersonCreateRequestUseCase(request))));
+    }
+
+    /**
+     * Registra un nuevo administrador en el sistema.
+     *
+     * Este endpoint recibe los datos de la persona con rol de administrador, los valida
+     * y los transforma a una entidad de dominio para ser persistida. Luego, convierte
+     * el resultado a un objeto de respuesta.
+     *
+     * Retorna una respuesta con estado HTTP 201 (CREATED).
+     *
+     * @param request Datos del administrador a registrar
+     * @return ResponseEntity con el administrador registrado en formato de respuesta (DTO)
+     */
+    @Operation(
+            summary = "Registrar nuevo administrador",
+            description = "Registra una nueva persona con rol de administrador en el sistema a partir de los datos proporcionados."
+    )
+    @PreAuthorize("hasAuthority('admin.full')")// Solo los usuarios con autoridad 'admin.full' pueden registrar administradores
+    @PostMapping("/v1/api/register/admin")
+    public ResponseEntity<?> registerAdimn(
+            @Valid @RequestBody PersonCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(personRestMapper.toPersonResponse(
+                        personServicePort.registerAdmin(personRestMapper.toPersonCreateRequestUseCase(request))));
+    }
+
+    /**
+     * Registra un nuevo CEO-Client en el sistema.
+     *
+     * Este endpoint recibe los datos de la persona con rol de CEO-Client, los valida
+     * y los transforma a una entidad de dominio para ser persistida. Luego, convierte
+     * el resultado a un objeto de respuesta.
+     *
+     * Retorna una respuesta con estado HTTP 201 (CREATED).
+     *
+     * @param request Datos del CEO-Client a registrar
+     * @return ResponseEntity con el CEO-Client registrado en formato de respuesta (DTO)
+     */
+    @Operation(
+            summary = "Registrar nuevo CEO-Client",
+            description = "Registra una nueva persona con rol de CEO-Client en el sistema a partir de los datos proporcionados."
+    )
+    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden registrar CEO-Client
+    @PostMapping("/v2/api/register/ceo-client")
+    public ResponseEntity<?> registerCEOClient(
+            @Valid @RequestBody PersonCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(personRestMapper.toPersonResponse(
+                        personServicePort.registerCEOClient(personRestMapper.toPersonCreateRequestUseCase(request))));
     }
 
     /**
@@ -126,6 +200,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Actualizar persona",
             description = "Actualiza la información de una persona existente utilizando su identificador único (UUID) y los nuevos datos proporcionados.")
+    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden actualizar personas
     @PutMapping("/v1/api/{id}")
     public ResponseEntity<PersonResponse> updatePerson(
             @Parameter(
@@ -153,6 +228,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Eliminar persona",
             description = "Elimina una persona del sistema utilizando su identificador único (UUID).")
+    @PreAuthorize("hasAuthority('admin.full')")// Solo los usuarios con autoridad 'admin.full' pueden eliminar personas
     @DeleteMapping("/v1/api/{id}")
     public ResponseEntity<Void> deletePerson(
             @Parameter(

@@ -1,5 +1,6 @@
 package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.mapper;
 
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.input.request.PersonCreateRequestUseCase;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.person_model.Person;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.request.PersonCreateRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.request.PersonUpdateRequest;
@@ -24,6 +25,14 @@ public interface PersonRestMapper {
      * @return Objeto de dominio {@link Person} listo para ser utilizado en la lógica de negocio
      */
     Person toPerson(PersonCreateRequest request);
+
+    /**
+     * Convierte un DTO de {@link PersonCreateRequest} a su modelo de caso de uso correspondiente.
+     *
+     * @param personCreateRequest Datos de la persona recibidos desde la capa REST
+     * @return Objeto de caso de uso {@link PersonCreateRequestUseCase} listo para ser utilizado en la lógica de negocio
+     */
+    PersonCreateRequestUseCase toPersonCreateRequestUseCase(PersonCreateRequest personCreateRequest);
 
     /**
      * Convierte un DTO de {@link PersonUpdateRequest} a su modelo de dominio correspondiente.

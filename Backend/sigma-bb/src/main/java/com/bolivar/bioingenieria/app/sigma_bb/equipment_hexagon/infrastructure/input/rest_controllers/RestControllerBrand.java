@@ -1,11 +1,13 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.BrandServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.BrandPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.CreateBrandCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.DeleteBrandCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.brand_services.commands.UpdateBrandCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.brand.Brand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.mapper.BrandRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.BrandPatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.BrandRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.BrandResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -86,6 +88,19 @@ public class RestControllerBrand {
         BrandResponse response = brandRestMapper.toBrandResponse(updated);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente una marca",
+            description = "Actualiza únicamente los campos enviados de una marca existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<BrandResponse> patchBrand(
+            @Parameter(description = "Identificador único de la marca a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody BrandPatchRequest request) {
+        BrandPatchCommand command = new BrandPatchCommand(request.getName());
+        Brand updated = brandServicePort.patchUpdate(id, command);
+        return ResponseEntity.ok(brandRestMapper.toBrandResponse(updated));
     }
 
     @Operation(

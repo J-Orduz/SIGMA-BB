@@ -27,17 +27,34 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/employee-realm
-  
+          issuer-uri: http://keycloak:8080/realms/sigma-bb-realm
+
+keycloak:
+  admin:
+    server-url: http://keycloak:8080/
+    realm: sigma-bb-realm
+    client-id: sigma-backend-admin
+    client-secret: RvrdzJ9SuqXr54hqUwf8WPwRoMJEnXBt
+
 logging:
   level:
     org:
       hibernate:
         SQL: debug
+      security:
+        oauth2:
+          resourceserver:
+            jwt: debug
+      springframework:
+        security: TRACE
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: sigma-frontend
+      use-pkce-with-authorization-code-grant: true
+    oauth2-redirect-url: http://localhost:8100/swagger-ui/oauth2-redirect.html
 
 app:
   security:
-    enabled: false
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
+    enabled: true

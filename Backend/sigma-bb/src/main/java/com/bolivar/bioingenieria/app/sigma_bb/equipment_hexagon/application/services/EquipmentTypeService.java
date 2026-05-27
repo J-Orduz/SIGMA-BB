@@ -2,6 +2,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ser
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.EquipmentTypeServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.EquipmentTypePersistencePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.EquipmentTypePatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.CreateEquipmentTypeCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.DeleteEquipmentTypeCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.UpdateEquipmentTypeCommand;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -87,16 +89,29 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
     }
 
     @Override
+    public EquipmentType patchUpdate(String id, EquipmentTypePatchCommand command) {
+        EquipmentType et = equipmentTypePersistencePort.findById(id)
+                .orElseThrow(() -> new EquipmentTypeNotFoundException(id));
+        et.updateEquipmentTypePatch(
+                command.equipmentTypeName(), command.technicalDefinition(),
+                command.careRecommendations(), command.voltage(), command.amperage(),
+                command.predominantTechnology(), command.verifiable(), command.unitMaintenanceValue());
+        equipmentTypePersistencePort.update(id, et);
+        dispatchEvents(et);
+        return et;
+    }
+
+    @Override
     public EquipmentType addMetrologicalData(String equipmentTypeId, MetrologicalDataCommand command) {
         EquipmentType et = equipmentTypePersistencePort.findById(equipmentTypeId)
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
-        et.addMetrologicalData(
-                MetrologicalData.builder()
-                        .value(command.value())
-                        .type(command.type())
-                        .build());
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        MetrologicalData md = MetrologicalData.builder()
+                .value(command.value())
+                .type(command.type())
+                .build();
+        et.addMetrologicalData(md);
+        equipmentTypePersistencePort.addMetrologicalData(equipmentTypeId, md);
         dispatchEvents(et);
         return et;
     }
@@ -106,12 +121,12 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         EquipmentType et = equipmentTypePersistencePort.findById(equipmentTypeId)
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
-        et.removeMetrologicalData(
-                MetrologicalData.builder()
-                        .value(command.value())
-                        .type(command.type())
-                        .build());
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        MetrologicalData md = MetrologicalData.builder()
+                .value(command.value())
+                .type(command.type())
+                .build();
+        et.removeMetrologicalData(md);
+        equipmentTypePersistencePort.removeMetrologicalData(equipmentTypeId, md);
         dispatchEvents(et);
         return et;
     }
@@ -123,16 +138,17 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         EquipmentType et = equipmentTypePersistencePort.findById(equipmentTypeId)
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
-        et.updateMetrologicalData(
-                MetrologicalData.builder()
-                        .value(oldCommand.value())
-                        .type(oldCommand.type())
-                        .build(),
-                MetrologicalData.builder()
-                        .value(newCommand.value())
-                        .type(newCommand.type())
-                        .build());
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        MetrologicalData oldMd = MetrologicalData.builder()
+                .value(oldCommand.value())
+                .type(oldCommand.type())
+                .build();
+        MetrologicalData newMd = MetrologicalData.builder()
+                .value(newCommand.value())
+                .type(newCommand.type())
+                .build();
+        et.updateMetrologicalData(oldMd, newMd);
+        equipmentTypePersistencePort.removeMetrologicalData(equipmentTypeId, oldMd);
+        equipmentTypePersistencePort.addMetrologicalData(equipmentTypeId, newMd);
         dispatchEvents(et);
         return et;
     }
@@ -143,15 +159,17 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         EquipmentType et = equipmentTypePersistencePort.findById(equipmentTypeId)
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
+        List<MetrologicalData> mdList = new ArrayList<>();
         for(MetrologicalDataCommand c: command) {
-            et.addMetrologicalData(
-                    MetrologicalData.builder()
-                            .value(c.value())
-                            .type(c.type())
-                            .build());
+            MetrologicalData md = MetrologicalData.builder()
+                    .value(c.value())
+                    .type(c.type())
+                    .build();
+            et.addMetrologicalData(md);
+            mdList.add(md);
         }
 
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.addMetrologicalDataList(equipmentTypeId, mdList);
         dispatchEvents(et);
         return et;
     }
@@ -161,15 +179,17 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         EquipmentType et = equipmentTypePersistencePort.findById(equipmentTypeId)
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
+        List<MetrologicalData> mdList = new ArrayList<>();
         for(MetrologicalDataCommand c: command) {
-            et.removeMetrologicalData(
-                    MetrologicalData.builder()
-                            .value(c.value())
-                            .type(c.type())
-                            .build());
+            MetrologicalData md = MetrologicalData.builder()
+                    .value(c.value())
+                    .type(c.type())
+                    .build();
+            et.removeMetrologicalData(md);
+            mdList.add(md);
         }
 
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.removeMetrologicalDataList(equipmentTypeId, mdList);
         dispatchEvents(et);
         return et;
     }
@@ -187,21 +207,27 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
             throw new RuntimeException("Number of old commands does not match number of new commands");
         }
 
+        List<MetrologicalData> oldMdList = new ArrayList<>();
+        List<MetrologicalData> newMdList = new ArrayList<>();
+
         for(int i = 0; i < oldCommand.size(); i++) {
             MetrologicalDataCommand oldC = oldCommand.get(i);
             MetrologicalDataCommand newC = newCommand.get(i);
-            et.updateMetrologicalData(
-                    MetrologicalData.builder()
-                            .value(oldC.value())
-                            .type(oldC.type())
-                            .build(),
-                    MetrologicalData.builder()
-                            .value(newC.value())
-                            .type(newC.type())
-                            .build());
+            MetrologicalData oldMd = MetrologicalData.builder()
+                    .value(oldC.value())
+                    .type(oldC.type())
+                    .build();
+            MetrologicalData newMd = MetrologicalData.builder()
+                    .value(newC.value())
+                    .type(newC.type())
+                    .build();
+            et.updateMetrologicalData(oldMd, newMd);
+            oldMdList.add(oldMd);
+            newMdList.add(newMd);
         }
 
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.removeMetrologicalDataList(equipmentTypeId, oldMdList);
+        equipmentTypePersistencePort.addMetrologicalDataList(equipmentTypeId, newMdList);
         dispatchEvents(et);
         return et;
     }
@@ -212,7 +238,7 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
         et.addTechicalVerificationId(technicalVerificationId);
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.addTechnicalVerification(equipmentTypeId, technicalVerificationId);
         dispatchEvents(et);
         return et;
     }
@@ -223,7 +249,7 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
         et.removeTechicalVerificationId(technicalVerificationId);
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.removeTechnicalVerification(equipmentTypeId, technicalVerificationId);
         dispatchEvents(et);
         return et;
     }
@@ -235,10 +261,9 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         EquipmentType et = equipmentTypePersistencePort.findById(equipmentTypeId)
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(equipmentTypeId));
 
-        et.updateTechicalVerificationId(
-                oldTechnicalVerificationId,
-                newTechnicalVerificationId);
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        et.updateTechicalVerificationId(oldTechnicalVerificationId, newTechnicalVerificationId);
+        equipmentTypePersistencePort.removeTechnicalVerification(equipmentTypeId, oldTechnicalVerificationId);
+        equipmentTypePersistencePort.addTechnicalVerification(equipmentTypeId, newTechnicalVerificationId);
         dispatchEvents(et);
         return et;
     }
@@ -252,7 +277,7 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
             et.addTechicalVerificationId(id);
         }
 
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.addTechnicalVerificationList(equipmentTypeId, technicalVerificationIds);
         dispatchEvents(et);
         return et;
     }
@@ -266,7 +291,7 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
             et.removeTechicalVerificationId(id);
         }
 
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.removeTechnicalVerificationList(equipmentTypeId, technicalVerificationIds);
         dispatchEvents(et);
         return et;
     }
@@ -286,7 +311,8 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
             et.addTechicalVerificationId(id);
         }
 
-        equipmentTypePersistencePort.update(equipmentTypeId, et);
+        equipmentTypePersistencePort.removeTechnicalVerificationList(equipmentTypeId, oldTechnicalVerificationIds);
+        equipmentTypePersistencePort.addTechnicalVerificationList(equipmentTypeId, newTechnicalVerificationIds);
         dispatchEvents(et);
         return et;
     }

@@ -1,13 +1,11 @@
 package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.comunication.mapper;
 
-import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.Respose.PersonComunicationResponse;
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.comunication.respose.PersonComunicationResponse;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.person_model.Person;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.request.PersonCreateRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.input.rest.model.response.PersonResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.List;
 
 /**
  * Mapeador REST para transformar información relacionada con personas.
