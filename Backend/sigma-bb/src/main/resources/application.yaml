@@ -31,10 +31,10 @@ spring:
 
 keycloak:
   admin:
-    server-url: http://keycloak:8080/
+    server-url: http://keycloak:8080
     realm: sigma-bb-realm
     client-id: sigma-backend-admin
-    client-secret: RvrdzJ9SuqXr54hqUwf8WPwRoMJEnXBt
+    client-secret: eYO3gNsxs52pl0widPWKsSp2bgxImZCU
 
 logging:
   level:

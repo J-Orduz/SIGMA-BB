@@ -4,7 +4,7 @@ const API_URL = 'http://localhost:8100/v1/api/equipment-types';
 
 // Función auxiliar para obtener las cabeceras con el Token JWT
 const getAuthHeaders = (contentType: string | null = 'application/json') => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('sigma_token');
   const headers: Record<string, string> = {};
   
   if (contentType) {

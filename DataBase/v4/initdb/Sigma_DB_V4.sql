@@ -168,6 +168,7 @@ CREATE TABLE dato_metrologico
 (
 	d_valor numeric(10,4) NOT NULL,	-- Es el valor de valor de verificación predeterminada.
 	n_tipo varchar(50) NOT NULL,	-- Este es el tipo de valor que se va a verificar (kg, %...)
+	b_estado_activo boolean NOT NULL   DEFAULT true,	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
 	k_id_tipo_equipo uuid NULL	-- FK que viene desde tipo_equipo.
 )
 ;
@@ -897,6 +898,10 @@ COMMENT ON COLUMN dato_metrologico.d_valor
 
 COMMENT ON COLUMN dato_metrologico.n_tipo
 	IS 'Este es el tipo de valor que se va a verificar (kg, %...)'
+;
+
+COMMENT ON COLUMN dato_metrologico.b_estado_activo
+	IS 'Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.'
 ;
 
 COMMENT ON COLUMN dato_metrologico.k_id_tipo_equipo

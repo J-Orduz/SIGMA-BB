@@ -147,7 +147,7 @@ CREATE TABLE correo_persona
 	k_id_correo_persona uuid NOT NULL,	-- Llave primaria de la tabla correo_persona.
 	n_correo_persona varchar(50) NOT NULL,	-- Corresponde al correo electrónico de la persona.
 	k_identificador uuid NULL,	-- Es la llave foránea que referencia a la tabla persona.
-	b_estado_activo boolean NOT NULL   DEFAULT true	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
+	b_estado_acitivo boolean NOT NULL   DEFAULT true	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
 )
 ;
 
@@ -168,7 +168,8 @@ CREATE TABLE dato_metrologico
 (
 	d_valor numeric(10,4) NOT NULL,	-- Es el valor de valor de verificación predeterminada.
 	n_tipo varchar(50) NOT NULL,	-- Este es el tipo de valor que se va a verificar (kg, %...)
-	k_id_tipo_equipo uuid NULL	-- FK que viene desde tipo_equipo.
+	k_id_tipo_equipo uuid NULL,	-- FK que viene desde tipo_equipo.
+	b_estado_activo boolean NOT NULL   DEFAULT true
 )
 ;
 
@@ -382,6 +383,23 @@ CREATE TABLE verificacion_tecnica_tipo_equipo
 	k_id_tipo_equipo uuid NOT NULL	-- FK que viene desde tipo_equipo.
 )
 ;
+
+CREATE TABLE domain_events (
+    id              BIGSERIAL       PRIMARY KEY,
+    event_id        VARCHAR(36)     NOT NULL UNIQUE,
+    aggregate_id    VARCHAR(255)    NOT NULL,
+    aggregate_type  VARCHAR(100)    NOT NULL,
+    event_type      VARCHAR(255)    NOT NULL,
+    version         INT             NOT NULL DEFAULT 1,
+    occurred_at     TIMESTAMPTZ     NOT NULL,
+    metadata_json   JSONB           NOT NULL,
+    payload_json    JSONB           NOT NULL,
+    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_events_aggregate ON domain_events(aggregate_type, aggregate_id);
+CREATE INDEX idx_events_type      ON domain_events(event_type);
+CREATE INDEX idx_events_occurred  ON domain_events(occurred_at);
 
 /* Create Primary Keys, Indexes, Uniques, Checks */
 

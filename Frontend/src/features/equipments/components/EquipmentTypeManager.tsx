@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useEquipmentTypes } from '../hooks/useEquipmentTypes';
 import type { MetrologicalData, CreateEquipmentTypeDTO } from '../types/equipment-type.types';
 
-// Interfaz para controlar el estado del modal de confirmación
 interface DeleteModalState {
   isOpen: boolean;
   typeId: string | null;
@@ -31,6 +30,10 @@ export const EquipmentTypeManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
+  // Estados de control del modal de validación metrológica
+  const [isMetroAlertOpen, setIsMetroAlertOpen] = useState(false);
 
   // Estado del Modal de Eliminación
   const [deleteModal, setDeleteModal] = useState<DeleteModalState>({
@@ -41,6 +44,11 @@ export const EquipmentTypeManager: React.FC = () => {
 
   const handleAddMetroData = () => {
     if (!metroType.trim() || metroValue === '') return;
+    if (Number(metroValue) < 0) {
+      setError('El valor metrológico base no puede ser un número negativo.');
+      return; 
+    }
+
     setMetroList([...metroList, { value: Number(metroValue), type: metroType.trim() }]);
     setMetroValue('');
     setMetroType('');
@@ -61,18 +69,52 @@ export const EquipmentTypeManager: React.FC = () => {
     setMaintenanceValue('');
     setMetroList([]);
     setEditingId(null);
+    setFormSubmitted(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    setFormSubmitted(true);
+
+    // Validación manual antes de enviar
+    if (!name.trim() || voltage === '' || amperage === '' || !technology.trim() || maintenanceValue === '' || !definition.trim() || !recommendations.trim()) {
+      setError('Por favor, complete todos los campos obligatorios marcados en rojo.');
+      return;
+    }
+
+    // Validación de voltaje positivo
+    const voltValue = Number(voltage);
+    if (voltValue <= 0) {
+      setError('El voltaje debe ser un número estrictamente mayor a 0 V.');
+      return;
+    }
+
+    // Validación de rangos de amperaje
+    const ampValue = Number(amperage);
+    if (ampValue <= 0 || ampValue >= 100) {
+      setError('El amperaje debe ser estrictamente mayor a 0 y menor a 100 A.');
+      return; 
+    }
+
+    // Validación de valor de mantenimiento estrictamente mayor a 0
+    const maintValue = Number(maintenanceValue);
+    if (maintValue <= 0) {
+      setError('El valor de mantenimiento debe ser un monto estrictamente mayor a $0.');
+      return;
+    }
+
+    // Validación metrologica
+    if (verifiable && metroList.length === 0) {
+      setIsMetroAlertOpen(true);
+      return;
+    }
 
     const payload: CreateEquipmentTypeDTO = {
       equipmentTypeName: name.trim(),
       technicalDefinition: definition.trim() || 'Sin definición técnica registrada',
       careRecommendations: recommendations.trim() || 'Seguir manual del fabricante',
-      voltage: voltage === '' ? null : Math.round(Number(voltage)), 
-      amperage: amperage === '' ? null : Number(Number(amperage).toFixed(2)), 
+      voltage: Math.round(Number(voltage)), 
+      amperage: Number(Number(amperage).toFixed(2)), 
       predominantTechnology: technology.trim() || 'Digital',
       verifiable: verifiable,
       unitMaintenanceValue: Number(maintenanceValue || 0),
@@ -106,23 +148,14 @@ export const EquipmentTypeManager: React.FC = () => {
     setMetroList(target.metrologicalData || []);
   };
 
-  // Abre el modal visual de eliminar
   const handleDeleteTrigger = (id: string, name: string) => {
-    setDeleteModal({
-      isOpen: true,
-      typeId: id,
-      typeName: name
-    });
+    setDeleteModal({ isOpen: true, typeId: id, typeName: name });
   };
 
-  // Elimina si el usuario confirma en el modal
   const handleConfirmDelete = async () => {
     if (!deleteModal.typeId) return;
     const targetId = deleteModal.typeId;
-    
-    // Cierre inmediato del modal
     setDeleteModal({ isOpen: false, typeId: null, typeName: '' });
-    
     try {
       await deleteType(targetId);
       showSuccess('Registro removido con éxito.');
@@ -162,10 +195,12 @@ export const EquipmentTypeManager: React.FC = () => {
         {/* FORMULARIO DE CREACIÓN / EDICIÓN */}
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
           <h2 className="text-lg font-semibold text-slate-700">
-            {editingId ? '📝 Modificar Tipo' : '✨ Nuevo Tipo de Equipo'}
+            {editingId ? '📝 Modificar Tipo' : 'Nuevo Tipo de Equipo'}
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4"> 
+            
+            {/* INPUT NOMBRE */}
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nombre</label>
               <input
@@ -173,22 +208,42 @@ export const EquipmentTypeManager: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej. Electrocardiógrafo"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                required
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  formSubmitted && !name.trim() 
+                    ? 'border-red-400 focus:ring-red-200 bg-red-50/30' 
+                    : 'border-slate-300 focus:ring-blue-500'
+                }`}
               />
+              {formSubmitted && !name.trim() && (
+                <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ El nombre es obligatorio.</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
+              {/* INPUT VOLTAJE */}
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Voltaje (V)</label>
                 <input
                   type="number"
+                  min="1"
                   value={voltage}
                   onChange={(e) => setVoltage(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="110"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none"
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                    formSubmitted && (voltage === '' || Number(voltage) <= 0) 
+                      ? 'border-red-400 focus:ring-red-200 bg-red-50/30' 
+                      : 'border-slate-300 focus:ring-blue-500'
+                  }`}
                 />
+                {formSubmitted && voltage === '' && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Campo requerido.</p>
+                )}
+                {formSubmitted && voltage !== '' && Number(voltage) <= 0 && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Debe ser mayor a 0.</p>
+                )}
               </div>
+
+              {/* INPUT AMPERAJE */}
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Amperaje (A)</label>
                 <input
@@ -197,12 +252,23 @@ export const EquipmentTypeManager: React.FC = () => {
                   value={amperage}
                   onChange={(e) => setAmperage(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="2.5"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none"
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                    formSubmitted && (amperage === '' || Number(amperage) <= 0 || Number(amperage) >= 100) 
+                      ? 'border-red-400 focus:ring-red-200 bg-red-50/30' 
+                      : 'border-slate-300 focus:ring-blue-500'
+                  }`}
                 />
+                {formSubmitted && amperage === '' && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Campo requerido.</p>
+                )}
+                {formSubmitted && amperage !== '' && (Number(amperage) <= 0 || Number(amperage) >= 100) && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Rango: 0.01 a 99.99</p>
+                )}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
+              {/* INPUT TECNOLOGÍA */}
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Tecnología</label>
                 <input
@@ -210,23 +276,42 @@ export const EquipmentTypeManager: React.FC = () => {
                   value={technology}
                   onChange={(e) => setTechnology(e.target.value)}
                   placeholder="Ej. Digital, Neumática"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none"
-                  required
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                    formSubmitted && !technology.trim() 
+                      ? 'border-red-400 focus:ring-red-200 bg-red-50/30' 
+                      : 'border-slate-300 focus:ring-blue-500'
+                  }`}
                 />
+                {formSubmitted && !technology.trim() && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Campo requerido.</p>
+                )}
               </div>
+
+              {/* INPUT VALOR MANTENIMIENTO */}
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Valor Mantenimiento</label>
                 <input
                   type="number"
+                  min="1"
                   value={maintenanceValue}
                   onChange={(e) => setMaintenanceValue(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="$"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none"
-                  required
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                    formSubmitted && (maintenanceValue === '' || Number(maintenanceValue) <= 0) 
+                      ? 'border-red-400 focus:ring-red-200 bg-red-50/30' 
+                      : 'border-slate-300 focus:ring-blue-500'
+                  }`}
                 />
+                {formSubmitted && maintenanceValue === '' && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Campo requerido.</p>
+                )}
+                {formSubmitted && maintenanceValue !== '' && Number(maintenanceValue) <= 0 && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Debe ser mayor a 0.</p>
+                )}
               </div>
             </div>
 
+            {/* TEXTAREA DEFINICIÓN TÉCNICA */}
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Definición Técnica</label>
               <textarea
@@ -234,11 +319,18 @@ export const EquipmentTypeManager: React.FC = () => {
                 onChange={(e) => setDefinition(e.target.value)}
                 rows={2}
                 placeholder="Describa el funcionamiento técnico..."
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none"
-                required
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  formSubmitted && !definition.trim() 
+                    ? 'border-red-400 focus:ring-red-200 bg-red-50/30' 
+                    : 'border-slate-300 focus:ring-blue-500'
+                }`}
               />
+              {formSubmitted && !definition.trim() && (
+                <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Defina la descripción técnica.</p>
+              )}
             </div>
 
+            {/* TEXTAREA RECOMENDACIONES */}
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Recomendaciones de Cuidado</label>
               <textarea
@@ -246,9 +338,15 @@ export const EquipmentTypeManager: React.FC = () => {
                 onChange={(e) => setRecommendations(e.target.value)}
                 rows={2}
                 placeholder="Instrucciones de limpieza o seguridad..."
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none"
-                required
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  formSubmitted && !recommendations.trim() 
+                    ? 'border-red-400 focus:ring-red-200 bg-red-50/30' 
+                    : 'border-slate-300 focus:ring-blue-500'
+                }`}
               />
+              {formSubmitted && !recommendations.trim() && (
+                <p className="text-[11px] text-red-500 font-medium mt-1 animate-fade-in">⚠ Escriba los cuidados básicos.</p>
+              )}
             </div>
 
             {/* SECCIÓN DE VERIFICACIÓN METROLÓGICA */}
@@ -278,10 +376,11 @@ export const EquipmentTypeManager: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
+                    min="0"
                     value={metroValue}
                     onChange={(e) => setMetroValue(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="Valor"
-                    className="w-1/3 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none"
+                    className="w-1/3 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                   <button
                     type="button"
@@ -292,7 +391,7 @@ export const EquipmentTypeManager: React.FC = () => {
                   </button>
                 </div>
                 
-                {metroList.length > 0 && (
+                {metroList.length > 0 ? (
                   <div className="text-xs space-y-1 pt-1 max-h-24 overflow-y-auto">
                     {metroList.map((m, i) => (
                       <div key={i} className="flex justify-between items-center bg-white px-2 py-1 rounded border border-slate-100">
@@ -301,6 +400,10 @@ export const EquipmentTypeManager: React.FC = () => {
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <p className="text-[11px] text-orange-600 italic pt-1">
+                    * Ingrese el Tipo, Valor y presione "+" para agregarlo a la ficha técnica obligatoriamente.
+                  </p>
                 )}
               </div>
             )}
@@ -390,24 +493,51 @@ export const EquipmentTypeManager: React.FC = () => {
           )}
         </div>
       </div>
+      
+      {/* MODAL ERROR METROLOGÍA */}
+      {isMetroAlertOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in">
+          <div className="bg-white max-w-md w-full rounded-xl shadow-xl border border-slate-200 p-6 space-y-4 transform transition-all scale-100">
+            <div className="flex items-center space-x-3 text-orange-600">
+              <h3 className="text-lg font-bold text-slate-800">Se requiere configuración metrológica</h3>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Ha seleccionado que este tipo de equipo <span className="font-semibold text-slate-800">¿Requiere Verificación Metrológica?</span>. 
+              Por lo tanto, es estrictamente necesario ingresar al menos un <span className="font-medium text-slate-900">Tipo y Valor</span> de referencia metrológica base.
+            </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 space-y-1">
+              <p className="font-semibold">💡 ¿Cómo solucionarlo?</p>
+              <ol className="list-decimal pl-4 space-y-0.5">
+                <li>Escriba el tipo (ej: <i>Presión</i>, <i>Flujo</i>).</li>
+                <li>Escriba el valor numérico base.</li>
+                <li>Haga clic en el botón <strong className="bg-slate-200 px-1 rounded font-bold text-slate-700">+</strong> para guardarlo en el listado antes de enviar la ficha técnica.</li>
+              </ol>
+            </div>
+            <div className="flex pt-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setIsMetroAlertOpen(false)}
+                className="w-full sm:w-auto px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm focus:outline-none"
+              >
+                Entendido, completar datos
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* VENTANA MODAL DE CONFIRMACIÓN */}
+      {/* VENTANA MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in">
           <div className="bg-white max-w-md w-full rounded-xl shadow-xl border border-slate-200 p-6 space-y-4 transform transition-all scale-100">
             <div className="flex items-center space-x-3 text-red-600">
-              <div className="p-2 bg-red-50 rounded-lg">
-                <span className="text-xl">⚠️</span>
-              </div>
+              <div className="p-2 bg-red-50 rounded-lg"><span className="text-xl">⚠️</span></div>
               <h3 className="text-lg font-bold text-slate-800">¿Confirmar Eliminación?</h3>
             </div>
-            
             <p className="text-sm text-slate-600 leading-relaxed">
               ¿Está seguro de que desea eliminar permanentemente la ficha técnica de: 
               <strong className="text-slate-900 block mt-1 font-semibold text-base">"{deleteModal.typeName}"</strong>?
-              Esta acción no se puede deshacer y fallará si el tipo de equipo ya posee dispositivos biomédicos en inventario.
             </p>
-
             <div className="flex space-x-3 pt-2 justify-end">
               <button
                 type="button"
