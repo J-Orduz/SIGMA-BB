@@ -1,11 +1,11 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AuthPage } from '../features/auth/AuthPage';
 import { BrandManager } from '../features/equipments/components/BrandManager';
+import { EquipmentTypeManager } from '../features/equipments/components/EquipmentTypeManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
 import React from 'react';
-import { EquipmentTypeManager } from '../features/equipments/components/EquipmentTypeManager';
 
 const DashboardLayout = () => {
   const { user, logout } = useAuthStore();
@@ -43,7 +43,7 @@ const DashboardLayout = () => {
               Gestión de Marcas
             </Link>
             
-            {/* Control visual: Sólo administradores o superiores ven Tipos de Equipos si aplica */}
+            {/* Control visual de Sidebar: Sólo Administrador o SuperUsuario ven la opción */}
             {(user?.role === 'Administrador' || user?.role === 'SuperUsuario') && (
               <Link 
                 to="/equipments/types" 
@@ -84,7 +84,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <ProtectedRoute />, // Protección general de sesión activa
+    element: <ProtectedRoute />, // Valida que haya sesión iniciada a nivel general
     children: [
       {
         element: <DashboardLayout />,
@@ -95,23 +95,17 @@ export const router = createBrowserRouter([
           },
           {
             path: 'equipments/brands',
-            element: <BrandManager /> // Accesible por todos los autenticados
-          }
-        ]
-      }
-    ]
-  },
-  {
-    // Rutas administrativas restringidas por rol explícito
-    path: '/admin',
-    element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador']} />, 
-    children: [
-      {
-        element: <DashboardLayout />,
-        children: [
+            element: <BrandManager /> // Accesible por todos los roles autenticados
+          },
+          // Encapsular la ruta de tipos protegiéndola explícitamente por rol
           {
-            path: 'equipments/types',
-            element: <EquipmentTypeManager />
+            element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador']} />, 
+            children: [
+              {
+                path: 'equipments/types',
+                element: <EquipmentTypeManager />
+              }
+            ]
           }
         ]
       }
@@ -119,7 +113,18 @@ export const router = createBrowserRouter([
   },
   {
     path: '/unauthorized',
-    element: <div className="p-8 text-center text-red-600 font-bold">No tiene autorización para ver este módulo.</div>
+    element: (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4">
+        <div className="bg-white p-8 rounded-xl shadow-md border border-slate-200 max-w-md text-center space-y-4">
+          <span className="text-4xl">🚫</span>
+          <h2 className="text-xl font-bold text-slate-800">Acceso No Autorizado</h2>
+          <p className="text-sm text-slate-500">Su cuenta actual no posee los privilegios necesarios para interactuar con este módulo.</p>
+          <Link to="/" className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors">
+            Regresar al Inicio
+          </Link>
+        </div>
+      </div>
+    )
   },
   {
     path: '*',
