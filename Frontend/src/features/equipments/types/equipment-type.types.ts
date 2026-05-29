@@ -14,6 +14,7 @@ export interface EquipmentType {
   verifiable: boolean;
   unitMaintenanceValue: number;
   metrologicalData: MetrologicalData[];
+  technicalVerification: TechnicalVerificationDTO[];
 }
 
 // DTO para el POST y PUT
@@ -27,4 +28,10 @@ export interface CreateEquipmentTypeDTO {
   verifiable: boolean;
   unitMaintenanceValue: number;
   metrologicalData: MetrologicalData[];
+}
+
+export interface TechnicalVerificationDTO {
+  id: string;
+  name: string;
+  verificationType: string;
 }

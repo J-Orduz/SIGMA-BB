@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AuthPage } from '../features/auth/AuthPage';
 import { BrandManager } from '../features/equipments/components/BrandManager';
 import { EquipmentTypeManager } from '../features/equipments/components/EquipmentTypeManager';
+import { TechnicalVerificationManager } from '../features/equipments/components/TechnicalVerificationManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -45,13 +46,22 @@ const DashboardLayout = () => {
             
             {/* Control visual de Sidebar: Sólo Administrador o SuperUsuario ven la opción */}
             {(user?.role === 'Administrador' || user?.role === 'SuperUsuario') && (
-              <Link 
-                to="/equipments/types" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-              >
-                Tipos de Equipos
-              </Link>
+              <>
+                <Link 
+                  to="/equipments/types" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                >
+                  Tipos de Equipos
+                </Link>
+                <Link 
+                  to="/equipments/technical-verifications" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                >
+                  Verificaciones Técnicas
+                </Link>
+              </>
             )}
           </nav>
         </div>
@@ -97,13 +107,18 @@ export const router = createBrowserRouter([
             path: 'equipments/brands',
             element: <BrandManager /> // Accesible por todos los roles autenticados
           },
-          // Encapsular la ruta de tipos protegiéndola explícitamente por rol
+          // Encapsular rutas de administración técnica protegiéndolas explícitamente por rol
           {
             element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador']} />, 
             children: [
               {
                 path: 'equipments/types',
                 element: <EquipmentTypeManager />
+              },
+              // Ruta hija protegida por rol
+              {
+                path: 'equipments/technical-verifications',
+                element: <TechnicalVerificationManager />
               }
             ]
           }

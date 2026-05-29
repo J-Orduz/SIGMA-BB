@@ -28,6 +28,11 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
     }
 
     @Override
+    public boolean exists(UUID id) {
+        return repository.existsById(id);
+    }
+
+    @Override
     @Transactional
     public List<EquipmentType> findAll() {
         return repository.findAllWithMetrologicalData()

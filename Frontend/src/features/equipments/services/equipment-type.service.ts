@@ -3,7 +3,7 @@ import type { EquipmentType, CreateEquipmentTypeDTO } from '../types/equipment-t
 const API_URL = 'http://localhost:8100/v1/api/equipment-types';
 
 // Función auxiliar para obtener las cabeceras con el Token JWT
-const getAuthHeaders = (contentType: string | null = 'application/json') => {
+export const getAuthHeaders = (contentType: string | null = 'application/json') => {
   const token = localStorage.getItem('sigma_token');
   const headers: Record<string, string> = {};
   
@@ -64,4 +64,23 @@ export const equipmentTypeService = {
       throw new Error('No se puede eliminar. Este tipo de equipo ya está asociado a un equipo cliente.');
     }
   }
+};
+
+export const removeTechnicalVerification = async (equipmentTypeId: string, technicalVerificationId: string) => {
+  const headers = getAuthHeaders(null);
+
+  const response = await fetch(`http://localhost:8100/v1/api/equipment-types/${equipmentTypeId}/technical-verification`, {
+    method: 'DELETE',
+    headers: {
+      ...headers,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(technicalVerificationId), 
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al remover la verificación técnica');
+  }
+
+  return response.json();
 };

@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface EquipmentTypePersistencePort {
+    boolean exists(UUID id);
+
     List<EquipmentType> findAll();
     Optional<EquipmentType> findById(String id);
     EquipmentType save(EquipmentType equipmentType);

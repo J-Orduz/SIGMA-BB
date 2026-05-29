@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { EquipmentType, CreateEquipmentTypeDTO } from '../types/equipment-type.types';
 import { equipmentTypeService } from '../services/equipment-type.service';
+import { getAuthHeaders } from '../services/equipment-type.service';
 
 export const useEquipmentTypes = () => {
   const [equipmentTypes, setEquipmentTypes] = useState<EquipmentType[]>([]);
@@ -23,8 +24,10 @@ export const useEquipmentTypes = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await equipmentTypeService.create(typeData);
+      // Almacenar la respuesta del servicio para extraer el ID
+      const createdData = await equipmentTypeService.create(typeData);
       await fetchTypes();
+      return createdData;
     } catch (err: any) {
       setError(err.message || 'Ocurrió un error al guardar el tipo de equipo. Verifique los campos requeridos.');
       throw err;
@@ -61,9 +64,49 @@ export const useEquipmentTypes = () => {
     }
   };
 
+  const assignTechnicalVerification = async (equipmentTypeId: string, verificationId: string) => {
+    try {
+      const authHeaders = getAuthHeaders(null);
+      const response = await fetch(`http://localhost:8100/v1/api/equipment-types/${equipmentTypeId}/technical-verification`, {
+        method: 'POST',
+        headers: { 
+          ...authHeaders,
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(verificationId),
+      }); 
+      if (!response.ok) throw new Error('Error al asignar verificación');
+      await fetchTypes();
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  const removeTechnicalVerification = async (equipmentTypeId: string, verificationId: string) => {
+    try {
+      const authHeaders = getAuthHeaders(null);
+      const response = await fetch(`http://localhost:8100/v1/api/equipment-types/${equipmentTypeId}/technical-verification`, {
+        method: 'DELETE',
+        headers: { 
+          ...authHeaders,
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(verificationId),
+      });
+      
+      if (!response.ok) throw new Error('Error al remover la verificación técnica');
+      await fetchTypes();
+    } catch (err) {
+      console.error("Error en removeTechnicalVerification:", err);
+      setError('No se pudo desvincular la verificación técnica del equipo.');
+      throw err;
+    }
+  };
+
   useEffect(() => {
     fetchTypes();
   }, []);
 
-  return { equipmentTypes, isLoading, error, createType, updateType, deleteType, setError };
+  return { equipmentTypes, isLoading, error, createType, updateType, deleteType, assignTechnicalVerification, removeTechnicalVerification, setError };
 };

@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEquipmentTypes } from '../hooks/useEquipmentTypes';
 import type { MetrologicalData, CreateEquipmentTypeDTO } from '../types/equipment-type.types';
+import { getAuthHeaders } from '../services/equipment-type.service';
+
+const VERIFICATION_TYPES_MAP: Record<string, string> = {
+  'VER_TEC_INIC': 'Verificación Inicial Técnica',
+  'PROC_MANT': 'Protocolo de Mantenimiento'
+};
 
 interface DeleteModalState {
   isOpen: boolean;
@@ -9,7 +15,41 @@ interface DeleteModalState {
 }
 
 export const EquipmentTypeManager: React.FC = () => {
-  const { equipmentTypes, isLoading, error, createType, updateType, deleteType, setError } = useEquipmentTypes();
+  const { 
+    equipmentTypes, 
+    isLoading, 
+    error, 
+    createType, 
+    updateType,
+    deleteType, 
+    assignTechnicalVerification, 
+    removeTechnicalVerification, 
+    setError 
+  } = useEquipmentTypes();
+
+  // Traer el listado maestro completo de verificaciones técnicas del sistema para listarlas abajo
+  const [allTechnicalVerification, setAllTechnicalVerification] = useState<any[]>([]);
+
+  useEffect(() => {
+  const headers = getAuthHeaders(null); 
+
+  fetch('http://localhost:8100/v1/api/technical-verifications', {
+    method: 'GET',
+    headers: headers
+  }) 
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Error en el servidor: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      setAllTechnicalVerification(data || []);
+    })
+    .catch((err) => {
+      console.error("Error detallado cargando verificaciones:", err);
+    });
+}, []);
 
   // Estados del Formulario Principal
   const [name, setName] = useState('');
@@ -35,6 +75,11 @@ export const EquipmentTypeManager: React.FC = () => {
   // Estados de control del modal de validación metrológica
   const [isMetroAlertOpen, setIsMetroAlertOpen] = useState(false);
 
+  // Estados para la sección de Verificación Técnica
+  const [requiresTechVerification, setRequiresTechVerification] = useState(false);
+  const [selectedTechVerifications, setSelectedTechVerifications] = useState<string[]>([]); // Array de IDs elegidos
+  const [initialTechVerifications, setInitialTechVerifications] = useState<string[]>([]);   // Copia original para comparar al editar
+
   // Estado del Modal de Eliminación
   const [deleteModal, setDeleteModal] = useState<DeleteModalState>({
     isOpen: false,
@@ -58,6 +103,14 @@ export const EquipmentTypeManager: React.FC = () => {
     setMetroList(metroList.filter((_, i) => i !== index));
   };
 
+  const handleToggleTechVerification = (id: string) => {
+    if (selectedTechVerifications.includes(id)) {
+      setSelectedTechVerifications(selectedTechVerifications.filter(item => item !== id));
+    } else {
+      setSelectedTechVerifications([...selectedTechVerifications, id]);
+    }
+  };
+
   const resetForm = () => {
     setName('');
     setDefinition('');
@@ -70,6 +123,9 @@ export const EquipmentTypeManager: React.FC = () => {
     setMetroList([]);
     setEditingId(null);
     setFormSubmitted(false);
+    setRequiresTechVerification(false);
+    setSelectedTechVerifications([]);
+    setInitialTechVerifications([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,8 +179,21 @@ export const EquipmentTypeManager: React.FC = () => {
 
     try {
       if (editingId) {
+        if (requiresTechVerification && selectedTechVerifications.length === 0) {
+          setError('Si activa la casilla de Verificación Técnica, debe seleccionar al menos una de la lista.');
+          return;
+        }
         await updateType(editingId, payload);
         showSuccess('¡Tipo de equipo actualizado exitosamente!');
+        
+        const toDelete = initialTechVerifications.filter(id => !selectedTechVerifications.includes(id));
+        for (const id of toDelete) {
+          await removeTechnicalVerification(editingId, id);
+        }
+        const toAdd = selectedTechVerifications.filter(id => !initialTechVerifications.includes(id));
+        for (const id of toAdd) {
+          await assignTechnicalVerification(editingId, id);
+        }
       } else {
         await createType(payload);
         showSuccess('¡Tipo de equipo registrado correctamente!');
@@ -146,6 +215,10 @@ export const EquipmentTypeManager: React.FC = () => {
     setVerifiable(target.verifiable);
     setMaintenanceValue(target.unitMaintenanceValue);
     setMetroList(target.metrologicalData || []);
+    const mappedIds = (target as any).technicalVerification || [];
+    setRequiresTechVerification(mappedIds.length > 0);
+    setSelectedTechVerifications(mappedIds);
+    setInitialTechVerifications(mappedIds);
   };
 
   const handleDeleteTrigger = (id: string, name: string) => {
@@ -198,8 +271,7 @@ export const EquipmentTypeManager: React.FC = () => {
             {editingId ? '📝 Modificar Tipo' : 'Nuevo Tipo de Equipo'}
           </h2>
 
-          <form onSubmit={handleSubmit} noValidate className="space-y-4"> 
-            
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">             
             {/* INPUT NOMBRE */}
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nombre</label>
@@ -407,6 +479,59 @@ export const EquipmentTypeManager: React.FC = () => {
                 )}
               </div>
             )}
+            
+            {editingId && (
+              <div className="pt-2 border-t border-slate-100 space-y-3">
+                <label className="flex items-center space-x-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={requiresTechVerification}
+                    onChange={(e) => {
+                      setRequiresTechVerification(e.target.checked);
+                      if (!e.target.checked) setSelectedTechVerifications([]);
+                    }}
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-slate-700">¿Requiere Verificación Técnica?</span>
+                </label>
+
+                {requiresTechVerification && (
+                  <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Verificaciones Disponibles</p>
+                    
+                    {allTechnicalVerification.length > 0 ? (
+                      <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                        {allTechnicalVerification.map((tv) => (
+                          <label 
+                            key={tv.id} 
+                            className="flex items-center justify-between p-2 bg-white rounded border border-slate-200 text-xs hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            <div className="flex flex-col pr-2 truncate">
+                              <span className="font-semibold text-slate-700 truncate">{tv.description}</span>
+                              <span className="text-[10px] text-slate-400 font-medium">
+                                Tipo: {VERIFICATION_TYPES_MAP[tv.verificationType] || tv.verificationType}
+                              </span>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={selectedTechVerifications.includes(tv.id)}
+                              onChange={() => handleToggleTechVerification(tv.id)}
+                              className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 flex-shrink-0"
+                            />
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 italic">No hay criterios técnicos parametrizados en el sistema.</p>
+                    )}
+                    
+                    {formSubmitted && selectedTechVerifications.length === 0 && (
+                      <p className="text-[11px] text-red-500 font-medium mt-1">⚠ Debe seleccionar al menos una verificación técnica.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-2 pt-2">
               <button
@@ -481,7 +606,39 @@ export const EquipmentTypeManager: React.FC = () => {
                         {type.verifiable ? 'APLICA' : 'NO APLICA'}
                       </span>
                     </div>
+                    <div>
+                      Verif. Técnica:{' '}
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${type.technicalVerification && type.technicalVerification.length > 0 ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-500'}`}>
+                        {type.technicalVerification && type.technicalVerification.length > 0 ? `${type.technicalVerification.length} ASIGNADAS` : 'NO APLICA'}
+                      </span>
+                    </div>
                   </div>
+                  
+                    {type.technicalVerification && type.technicalVerification.length > 0 && typeof type.technicalVerification !== 'string' && (
+                    <div className="p-2 bg-white/60 rounded border border-slate-100 text-[11px] space-y-1">
+                      <p className="font-bold text-slate-400 uppercase tracking-wide text-[9px]">Verificaciones Vinculadas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {type.technicalVerification.map((tvId: any) => {
+                          const originalVerification = allTechnicalVerification.find(
+                            (masterTv) => masterTv.id === tvId
+                          );
+                          const typeCode = originalVerification?.verificationType;
+                          const typeLabel = typeCode 
+                            ? (VERIFICATION_TYPES_MAP[typeCode] || typeCode) 
+                            : 'Tipo desconocido';
+
+                          return (
+                            <span 
+                              key={tvId} 
+                              className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-medium border border-blue-100"
+                            >
+                              {typeLabel}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="text-xs space-y-1 bg-white/50 p-2 rounded border border-slate-100">
                     <p><span className="font-semibold text-slate-700">Definición:</span> {type.technicalDefinition}</p>
@@ -517,9 +674,9 @@ export const EquipmentTypeManager: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsMetroAlertOpen(false)}
-                className="w-full sm:w-auto px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm focus:outline-none"
+                className="w-full sm:w-auto px-5 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
               >
-                Entendido, completar datos
+                Entendido
               </button>
             </div>
           </div>
