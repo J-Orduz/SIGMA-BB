@@ -46,8 +46,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Permite explícitamente el frontend local en Vite
-        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+        // Permite explícitamente el frontend local en Vite en puertos y hosts comunes
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:5174"
+        ));
         
         // Métodos HTTP permitidos para interactuar con los endpoints
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
