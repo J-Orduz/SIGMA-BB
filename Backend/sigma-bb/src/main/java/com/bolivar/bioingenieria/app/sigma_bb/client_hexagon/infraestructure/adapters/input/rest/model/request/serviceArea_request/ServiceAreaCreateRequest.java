@@ -53,4 +53,12 @@ public class ServiceAreaCreateRequest {
             requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<ManagerCreateRequest> managerList;
 
+    /**
+     * Identificador de la sede a la que pertenece esta área de servicio.
+     */
+    @Schema(description = "Identificador de la sede a la que pertenece esta área de servicio",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "c25a8fa8-b2de-4299-8e7c-eb80c85c2c7f")
+    private UUID identificadorSede;
+
 }

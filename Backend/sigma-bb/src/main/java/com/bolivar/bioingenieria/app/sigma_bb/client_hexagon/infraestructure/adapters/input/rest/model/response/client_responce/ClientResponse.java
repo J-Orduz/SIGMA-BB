@@ -35,6 +35,11 @@ public class ClientResponse {
     private String razonSocial;
 
     /**
+     * Identificador del país del cliente.
+     */
+    private String identificadorPais;
+
+    /**
      * Indica si el cliente está activo en el sistema.
      * Usado para filtrado lógico (soft-delete) y para determinar si el cliente puede ser seleccionado en operaciones comerciales.
      */

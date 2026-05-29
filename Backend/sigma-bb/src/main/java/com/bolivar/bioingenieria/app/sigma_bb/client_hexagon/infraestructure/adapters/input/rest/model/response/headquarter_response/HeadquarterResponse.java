@@ -63,4 +63,14 @@ public class HeadquarterResponse {
     * Tipo: {@link UUID}
     */
     private ManagerResponse encargado;
+
+    /**
+     * Identificador único de la ciudad donde se ubica la sede.
+     */
+    private String identificadorCiudad;
+
+    /**
+     * Identificador único del cliente al que pertenece la sede.
+     */
+    private String identificadorCliente;
 }

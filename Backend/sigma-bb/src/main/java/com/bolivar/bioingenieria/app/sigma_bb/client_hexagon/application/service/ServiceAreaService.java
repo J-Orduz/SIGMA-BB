@@ -62,10 +62,21 @@ public class ServiceAreaService implements ServiceAreaServicePort {
     public ServiceArea save(ServiceArea serviceArea) {
 
         serviceArea.setIdentificadorAreaServicio(UUID.randomUUID());
+        serviceArea.setEstadoActivo(true);
 
-        for (ClientEquipment equipment : serviceArea.getClientEquipmentList()) {
-            equipment.setIdentificadorAreaServicio(serviceArea.getIdentificadorAreaServicio());
-            equipment.setIdentificadorEquipoCliente(UUID.randomUUID());
+        if (serviceArea.getClientEquipmentList() != null) {
+            for (ClientEquipment equipment : serviceArea.getClientEquipmentList()) {
+                equipment.setIdentificadorAreaServicio(serviceArea.getIdentificadorAreaServicio());
+                equipment.setIdentificadorEquipoCliente(UUID.randomUUID());
+                equipment.setEstadoActivo(true);
+            }
+        }
+
+        if (serviceArea.getManagerList() != null) {
+            for (Manager manager : serviceArea.getManagerList()) {
+                manager.setIdentificadorEncargado(UUID.randomUUID());
+                manager.setEstadoActivo(true);
+            }
         }
 
         return serviceAreaPersistencePort.save(serviceArea);

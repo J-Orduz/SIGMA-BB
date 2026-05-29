@@ -7,6 +7,8 @@ import { EquipmentManager } from '../features/equipments/components/EquipmentMan
 import { CountryManager } from '../features/locations/components/CountryManager';
 import { ManufacturerManager } from '../features/manufacturers/components/ManufacturerManager';
 import { ModelManager } from '../features/equipments/components/ModelManager';
+import { ClientManager } from '../features/clients/components/ClientManager';
+import { ClientDetailPage } from '../features/clients/components/ClientDetailPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -95,6 +97,17 @@ const DashboardLayout = () => {
                 </Link>
               </>
             )}
+
+            {/* Gestión de Clientes: Solo Administrador o SuperUsuario */}
+            {(user?.role === 'Administrador' || user?.role === 'SuperUsuario') && (
+              <Link
+                to="/clients"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+              >
+                Gestión de Clientes
+              </Link>
+            )}
           </nav>
         </div>
         
@@ -168,6 +181,20 @@ export const router = createBrowserRouter([
                 path: 'equipments/models',
                 element: <ModelManager />
               },
+            ]
+          },
+          // Módulo de Gestión de Clientes — solo SuperUsuario y Administrador
+          {
+            element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador']} />,
+            children: [
+              {
+                path: 'clients',
+                element: <ClientManager />
+              },
+              {
+                path: 'clients/:clientId',
+                element: <ClientDetailPage />
+              }
             ]
           }
         ]

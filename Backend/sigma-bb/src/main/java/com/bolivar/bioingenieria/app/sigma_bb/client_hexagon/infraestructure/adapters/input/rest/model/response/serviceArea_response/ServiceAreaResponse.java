@@ -47,4 +47,9 @@ public class ServiceAreaResponse {
      * true: área en operación; false: área inactiva o desactivada.
      */
     private ManagerResponse encargado;
+
+    /**
+     * Identificador único de la sede a la que pertenece esta área de servicio.
+     */
+    private UUID identificadorSede;
 }

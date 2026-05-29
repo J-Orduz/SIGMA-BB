@@ -62,19 +62,48 @@ public class ClientService implements ClientServicePort {
      */
     @Override
     public Client save(Client client) {
+        // Asegurar que el nuevo cliente se registre como ACTIVO
+        client.setEstadoActivo(true);
+
+        // Guarda de null: si el mapper no recibió la lista, se usa una lista vacía
+        // para evitar NullPointerException cuando el request no incluye contactos o sedes.
+        if (client.getEmailClientList() == null) {
+            client.setEmailClientList(java.util.Collections.emptyList());
+        }
+        if (client.getPhoneClientList() == null) {
+            client.setPhoneClientList(java.util.Collections.emptyList());
+        }
+        if (client.getHeadquarterList() == null) {
+            client.setHeadquarterList(java.util.Collections.emptyList());
+        }
+
         for(EmailClient email : client.getEmailClientList()){
             email.setIdentificadorCorreoCliente(UUID.randomUUID());
+            email.setEstadoActivo(true); // Asegurar que el correo esté ACTIVO por defecto
         }
         for(PhoneClient phone : client.getPhoneClientList()){
             phone.setIdentificadorTelefonoCliente(UUID.randomUUID());
+            phone.setEstadoActivo(true); // Asegurar que el teléfono esté ACTIVO por defecto
         }
         for(Headquarter headquarter : client.getHeadquarterList()){
             headquarter.setIdentificadorSede(UUID.randomUUID());
+            if (headquarter.getManagerList() == null) {
+                headquarter.setManagerList(java.util.Collections.emptyList());
+            }
+            if (headquarter.getServiceAreaList() == null) {
+                headquarter.setServiceAreaList(java.util.Collections.emptyList());
+            }
             for (Manager manager : headquarter.getManagerList()) {
                 manager.setIdentificadorEncargado(UUID.randomUUID());
             }
             for (ServiceArea serviceArea : headquarter.getServiceAreaList()) {
                 serviceArea.setIdentificadorAreaServicio(UUID.randomUUID());
+                if (serviceArea.getManagerList() == null) {
+                    serviceArea.setManagerList(java.util.Collections.emptyList());
+                }
+                if (serviceArea.getClientEquipmentList() == null) {
+                    serviceArea.setClientEquipmentList(java.util.Collections.emptyList());
+                }
                 for (Manager manager : serviceArea.getManagerList()) {
                     manager.setIdentificadorEncargado(UUID.randomUUID());
                 }
@@ -100,8 +129,32 @@ public class ClientService implements ClientServicePort {
                 .map(existingClient -> {
                     existingClient.setTipoIdentifiacion(client.getTipoIdentifiacion());
                     existingClient.setRazonSocial(client.getRazonSocial());
-                    existingClient.setEmailClientList(client.getEmailClientList());
-                    existingClient.setPhoneClientList(client.getPhoneClientList());
+                    existingClient.setIdentificadorPais(client.getIdentificadorPais());
+                    
+                    // Actualizar correos de manera segura para Hibernate
+                    if (client.getEmailClientList() != null) {
+                        for (EmailClient email : client.getEmailClientList()) {
+                            if (email.getIdentificadorCorreoCliente() == null) {
+                                email.setIdentificadorCorreoCliente(UUID.randomUUID());
+                            }
+                            email.setEstadoActivo(true);
+                        }
+                        existingClient.getEmailClientList().clear();
+                        existingClient.getEmailClientList().addAll(client.getEmailClientList());
+                    }
+                    
+                    // Actualizar teléfonos de manera segura para Hibernate
+                    if (client.getPhoneClientList() != null) {
+                        for (PhoneClient phone : client.getPhoneClientList()) {
+                            if (phone.getIdentificadorTelefonoCliente() == null) {
+                                phone.setIdentificadorTelefonoCliente(UUID.randomUUID());
+                            }
+                            phone.setEstadoActivo(true);
+                        }
+                        existingClient.getPhoneClientList().clear();
+                        existingClient.getPhoneClientList().addAll(client.getPhoneClientList());
+                    }
+                    
                     return clientPersistencePort.save(existingClient);
                 })
                 .orElseThrow(ClientNotFoundException::new);

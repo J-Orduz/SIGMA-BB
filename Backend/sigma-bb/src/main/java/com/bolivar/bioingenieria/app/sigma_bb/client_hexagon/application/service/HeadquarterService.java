@@ -65,13 +65,21 @@ public class HeadquarterService implements HeadquarterServicePort {
     public Headquarter save(Headquarter headquarter) {
 
         headquarter.setIdentificadorSede(UUID.randomUUID());
-        for (Manager manager : headquarter.getManagerList()) {
-            manager.setIdentificadorEncargado(UUID.randomUUID());
+        headquarter.setEstadoActivo(true);
+
+        if (headquarter.getManagerList() != null) {
+            for (Manager manager : headquarter.getManagerList()) {
+                manager.setIdentificadorEncargado(UUID.randomUUID());
+                manager.setEstadoActivo(true);
+            }
         }
 
-        for (ServiceArea serviceArea : headquarter.getServiceAreaList()) {
-            serviceArea.setIdentificadorSede(headquarter.getIdentificadorSede());
-            serviceArea.setIdentificadorAreaServicio(UUID.randomUUID());
+        if (headquarter.getServiceAreaList() != null) {
+            for (ServiceArea serviceArea : headquarter.getServiceAreaList()) {
+                serviceArea.setIdentificadorSede(headquarter.getIdentificadorSede());
+                serviceArea.setIdentificadorAreaServicio(UUID.randomUUID());
+                serviceArea.setEstadoActivo(true);
+            }
         }
 
         return headquarterPersistencePort.save(headquarter);

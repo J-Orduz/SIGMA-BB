@@ -63,9 +63,9 @@ public class Headquarter {
 
     /**
      * Identificador único del cliente al que pertenece la sede.
-     * Tipo: {@link UUID}
+     * Tipo: {@link String}
      */
-    private UUID identificadorCliente;
+    private String identificadorCliente;
 
     /**
      * Lista de encargados responsables de la sede.
