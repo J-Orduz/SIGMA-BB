@@ -1,5 +1,6 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input;
 
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.ModelPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.CreateModelCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.DeleteModelCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.UpdateModelCommand;
@@ -13,4 +14,5 @@ public interface ModelServicePort {
     Model save(CreateModelCommand createModelCommand);
     Model update(String id, UpdateModelCommand updateModelCommand);
     void delete(DeleteModelCommand deleteModelCommand);
+    Model patchUpdate(String id, ModelPatchCommand command);
 }

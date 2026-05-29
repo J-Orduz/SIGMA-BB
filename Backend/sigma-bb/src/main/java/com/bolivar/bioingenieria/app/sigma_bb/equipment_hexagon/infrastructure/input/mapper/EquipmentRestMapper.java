@@ -2,6 +2,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.equipment.Equipment;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.EquipmentRequest;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.EquipmentIdsResponse;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.EquipmentReponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,5 +20,8 @@ public interface EquipmentRestMapper {
     @Mapping(target = "brandResponse", source = "brand")
     EquipmentReponse toEquipmentResponse(Equipment equipment);
 
+    EquipmentIdsResponse toEquipmentIdsResponse(Equipment equipment);
+
     List<EquipmentReponse> toEquipmentResponseList(List<Equipment> equipmentList);
+    List<EquipmentIdsResponse> toEquipmentIdsResponseList(List<Equipment> equipmentList);
 }

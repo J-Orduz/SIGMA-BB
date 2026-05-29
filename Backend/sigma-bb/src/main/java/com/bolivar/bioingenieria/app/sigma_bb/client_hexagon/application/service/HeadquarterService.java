@@ -2,12 +2,10 @@ package com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.application.servic
 
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.application.ports.input.HeadquarterServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.application.ports.output.HeadquarterPersistencePort;
-import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.exception.ClientNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.exception.HeadquarterFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.model.client_model.Headquarter;
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.model.client_model.Manager;
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.model.client_model.ServiceArea;
-import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.PersonComunicationPort;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,5 +1,6 @@
 package com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.ports.input;
 
+import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.CityPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.CreateCityCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.DeleteCityCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.city_services.commands.UpdateCityCommand;
@@ -13,4 +14,5 @@ public interface CityServicePort {
     City save(CreateCityCommand createCityCommand);
     City update(String id, UpdateCityCommand updateCityCommand);
     void delete(DeleteCityCommand deleteCityCommand);
+    City patchUpdate(String id, CityPatchCommand command);
 }

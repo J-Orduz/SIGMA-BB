@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-    private static final String CLIENT_ID = "sigma-bb";
+    private static final String CLIENT_ID = "sigma-api";
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
@@ -32,7 +32,7 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
         }
 
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                .map(SimpleGrantedAuthority::new)
                 .map(GrantedAuthority.class::cast)
                 .toList();
     }

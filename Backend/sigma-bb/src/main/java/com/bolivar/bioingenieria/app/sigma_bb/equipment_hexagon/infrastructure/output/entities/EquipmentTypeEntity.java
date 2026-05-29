@@ -50,10 +50,10 @@ public class EquipmentTypeEntity {
     @Column(name = "b_estado_activo", nullable = false)
     private Boolean active = true;
 
-    @OneToMany(mappedBy = "equipmentType", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "equipmentType", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE},orphanRemoval = true)
     private List<MetrologicalDataEntity> metrologicalDataEntities;
 
-    @OneToMany(mappedBy = "equipmentTypeEntity", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "equipmentTypeEntity", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE},orphanRemoval = true)
     private List<TechnicalVerificationEquipmentEntity> technicalVerificationEquipmentEntities;
 
     @Override

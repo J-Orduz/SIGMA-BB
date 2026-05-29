@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -88,6 +89,44 @@ public class EquipmentType extends AggregateRoot {
         EventMetadata metadata = new EventMetadata(
                 "events-domain",
                 UUID.randomUUID().toString(), "EquipmentType", "equipmentType.updated", 1, Instant.now(), this.id.toString());
+
+        registerEvent(new EquipmentTypeUpdatedEvent(metadata, new EquipmentTypePayload(
+                this.equipmentTypeName, this.technicalDefinition, this.careRecommendations,
+                this.voltage, this.amperage, this.predominantTechnology, this.verifiable, this.unitMaintenanceValue)));
+    }
+
+    public void updateEquipmentTypePatch(
+            String equipmentTypeName, String technicalDefinition, String careRecommendations,
+            Integer voltage, BigDecimal amperage, String predominantTechnology,
+            Boolean verifiable, Long unitMaintenanceValue) {
+        if (equipmentTypeName != null) {
+            this.equipmentTypeName = equipmentTypeName;
+        }
+        if (technicalDefinition != null) {
+            this.technicalDefinition = technicalDefinition;
+        }
+        if (careRecommendations != null) {
+            this.careRecommendations = careRecommendations;
+        }
+        if (voltage != null) {
+            this.voltage = voltage;
+        }
+        if (amperage != null) {
+            this.amperage = amperage;
+        }
+        if (predominantTechnology != null) {
+            this.predominantTechnology = predominantTechnology;
+        }
+        if (verifiable != null) {
+            this.verifiable = verifiable;
+        }
+        if (unitMaintenanceValue != null) {
+            this.unitMaintenanceValue = unitMaintenanceValue;
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "EquipmentType", "equipmentType.patch", 1, Instant.now(), this.id.toString());
 
         registerEvent(new EquipmentTypeUpdatedEvent(metadata, new EquipmentTypePayload(
                 this.equipmentTypeName, this.technicalDefinition, this.careRecommendations,
@@ -186,15 +225,24 @@ public class EquipmentType extends AggregateRoot {
     }
 
     public void removeMetrologicalData(MetrologicalData md) {
+        System.out.println(this.metrologicalData);
         boolean exists = this.metrologicalData.stream()
-                .anyMatch(existing -> existing.getValue().equals(md.getValue())
-                        && existing.getType().equals(md.getType()));
+                .anyMatch(existing -> valuesEqual(existing.getValue(), md.getValue())
+                        && Objects.equals(existing.getType(), md.getType()));
+
         if (!exists) throw new DomainException("Metrological data does not exist for this equipment type");
 
-        this.metrologicalData.removeIf(p -> p.equals(md));
+        this.metrologicalData.removeIf(p -> valuesEqual(p.getValue(), md.getValue())
+                && Objects.equals(p.getType(), md.getType()));
 
         EventMetadata metadata = new EventMetadata("events-domain",UUID.randomUUID().toString(), "EquipmentType", "metrologicalData.removed", 1, Instant.now(), this.id.toString());
         registerEvent(new MetrologicalDataDeletedEvent(metadata, md));
+    }
+
+    private boolean valuesEqual(BigDecimal left, BigDecimal right) {
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
+        return left.compareTo(right) == 0;
     }
 
     public void setMetrologicalData(List<MetrologicalData> metrologicalData) {

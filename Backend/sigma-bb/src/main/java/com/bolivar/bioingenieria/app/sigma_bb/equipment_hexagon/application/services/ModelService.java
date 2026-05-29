@@ -2,6 +2,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ser
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.ModelServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.ModelPersistencePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.ModelPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.CreateModelCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.DeleteModelCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.UpdateModelCommand;
@@ -64,6 +65,16 @@ public class ModelService implements ModelServicePort {
         model.deleteModel();
         modelPersistencePort.delete(command.id());
         dispatchEvents(model);
+    }
+
+    @Override
+    public Model patchUpdate(String id, ModelPatchCommand command) {
+        Model model = modelPersistencePort.findById(id)
+                .orElseThrow(() -> new ModelNotFoundException(id));
+        model.updateModelPatch(command.invima(), command.manufacturerId(), command.equipmentId());
+        modelPersistencePort.update(id, model);
+        dispatchEvents(model);
+        return model;
     }
 
     private void dispatchEvents(Model aggregate) {

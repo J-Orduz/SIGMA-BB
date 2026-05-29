@@ -98,11 +98,6 @@ public class EquipmentTypePersistenceMapper {
         if (source.getUnitMaintenanceValue() != null) {
             target.setUnitMaintenanceValue(source.getUnitMaintenanceValue());
         }
-
-        // Actualizar las listas hijas
-        target.setMetrologicalDataEntities(toMetrologicalDataEntityList(source.getMetrologicalData(),source.getId()));
-        target.setTechnicalVerificationEquipmentEntities(
-                toTechnicalVerificationEntityList(source.getTechnicalVerification(), target.getId()));
     }
 
     private List<MetrologicalData> toMetrologicalDataList(List<MetrologicalDataEntity> entities) {

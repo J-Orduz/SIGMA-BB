@@ -22,7 +22,7 @@ public class EmailPersonCreateRequest {
      */
     @Schema(description = "Dirección de correo electrónico de la persona",
             requiredMode = Schema.RequiredMode.REQUIRED,
-            example = "3123120302")
+            example = "admin@gmail.com")
     @NotEmpty(message = "El número de teléfono es obligatorio")
     private String correoPersona;
 }

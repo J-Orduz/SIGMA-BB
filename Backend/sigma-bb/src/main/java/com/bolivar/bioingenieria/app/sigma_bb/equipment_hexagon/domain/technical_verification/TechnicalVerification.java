@@ -49,6 +49,22 @@ public class TechnicalVerification extends AggregateRoot {
                 new TechnicalVerificationPayload(this.description, this.verificationType)));
     }
 
+    public void updateTechnicalVerificationPatch(String description, String verificationType) {
+        if (description != null) {
+            this.description = description;
+        }
+        if (verificationType != null) {
+            this.verificationType = verificationType;
+        }
+
+        EventMetadata metadata = new EventMetadata(
+                "events-domain",
+                UUID.randomUUID().toString(), "TechnicalVerification", "technicalVerification.patch", 1, Instant.now(), this.id.toString());
+
+        registerEvent(new TechnicalVerificationUpdatedEvent(metadata,
+                new TechnicalVerificationPayload(this.description, this.verificationType)));
+    }
+
     public void deleteTechnicalVerification() {
         EventMetadata metadata = new EventMetadata(
                 "events-domain",

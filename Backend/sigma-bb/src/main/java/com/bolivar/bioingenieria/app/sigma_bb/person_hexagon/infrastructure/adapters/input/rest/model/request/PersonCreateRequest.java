@@ -64,21 +64,22 @@ public class PersonCreateRequest {
     private String segundoApellido;
 
     /**
-     * Tipo principal de la persona.
+     * Nombre de usuario para la identidad de la persona.
      */
-    @Schema(description = "Tipo principal de la persona",
-            example = "ingeniero",
+    @Schema(description = "Nombre de usuario para la identidad de la persona",
+            example = "juan.perez",
             requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "El tipo de persona es obligatorio")
-    private String tipoPersona;
+    @NotEmpty(message = "El nombre de usuario es obligatorio")
+    private String nombreUsuario;
 
     /**
-     * Tipo secundario de la persona, si aplica.
+     * Contraseña para la identidad de la persona.
      */
-    @Schema(description = "Tipo secundario de la persona, si aplica",
-            example = "encargado",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String segundoTipoPersona;
+    @Schema(description = "Contraseña para la identidad de la persona",
+            example = "P@ssw0rd",
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "La contraseña es obligatoria")
+    private String password;
 
     /**
      * Lista de teléfonos asociados a la persona.

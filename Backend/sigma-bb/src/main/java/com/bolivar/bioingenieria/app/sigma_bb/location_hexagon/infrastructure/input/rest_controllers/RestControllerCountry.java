@@ -1,11 +1,13 @@
 package com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.ports.input.CountryServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.CountryPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.CreateCountryCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.DeleteCountryCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.UpdateCountryCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.domain.country.Country;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.mapper.CountryRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.model.request.CountryPatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.model.request.CountryRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.infrastructure.input.model.response.CountryResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -87,6 +89,19 @@ public class RestControllerCountry {
         CountryResponse response = countryRestMapper.toCountryResponse(updated);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente un país",
+            description = "Actualiza únicamente los campos enviados de un país existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<CountryResponse> patchCountry(
+            @Parameter(description = "Identificador único del país a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody CountryPatchRequest request) {
+        CountryPatchCommand command = new CountryPatchCommand(request.getId(), request.getName());
+        Country updated = countryServicePort.patchUpdate(id, command);
+        return ResponseEntity.ok(countryRestMapper.toCountryResponse(updated));
     }
 
     @Operation(

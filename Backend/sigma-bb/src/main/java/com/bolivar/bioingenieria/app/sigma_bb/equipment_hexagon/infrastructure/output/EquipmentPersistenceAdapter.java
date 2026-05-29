@@ -4,9 +4,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.port
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.equipment.Equipment;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.entities.EquipmentEntity;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.EquipmentNotFoundException;
-import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.mapper.BrandPersistenceMapper;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.mapper.EquipmentPersistenceMapper;
-import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.mapper.EquipmentTypePersistenceMapper;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.repository.SpringEquipmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,18 +17,12 @@ import java.util.UUID;
 public class EquipmentPersistenceAdapter implements EquipmentPersistencePort {
     private final SpringEquipmentRepository repository;
     private final EquipmentPersistenceMapper mapper;
-    private final EquipmentTypePersistenceMapper equipmentTypeMapper;
-    private final BrandPersistenceMapper brandMapper;
 
     @Autowired
     public EquipmentPersistenceAdapter(SpringEquipmentRepository repository,
-                                       EquipmentPersistenceMapper mapper,
-                                       EquipmentTypePersistenceMapper equipmentTypeMapper,
-                                       BrandPersistenceMapper brandMapper) {
+                                       EquipmentPersistenceMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
-        this.equipmentTypeMapper = equipmentTypeMapper;
-        this.brandMapper = brandMapper;
     }
 
     @Override
@@ -67,9 +59,6 @@ public class EquipmentPersistenceAdapter implements EquipmentPersistencePort {
     }
 
     private Equipment mapToDomain(EquipmentEntity entity) {
-        Equipment equipment = mapper.toEquipment(entity);
-        equipment.setEquipmentType(equipmentTypeMapper.toEquipmentType(entity.getEquipmentType()));
-        equipment.setBrand(brandMapper.toBrand(entity.getBrand()));
-        return equipment;
+        return mapper.toEquipment(entity);
     }
 }

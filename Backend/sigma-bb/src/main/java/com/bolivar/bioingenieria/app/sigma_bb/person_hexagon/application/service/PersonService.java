@@ -1,11 +1,16 @@
 package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.service;
 
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.input.PersonServicePort;
-import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.PersonPersistencePort;
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.input.request.EmailPersonCreateRequestUseCase;
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.input.request.PersonCreateRequestUseCase;
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.identity.response.PersonIdentityResponse;
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.persistence.PersonPersistencePort;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.exception.PersonNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.person_model.EmailPerson;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.person_model.Person;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.person_model.PhonePerson;
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.output.identity.PersonIdentityAdapter;
+import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.utils.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +26,7 @@ import java.util.UUID;
 public class  PersonService implements PersonServicePort {
 
     private final PersonPersistencePort personPersistencePort;
+    private final PersonIdentityAdapter personIdentityAdapter;
 
     // ---------------------------------------------------------------------------------
     // ------------------------------- METODOS DE PERSON -------------------------------
@@ -66,6 +72,105 @@ public class  PersonService implements PersonServicePort {
             email.setIdCorreoPersona(UUID.randomUUID());
         }
         return personPersistencePort.save(person);
+    }
+
+    /**
+     * Registra un nuevo ingeniero en el sistema, creando una identidad en Keycloak y guardando la información en la base de datos.
+     * Si ocurre un error durante el proceso, se asegura de eliminar cualquier usuario creado en Keycloak para mantener la consistencia.
+     *
+     * @param personCreateRequestUseCase DTO que contiene la información necesaria para crear el ingeniero
+     * @return {@link Person} creado con la información proporcionada
+     */
+    @Override
+    public Person registerEngineer(PersonCreateRequestUseCase personCreateRequestUseCase) {
+        String keycloakUserId = null;
+
+        try {
+            keycloakUserId = personIdentityAdapter.createUser(
+                    personIdentityResponseBuilderFromRequest(personCreateRequestUseCase),
+                    RoleType.ENGINEER);
+
+            Person person = personBuilderFromRequest(personCreateRequestUseCase,
+                    RoleType.ENGINEER,
+                    UUID.fromString(keycloakUserId)
+            );
+
+            return personPersistencePort.save(person);
+
+        } catch (Exception e) {
+
+            if (keycloakUserId != null) {
+                personIdentityAdapter.deleteUser(keycloakUserId);
+            }
+
+            throw e;
+        }
+    }
+
+    /**
+     * Registra un nuevo administrador en el sistema, creando una identidad en Keycloak y guardando la información en la base de datos.
+     * Si ocurre un error durante el proceso, se asegura de eliminar cualquier usuario creado en Keycloak para mantener la consistencia.
+     *
+     * @param personCreateRequestUseCase DTO que contiene la información necesaria para crear el administrador
+     * @return {@link Person} creado con la información proporcionada
+     */
+    @Override
+    public Person registerAdmin(PersonCreateRequestUseCase personCreateRequestUseCase) {
+        String keycloakUserId = null;
+
+        try {
+            keycloakUserId = personIdentityAdapter.createUser(
+                    personIdentityResponseBuilderFromRequest(personCreateRequestUseCase),
+                    RoleType.ADMIN);
+
+            Person person = personBuilderFromRequest(personCreateRequestUseCase,
+                    RoleType.ADMIN,
+                    UUID.fromString(keycloakUserId)
+            );
+
+            return personPersistencePort.save(person);
+
+        } catch (Exception e) {
+
+            if (keycloakUserId != null) {
+                personIdentityAdapter.deleteUser(keycloakUserId);
+            }
+
+            throw e;
+        }
+    }
+
+    /**
+     * Registra un nuevo CEO-Client en el sistema, creando una identidad en Keycloak y guardando la información en la base de datos.
+     * Si ocurre un error durante el proceso, se asegura de eliminar cualquier usuario creado en Keycloak para mantener la consistencia.
+     *
+     * @param personCreateRequestUseCase DTO que contiene la información necesaria para crear el CEO-Client
+     * @return {@link Person} creado con la información proporcionada
+     */
+    @Override
+    public Person registerCEOClient(PersonCreateRequestUseCase personCreateRequestUseCase) {
+        String keycloakUserId = null;
+
+        try {
+            keycloakUserId = personIdentityAdapter.createUser(
+                    personIdentityResponseBuilderFromRequest(personCreateRequestUseCase),
+                    RoleType.CEO_CLIENT);
+
+            Person person = personBuilderFromRequest(personCreateRequestUseCase,
+                    RoleType.CEO_CLIENT,
+                    UUID.fromString(keycloakUserId)
+            );
+
+            return personPersistencePort.save(person);
+
+        } catch (Exception e) {
+
+            if (keycloakUserId != null) {
+                personIdentityAdapter.deleteUser(keycloakUserId);
+            }
+
+            throw e;
+        }
     }
 
     /**
@@ -238,4 +343,49 @@ public class  PersonService implements PersonServicePort {
                 .orElseThrow(PersonNotFoundException::new);
     }
 
+    // ---------------------------------------------------------------------------------
+    // -------------------------- METODOS DE ADICIONALES -------------------------------
+    // ---------------------------------------------------------------------------------
+
+        private Person personBuilderFromRequest(PersonCreateRequestUseCase personCreateRequestUseCase,
+                                                RoleType roleType,
+                                                UUID identificador) {
+            return Person.builder()
+                    .identificador(identificador)
+                    .cedula(personCreateRequestUseCase.getCedula())
+                    .primerNombre(personCreateRequestUseCase.getPrimerNombre())
+                    .segundoNombre(personCreateRequestUseCase.getSegundoNombre())
+                    .primerApellido(personCreateRequestUseCase.getPrimerApellido())
+                    .segundoApellido(personCreateRequestUseCase.getSegundoApellido())
+                    .tipoPersona(roleType.getName())
+                    .emailPersonList(personCreateRequestUseCase.getEmailPersonList()
+                            .stream()
+                            .map(emailRequest -> EmailPerson.builder()
+                                    .idCorreoPersona(UUID.randomUUID())
+                                    .correoPersona(emailRequest.getCorreoPersona())
+                                    .build())
+                            .toList())
+                    .phonePersonList(personCreateRequestUseCase.getPhonePersonList()
+                            .stream()
+                            .map(phoneRequest -> PhonePerson.builder()
+                                    .idTelefonoPersona(UUID.randomUUID())
+                                    .telefonoPersona(phoneRequest.getTelefonoPersona())
+                                    .build())
+                            .toList())
+                    .build();
+        }
+
+        private PersonIdentityResponse personIdentityResponseBuilderFromRequest(PersonCreateRequestUseCase personCreateRequestUseCase) {
+            return PersonIdentityResponse.builder()
+                    .userName(personCreateRequestUseCase.getNombreUsuario())
+                    .email(personCreateRequestUseCase.getEmailPersonList()
+                            .stream()
+                            .findFirst()
+                            .map(EmailPersonCreateRequestUseCase::getCorreoPersona)
+                            .orElseThrow(() -> new IllegalArgumentException("No existe correo")))
+                    .firstName(personCreateRequestUseCase.getPrimerNombre())
+                    .lastName(personCreateRequestUseCase.getPrimerApellido())
+                    .password(personCreateRequestUseCase.getPassword())
+                    .build();
+        }
 }

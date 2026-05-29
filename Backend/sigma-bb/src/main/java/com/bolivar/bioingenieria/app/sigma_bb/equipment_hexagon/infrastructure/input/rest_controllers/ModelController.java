@@ -1,11 +1,13 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.ModelServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.ModelPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.CreateModelCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.DeleteModelCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.model_services.commands.UpdateModelCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.model.Model;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.mapper.ModelRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.ModelPatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.ModelRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.ModelResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -79,6 +81,20 @@ public class ModelController {
         Model updated = modelServicePort.update(id, command);
         ModelResponse response = modelRestMapper.toModelResponse(updated);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente un modelo",
+            description = "Actualiza únicamente los campos enviados de un modelo existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<ModelResponse> patchModel(
+            @Parameter(description = "Identificador único del modelo a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody ModelPatchRequest request) {
+        ModelPatchCommand command = new ModelPatchCommand(
+                request.getInvima(), request.getManufacturerId(), request.getEquipmentId());
+        Model updated = modelServicePort.patchUpdate(id, command);
+        return ResponseEntity.ok(modelRestMapper.toModelResponse(updated));
     }
 
     @Operation(

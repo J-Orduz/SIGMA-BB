@@ -3,6 +3,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.serv
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.ports.input.CountryServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.ports.output.CountryPersistencePort;
 import com.bolivar.bioingenieria.app.sigma_bb.shared.application.ports.output.EventDispatcherPort;
+import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.CountryPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.CreateCountryCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.DeleteCountryCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.location_hexagon.application.services.country_services.commands.UpdateCountryCommand;
@@ -64,6 +65,16 @@ public class CountryService implements CountryServicePort {
         country.deleteCountry();
         countryPersistencePort.delete(command.id());
         dispatchEvents(country);
+    }
+
+    @Override
+    public Country patchUpdate(String id, CountryPatchCommand command) {
+        Country country = countryPersistencePort.findById(id)
+                .orElseThrow(() -> new CountryNotFoundException(id));
+        country.updateCountryPatch(command.name());
+        countryPersistencePort.update(id, country);
+        dispatchEvents(country);
+        return country;
     }
 
     private void dispatchEvents(Country aggregate) {

@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,6 +69,8 @@ public class PhoneRestAdapter {
     @Operation(
             summary = "Agregar teléfono a persona",
             description = "Agrega un nuevo teléfono a una persona existente, actualizando su información.")
+
+    @PreAuthorize("hasAuthority('admin.full')") // Solo usuarios con permiso 'admin.full' pueden agregar teléfonos
     @PutMapping("/v1/api/{id}")
     public ResponseEntity<PersonResponse> createPhonePerson(
             @Parameter(
@@ -100,6 +103,7 @@ public class PhoneRestAdapter {
             summary = "Actualizar teléfono de persona",
             description = "Actualiza un teléfono asociado a una persona utilizando el ID de la persona, el ID del teléfono y los nuevos datos proporcionados."
     )
+    @PreAuthorize("hasAuthority('admin.full')")//
     @PutMapping("/v1/api/{id}/{phoneId}")
     public ResponseEntity<PersonResponse> updatePhonePerson(
             @Parameter(
@@ -135,6 +139,7 @@ public class PhoneRestAdapter {
             summary = "Eliminar teléfono de persona",
             description = "Elimina un teléfono asociado a una persona utilizando el ID de la persona y el ID del teléfono."
     )
+    @PreAuthorize("hasAuthority('admin.full')")// Solo usuarios con permiso 'admin.full' pueden eliminar teléfonos
     @DeleteMapping("/v1/api/{id}/{phoneId}")
     public ResponseEntity<PersonResponse> deletePhonePerson(
             @Parameter(

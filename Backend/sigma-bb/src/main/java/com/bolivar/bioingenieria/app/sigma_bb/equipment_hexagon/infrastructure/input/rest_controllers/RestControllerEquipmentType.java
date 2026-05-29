@@ -1,12 +1,14 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.rest_controllers;
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.EquipmentTypeServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.EquipmentTypePatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.CreateEquipmentTypeCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.DeleteEquipmentTypeCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_type_services.commands.UpdateEquipmentTypeCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.metrological_data_services.commands.MetrologicalDataCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.equipment_type.EquipmentType;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.mapper.EquipmentTypeRestMapper;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.EquipmentTypePatchRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.EquipmentTypeRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.MetrologicalDataRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.request.UpdateMetrologicalDataBody;
@@ -90,6 +92,22 @@ public class RestControllerEquipmentType {
                 request.getCareRecommendations(), request.getVoltage(), request.getAmperage(),
                 request.getPredominantTechnology(), request.getVerifiable(), request.getUnitMaintenanceValue());
         EquipmentType updated = equipmentTypeServicePort.update(id, command);
+        return ResponseEntity.ok(equipmentTypeRestMapper.toEquipmentTypeResponse(updated));
+    }
+
+    @Operation(
+            summary = "Actualizar parcialmente un tipo de equipo",
+            description = "Actualiza únicamente los campos escalares enviados de un tipo de equipo existente. Los campos no enviados conservan su valor actual.")
+    @PatchMapping("/{id}")
+    public ResponseEntity<EquipmentTypeResponse> patchEquipmentType(
+            @Parameter(description = "Identificador único del tipo de equipo a actualizar", required = true)
+            @PathVariable String id,
+            @RequestBody EquipmentTypePatchRequest request) {
+        EquipmentTypePatchCommand command = new EquipmentTypePatchCommand(
+                request.getEquipmentTypeName(), request.getTechnicalDefinition(),
+                request.getCareRecommendations(), request.getVoltage(), request.getAmperage(),
+                request.getPredominantTechnology(), request.getVerifiable(), request.getUnitMaintenanceValue());
+        EquipmentType updated = equipmentTypeServicePort.patchUpdate(id, command);
         return ResponseEntity.ok(equipmentTypeRestMapper.toEquipmentTypeResponse(updated));
     }
 
