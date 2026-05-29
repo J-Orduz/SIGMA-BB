@@ -23,7 +23,7 @@ const DashboardLayout = () => {
       {/* BARRA DE NAVEGACIÓN SUPERIOR (Móviles) */}
       <header className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
         <h2 className="text-xl font-bold text-blue-400 tracking-wider">SIGMA-BB</h2>
-        <button 
+        <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="text-slate-200 p-2 focus:outline-none bg-slate-800 rounded-lg"
         >
@@ -42,54 +42,54 @@ const DashboardLayout = () => {
             <p className="text-xs text-slate-400">Bioingeniería</p>
           </div>
           <nav className="space-y-1">
-            <Link 
-              to="/equipments/brands" 
+            <Link
+              to="/equipments/brands"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
             >
               Gestión de Marcas
             </Link>
-            
+
             {/* Control visual de Sidebar: Sólo Administrador o SuperUsuario ven la opción */}
             {(user?.role === 'Administrador' || user?.role === 'SuperUsuario') && (
               <>
-                <Link 
-                  to="/equipments/types" 
+                <Link
+                  to="/equipments/types"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
                   Tipos de Equipos
                 </Link>
-                <Link 
-                  to="/equipments/technical-verifications" 
+                <Link
+                  to="/equipments/technical-verifications"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
                   Verificaciones Técnicas
                 </Link>
-                <Link 
-                  to="/equipments/list" 
+                <Link
+                  to="/equipments/list"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
                   Inventario de Equipos
                 </Link>
-                <Link 
-                  to="/countries" 
+                <Link
+                  to="/countries"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
                   Gestión de Ubicaciones
                 </Link>
-                <Link 
-                  to="/manufacturers" 
+                <Link
+                  to="/manufacturers"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
                   Gestión de Fabricantes
                 </Link>
-                <Link 
-                  to="/equipments/models" 
+                <Link
+                  to="/equipments/models"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
@@ -110,14 +110,14 @@ const DashboardLayout = () => {
             )}
           </nav>
         </div>
-        
+
         <div className="border-t border-slate-800 pt-4 space-y-3 bg-slate-900">
           <div className="px-2 text-xs text-slate-400">
             Usuario: <span className="text-slate-200 font-medium block truncate">{user?.name}</span>
             Rol: <span className="text-blue-400 font-semibold uppercase block">{user?.role}</span>
           </div>
-          <button 
-            onClick={logout} 
+          <button
+            onClick={logout}
             className="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
           >
             Cerrar Sesión
@@ -154,7 +154,7 @@ export const router = createBrowserRouter([
           },
           // Encapsular rutas de administración técnica protegiéndolas explícitamente por rol
           {
-            element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador']} />, 
+            element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador']} />,
             children: [
               {
                 path: 'equipments/types',
