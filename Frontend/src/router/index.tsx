@@ -4,6 +4,7 @@ import { BrandManager } from '../features/equipments/components/BrandManager';
 import { EquipmentTypeManager } from '../features/equipments/components/EquipmentTypeManager';
 import { TechnicalVerificationManager } from '../features/equipments/components/TechnicalVerificationManager';
 import { EquipmentManager } from '../features/equipments/components/EquipmentManager';
+import { CountryManager } from '../features/locations/components/CountryManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -69,6 +70,13 @@ const DashboardLayout = () => {
                 >
                   Inventario de Equipos
                 </Link>
+                <Link 
+                  to="/countries" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                >
+                  Gestión de Ubicaciones
+                </Link>
               </>
             )}
           </nav>
@@ -131,6 +139,10 @@ export const router = createBrowserRouter([
               {
                 path: 'equipments/list',
                 element: <EquipmentManager />
+              },
+              {
+                path: 'countries',
+                element: <CountryManager />
               },
             ]
           }
