@@ -5,6 +5,7 @@ import { EquipmentTypeManager } from '../features/equipments/components/Equipmen
 import { TechnicalVerificationManager } from '../features/equipments/components/TechnicalVerificationManager';
 import { EquipmentManager } from '../features/equipments/components/EquipmentManager';
 import { CountryManager } from '../features/locations/components/CountryManager';
+import { ManufacturerManager } from '../features/manufacturers/components/ManufacturerManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -77,6 +78,13 @@ const DashboardLayout = () => {
                 >
                   Gestión de Ubicaciones
                 </Link>
+                <Link 
+                  to="/manufacturers" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                >
+                  Gestión de Fabricantes
+                </Link>
               </>
             )}
           </nav>
@@ -143,6 +151,10 @@ export const router = createBrowserRouter([
               {
                 path: 'countries',
                 element: <CountryManager />
+              },
+              {
+                path: 'manufacturers',
+                element: <ManufacturerManager />
               },
             ]
           }
