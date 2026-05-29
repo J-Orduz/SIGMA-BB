@@ -3,6 +3,7 @@ import { AuthPage } from '../features/auth/AuthPage';
 import { BrandManager } from '../features/equipments/components/BrandManager';
 import { EquipmentTypeManager } from '../features/equipments/components/EquipmentTypeManager';
 import { TechnicalVerificationManager } from '../features/equipments/components/TechnicalVerificationManager';
+import { EquipmentManager } from '../features/equipments/components/EquipmentManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -36,6 +37,13 @@ const DashboardLayout = () => {
             <p className="text-xs text-slate-400">Bioingeniería</p>
           </div>
           <nav className="space-y-1">
+            <Link 
+              to="/equipments/list" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+            >
+              Inventario de Equipos
+            </Link>
             <Link 
               to="/equipments/brands" 
               onClick={() => setIsMobileMenuOpen(false)}
@@ -101,11 +109,19 @@ export const router = createBrowserRouter([
         children: [
           {
             path: '',
+            element: <Navigate to="/equipments/list" replace />
+          },
+          {
+            path: '',
             element: <Navigate to="/equipments/brands" replace />
           },
           {
             path: 'equipments/brands',
             element: <BrandManager /> // Accesible por todos los roles autenticados
+          },
+          {
+            path: 'equipments/list',
+            element: <EquipmentManager /> // Accesible por todos los roles autenticados
           },
           // Encapsular rutas de administración técnica protegiéndolas explícitamente por rol
           {

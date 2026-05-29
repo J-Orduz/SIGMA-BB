@@ -23,13 +23,11 @@ public class EquipmentEntity {
     @Column(name = "k_id_equipo")
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "k_id_tipo_equipo", nullable = false)
-    private EquipmentTypeEntity equipmentType;
+    @Column(name = "k_id_tipo_equipo", nullable = false)
+    private UUID equipmentTypeId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "k_id_marca", nullable = false)
-    private BrandEntity brand;
+    @Column(name = "k_id_marca", nullable = false)
+    private UUID brandId;
 
     @Column(name = "b_estado_activo", nullable = false)
     private Boolean active = true;

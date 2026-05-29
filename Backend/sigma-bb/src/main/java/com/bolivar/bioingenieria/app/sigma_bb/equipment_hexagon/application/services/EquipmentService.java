@@ -1,12 +1,12 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services;
 
-import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.EquipmentServicePort;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.EquipmentCommandServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.EquipmentPersistencePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.EquipmentTypePersistencePort;
-import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.EquipmentPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.CreateEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.DeleteEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.UpdateEquipmentCommand;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.EquipmentPatchCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.equipment.Equipment;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.EquipmentNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.shared.application.ports.output.EventDispatcherPort;
@@ -15,13 +15,11 @@ import com.bolivar.bioingenieria.app.sigma_bb.shared.domain.events.Payload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
-public class EquipmentService implements EquipmentServicePort {
+public class EquipmentService implements EquipmentCommandServicePort {
     private final EquipmentPersistencePort persistencePort;
     private final EventDispatcherPort eventDispatcherPort;
     private final EquipmentTypePersistencePort equipmentTypePersistencePort;
@@ -32,18 +30,6 @@ public class EquipmentService implements EquipmentServicePort {
         this.persistencePort = persistencePort;
         this.eventDispatcherPort = eventDispatcherPort;
         this.equipmentTypePersistencePort = equipmentTypePersistencePort;
-    }
-
-    @Override
-    public List<Equipment> findAll() {
-        return persistencePort.findAll();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Equipment findById(String id) {
-        return this.persistencePort.findById(id)
-                .orElseThrow(() -> new EquipmentNotFoundException(id));
     }
 
     @Override
