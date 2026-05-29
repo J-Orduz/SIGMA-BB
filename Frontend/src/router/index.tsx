@@ -38,13 +38,6 @@ const DashboardLayout = () => {
           </div>
           <nav className="space-y-1">
             <Link 
-              to="/equipments/list" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-            >
-              Inventario de Equipos
-            </Link>
-            <Link 
               to="/equipments/brands" 
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
@@ -68,6 +61,13 @@ const DashboardLayout = () => {
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
                   Verificaciones Técnicas
+                </Link>
+                <Link 
+                  to="/equipments/list" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                >
+                  Inventario de Equipos
                 </Link>
               </>
             )}
@@ -109,19 +109,11 @@ export const router = createBrowserRouter([
         children: [
           {
             path: '',
-            element: <Navigate to="/equipments/list" replace />
-          },
-          {
-            path: '',
             element: <Navigate to="/equipments/brands" replace />
           },
           {
             path: 'equipments/brands',
             element: <BrandManager /> // Accesible por todos los roles autenticados
-          },
-          {
-            path: 'equipments/list',
-            element: <EquipmentManager /> // Accesible por todos los roles autenticados
           },
           // Encapsular rutas de administración técnica protegiéndolas explícitamente por rol
           {
@@ -135,7 +127,11 @@ export const router = createBrowserRouter([
               {
                 path: 'equipments/technical-verifications',
                 element: <TechnicalVerificationManager />
-              }
+              },
+              {
+                path: 'equipments/list',
+                element: <EquipmentManager />
+              },
             ]
           }
         ]
