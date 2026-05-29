@@ -5,6 +5,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.equipment
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.metrological_data.MetrologicalData;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.entities.*;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.EquipmentTypeNotFoundException;
+import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.MetrologicalDataNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.mapper.EquipmentTypePersistenceMapper;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.repository.SpringEquipmentTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Component
 public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistencePort {
@@ -115,10 +117,10 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
 
         boolean removed = existing.getMetrologicalDataEntities().removeIf(child ->
                 child.getId() != null
-                        && Objects.equals(child.getId().getValue(), data.getValue())
+                        && valuesEqual(child.getId().getValue(), data.getValue())
                         && Objects.equals(child.getId().getType(), data.getType()));
         if (!removed) {
-            throw new EquipmentTypeNotFoundException(
+            throw new MetrologicalDataNotFoundException(
                     "MetrologicalData not found: value=" + data.getValue() + " type=" + data.getType());
         }
 
@@ -146,7 +148,7 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
 
         existing.getMetrologicalDataEntities().removeIf(child ->
                 child.getId() != null && dataList.stream().anyMatch(data ->
-                        Objects.equals(child.getId().getValue(), data.getValue())
+                        valuesEqual(child.getId().getValue(), data.getValue())
                                 && Objects.equals(child.getId().getType(), data.getType())));
 
         repository.save(existing);
@@ -240,5 +242,11 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
         entity.setId(id);
         entity.setActive(true);
         return entity;
+    }
+
+    private boolean valuesEqual(BigDecimal left, BigDecimal right) {
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
+        return left.compareTo(right) == 0;
     }
 }

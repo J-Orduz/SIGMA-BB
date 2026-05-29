@@ -24,6 +24,8 @@ export const EquipmentTypeManager: React.FC = () => {
     deleteType, 
     assignTechnicalVerification, 
     removeTechnicalVerification, 
+    removeMetrologicalData,
+    assignMetrologicalData,
     setError 
   } = useEquipmentTypes();
 
@@ -87,11 +89,19 @@ export const EquipmentTypeManager: React.FC = () => {
     typeName: ''
   });
 
-  const handleAddMetroData = () => {
+  const handleAddMetroData = async () => {
     if (!metroType.trim() || metroValue === '') return;
     if (Number(metroValue) < 0) {
       setError('El valor metrológico base no puede ser un número negativo.');
       return; 
+    }
+
+    if (editingId) {
+      try {
+        await assignMetrologicalData(editingId, Number(metroValue), metroType.trim());
+      } catch (err) {
+        return; 
+      }
     }
 
     setMetroList([...metroList, { value: Number(metroValue), type: metroType.trim() }]);
@@ -99,10 +109,25 @@ export const EquipmentTypeManager: React.FC = () => {
     setMetroType('');
   };
 
-  const handleRemoveMetroData = (index: number) => {
-    setMetroList(metroList.filter((_, i) => i !== index));
-  };
+  const handleRemoveMetroData = async (index: number) => {
+  // Obtener el elemento que se va a eliminar usando el índice
+  const targetItem = metroList[index];
+  if (!targetItem) return;
 
+  // Si esta en modo EDICIÓN (editingId existe), se impacta directo la API primero
+  if (editingId) {
+    try {
+      // Llamara la API enviando el ID del equipo en edición y el cuerpo requerido
+      await removeMetrologicalData(editingId, targetItem.value, targetItem.type);
+    } catch (err) {
+      // Si la petición API falla, cancelar el borrado visual para mantener sincronía
+      return; 
+    }
+  }
+
+  // Si no está editando (es un registro nuevo), o si la API respondió OK, se quita del estado visual
+  setMetroList(metroList.filter((_, i) => i !== index));
+};
   const handleToggleTechVerification = (id: string) => {
     if (selectedTechVerifications.includes(id)) {
       setSelectedTechVerifications(selectedTechVerifications.filter(item => item !== id));
@@ -165,6 +190,12 @@ export const EquipmentTypeManager: React.FC = () => {
       return;
     }
 
+    // Validación de verificación técnica 
+    if (requiresTechVerification && selectedTechVerifications.length === 0) {
+      setError('Si activa la casilla de Verificación Técnica, debe seleccionar al menos una de la lista.');
+      return;
+    }
+
     const payload: CreateEquipmentTypeDTO = {
       equipmentTypeName: name.trim(),
       technicalDefinition: definition.trim() || 'Sin definición técnica registrada',
@@ -179,10 +210,6 @@ export const EquipmentTypeManager: React.FC = () => {
 
     try {
       if (editingId) {
-        if (requiresTechVerification && selectedTechVerifications.length === 0) {
-          setError('Si activa la casilla de Verificación Técnica, debe seleccionar al menos una de la lista.');
-          return;
-        }
         await updateType(editingId, payload);
         showSuccess('¡Tipo de equipo actualizado exitosamente!');
         
@@ -195,7 +222,13 @@ export const EquipmentTypeManager: React.FC = () => {
           await assignTechnicalVerification(editingId, id);
         }
       } else {
-        await createType(payload);
+        const newEquipmentType = await createType(payload);
+        if (newEquipmentType?.id && requiresTechVerification) {
+          for (const id of selectedTechVerifications) {
+            await assignTechnicalVerification(newEquipmentType.id, id);
+          }
+        }
+        
         showSuccess('¡Tipo de equipo registrado correctamente!');
       }
       resetForm();
@@ -268,7 +301,7 @@ export const EquipmentTypeManager: React.FC = () => {
         {/* FORMULARIO DE CREACIÓN / EDICIÓN */}
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
           <h2 className="text-lg font-semibold text-slate-700">
-            {editingId ? '📝 Modificar Tipo' : 'Nuevo Tipo de Equipo'}
+            {editingId ? 'Modificar Tipo' : 'Nuevo Tipo de Equipo'}
           </h2>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">             
@@ -479,8 +512,7 @@ export const EquipmentTypeManager: React.FC = () => {
                 )}
               </div>
             )}
-            
-            {editingId && (
+              {/* SECCIÓN DE VERIFICACIÓN TÉCNICA */}
               <div className="pt-2 border-t border-slate-100 space-y-3">
                 <label className="flex items-center space-x-2 cursor-pointer select-none">
                   <input
@@ -531,7 +563,6 @@ export const EquipmentTypeManager: React.FC = () => {
                   </div>
                 )}
               </div>
-            )}
 
             <div className="flex gap-2 pt-2">
               <button
@@ -539,7 +570,7 @@ export const EquipmentTypeManager: React.FC = () => {
                 disabled={isLoading}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 px-4 rounded-lg transition-colors disabled:bg-blue-400"
               >
-                {editingId ? 'Actualizar Ficha' : 'Guardar Tipo'}
+                {editingId ? 'Actualizar Tipo' : 'Guardar Tipo'}
               </button>
               {editingId && (
                 <button

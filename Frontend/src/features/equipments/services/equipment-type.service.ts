@@ -66,6 +66,42 @@ export const equipmentTypeService = {
   }
 };
 
+export const removeMetrologicalData = async (equipmentTypeId: string, value: number, type: string) => {
+  const headers = getAuthHeaders();
+  const response = await fetch(`http://localhost:8100/v1/api/equipment-types/${equipmentTypeId}/metrological-data`, {
+    method: 'DELETE',
+    headers: {
+      ...headers,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ value, type }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al remover el dato metrológico base');
+  }
+
+  return response.json();
+};
+
+export const addMetrologicalData = async (equipmentTypeId: string, value: number, type: string) => {
+  const headers = getAuthHeaders();
+  const response = await fetch(`http://localhost:8100/v1/api/equipment-types/${equipmentTypeId}/metrological-data`, {
+    method: 'POST',
+    headers: {
+      ...headers,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ value, type }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al agregar el dato metrológico base');
+  }
+
+  return response.json();
+};
+
 export const removeTechnicalVerification = async (equipmentTypeId: string, technicalVerificationId: string) => {
   const headers = getAuthHeaders(null);
 

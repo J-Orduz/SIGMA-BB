@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -224,15 +225,24 @@ public class EquipmentType extends AggregateRoot {
     }
 
     public void removeMetrologicalData(MetrologicalData md) {
+        System.out.println(this.metrologicalData);
         boolean exists = this.metrologicalData.stream()
-                .anyMatch(existing -> existing.getValue().equals(md.getValue())
-                        && existing.getType().equals(md.getType()));
+                .anyMatch(existing -> valuesEqual(existing.getValue(), md.getValue())
+                        && Objects.equals(existing.getType(), md.getType()));
+
         if (!exists) throw new DomainException("Metrological data does not exist for this equipment type");
 
-        this.metrologicalData.removeIf(p -> p.equals(md));
+        this.metrologicalData.removeIf(p -> valuesEqual(p.getValue(), md.getValue())
+                && Objects.equals(p.getType(), md.getType()));
 
         EventMetadata metadata = new EventMetadata("events-domain",UUID.randomUUID().toString(), "EquipmentType", "metrologicalData.removed", 1, Instant.now(), this.id.toString());
         registerEvent(new MetrologicalDataDeletedEvent(metadata, md));
+    }
+
+    private boolean valuesEqual(BigDecimal left, BigDecimal right) {
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
+        return left.compareTo(right) == 0;
     }
 
     public void setMetrologicalData(List<MetrologicalData> metrologicalData) {

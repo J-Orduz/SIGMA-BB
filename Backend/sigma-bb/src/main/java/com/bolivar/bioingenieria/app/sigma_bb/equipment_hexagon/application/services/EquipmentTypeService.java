@@ -125,6 +125,9 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 .value(command.value())
                 .type(command.type())
                 .build();
+
+        System.out.println(command);
+        System.out.println(md.toString());
         et.removeMetrologicalData(md);
         equipmentTypePersistencePort.removeMetrologicalData(equipmentTypeId, md);
         dispatchEvents(et);

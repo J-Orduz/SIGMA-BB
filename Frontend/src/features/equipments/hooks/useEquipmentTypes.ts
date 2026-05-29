@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import type { EquipmentType, CreateEquipmentTypeDTO } from '../types/equipment-type.types';
 import { equipmentTypeService } from '../services/equipment-type.service';
 import { getAuthHeaders } from '../services/equipment-type.service';
+import { removeMetrologicalData as removeMetroService } from '../services/equipment-type.service';
+import { addMetrologicalData as addMetroService } from '../services/equipment-type.service';
 
 export const useEquipmentTypes = () => {
   const [equipmentTypes, setEquipmentTypes] = useState<EquipmentType[]>([]);
@@ -83,6 +85,34 @@ export const useEquipmentTypes = () => {
     }
   };
 
+  const removeMetrologicalData = async (equipmentTypeId: string, value: number, type: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await removeMetroService(equipmentTypeId, value, type);
+      await fetchTypes(); // Volvemos a consultar para actualizar la UI con los datos reales del backend
+    } catch (err: any) {
+      setError(err.message || 'No se pudo eliminar el dato metrológico.');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const assignMetrologicalData = async (equipmentTypeId: string, value: number, type: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await addMetroService(equipmentTypeId, value, type);
+      await fetchTypes();
+    } catch (err: any) {
+      setError(err.message || 'No se pudo agregar el dato metrológico.');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const removeTechnicalVerification = async (equipmentTypeId: string, verificationId: string) => {
     try {
       const authHeaders = getAuthHeaders(null);
@@ -108,5 +138,17 @@ export const useEquipmentTypes = () => {
     fetchTypes();
   }, []);
 
-  return { equipmentTypes, isLoading, error, createType, updateType, deleteType, assignTechnicalVerification, removeTechnicalVerification, setError };
+  return { 
+    equipmentTypes, 
+    isLoading, 
+    error, 
+    createType, 
+    updateType, 
+    deleteType, 
+    assignTechnicalVerification, 
+    removeTechnicalVerification, 
+    removeMetrologicalData, 
+    assignMetrologicalData,
+    setError 
+  };
 };
