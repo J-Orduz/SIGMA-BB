@@ -14,6 +14,9 @@ export const ManufacturerManager: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Estado para la barra de búsqueda 🔍
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Estados para el Modal de Confirmación
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [manufacturerToDelete, setManufacturerToDelete] = useState<Manufacturer | null>(null);
@@ -75,6 +78,21 @@ export const ManufacturerManager: React.FC = () => {
       setManufacturerToDelete(null);
     }
   };
+
+  // Filtrado reactivo multivariable (Por nombre de fábrica o procedencia territorial)
+  const filteredManufacturers = manufacturers.filter((manu) => {
+    const term = searchTerm.toLowerCase();
+    
+    // Conseguir etiqueta del país para contrastar la búsqueda también por origen
+    const matchingCountry = countries.find(c => c.id === manu.countryId);
+    const countryLabel = manu.countryResponse?.name || matchingCountry?.name || manu.countryId;
+
+    return (
+      manu.name.toLowerCase().includes(term) ||
+      countryLabel.toLowerCase().includes(term) ||
+      manu.countryId.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
@@ -163,18 +181,45 @@ export const ManufacturerManager: React.FC = () => {
           </form>
         </div>
 
-        {/* LISTADO */}
+        {/* LISTADO CON BUSCADOR INTEGRADO */}
         <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">Fabricantes Autorizados</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-semibold text-slate-700">Fabricantes Autorizados</h2>
+            
+            {/* Input de Búsqueda Estilizado */}
+            <div className="relative w-full sm:w-64">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">
+                🔍
+              </span>
+              <input
+                type="text"
+                placeholder="Buscar por nombre o procedencia..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-slate-400 bg-slate-50/50"
+              />
+              {searchTerm && (
+                <button 
+                  onClick={() => setSearchTerm('')} 
+                  className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-slate-600 font-bold text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
 
           {isManuLoading && manufacturers.length === 0 ? (
             <p className="text-sm text-slate-500 text-center py-8">Cargando inventario de fabricantes...</p>
           ) : manufacturers.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-8">No hay fabricantes guardados.</p>
+          ) : filteredManufacturers.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">
+              No se encontraron coincidencias para "{searchTerm}".
+            </p>
           ) : (
             <div className="grid grid-cols-1 gap-3">
-              {manufacturers.map((manu) => {
-                // Buscar el nombre del país en el listado local por si el backend no lo anida
+              {filteredManufacturers.map((manu) => {
                 const matchingCountry = countries.find(c => c.id === manu.countryId);
                 const countryLabel = manu.countryResponse?.name || matchingCountry?.name || manu.countryId;
 

@@ -12,6 +12,9 @@ export const CountryManager: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Estado para la barra de búsqueda
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Estados para el Modal de Confirmación
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [countryToDelete, setCountryToDelete] = useState<Country | null>(null);
@@ -61,7 +64,7 @@ export const CountryManager: React.FC = () => {
 
   const handleStartEdit = (country: Country) => {
     setEditingId(country.id);
-    setCountryId(country.id); // Al editar, el backend pide el id en el body también
+    setCountryId(country.id); 
     setCountryName(country.name);
   };
 
@@ -81,6 +84,15 @@ export const CountryManager: React.FC = () => {
       setCountryToDelete(null);
     }
   };
+
+  // Filtrado de países en tiempo real (por nombre o por ID/Código)
+  const filteredCountries = countries.filter((country) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      country.name.toLowerCase().includes(term) ||
+      country.id.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
@@ -119,7 +131,7 @@ export const CountryManager: React.FC = () => {
                 type="text"
                 placeholder="Ej: COL"
                 value={countryId}
-                disabled={!!editingId} // Bloqueado si está editando
+                disabled={!!editingId} 
                 onChange={(e) => setCountryId(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg text-sm uppercase focus:outline-none focus:ring-2 disabled:bg-slate-100 disabled:text-slate-400 ${
                   formSubmitted && !countryId ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
@@ -167,17 +179,45 @@ export const CountryManager: React.FC = () => {
           </form>
         </div>
 
-        {/* LISTADO */}
+        {/* LISTADO CON BARRA DE BÚSQUEDA */}
         <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">Países Registrados</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-semibold text-slate-700">Países Registrados</h2>
+            
+            {/* Input de Búsqueda Estilizado */}
+            <div className="relative w-full sm:w-64">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">
+                🔍
+              </span>
+              <input
+                type="text"
+                placeholder="Buscar por nombre o código..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-slate-400 bg-slate-50/50"
+              />
+              {searchTerm && (
+                <button 
+                  onClick={() => setSearchTerm('')} 
+                  className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-slate-600 font-bold text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
 
           {isLoading && countries.length === 0 ? (
             <p className="text-sm text-slate-500 text-center py-8">Cargando países...</p>
           ) : countries.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-8">No hay países registrados en la base de datos.</p>
+          ) : filteredCountries.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">
+              No se encontraron coincidencias para "{searchTerm}".
+            </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {countries.map((country) => (
+              {filteredCountries.map((country) => (
                 <div key={country.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 flex justify-between items-center gap-2">
                   <div>
                     <span className="text-xs font-mono font-bold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded mr-2">
