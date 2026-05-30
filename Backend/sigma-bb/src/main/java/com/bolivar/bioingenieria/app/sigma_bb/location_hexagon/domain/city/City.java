@@ -21,9 +21,9 @@ public class City extends AggregateRoot {
     private String name;
     private String countryId;
 
-    public static City create(String name, String countryId) {
+    public static City create(String id, String name, String countryId) {
         City newCity = City.builder()
-                .id(createIdFromName(name))
+                .id(id)
                 .name(name)
                 .countryId(countryId)
                 .build();
