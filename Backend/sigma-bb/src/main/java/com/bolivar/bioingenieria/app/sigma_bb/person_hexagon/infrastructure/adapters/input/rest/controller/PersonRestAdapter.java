@@ -60,7 +60,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Obtener todas las personas",
             description = "Recupera la lista completa de personas registradas en el sistema.")
-    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden acceder a esta información
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.read', 'client.write')") // Solo los usuarios con autoridad 'admin.full' pueden acceder a esta información
     @GetMapping("/v1/api")
     public List<?> getAllPersons() {
         return personRestMapper.toPersonResponseList(personServicePort.findAll());
@@ -78,7 +78,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Obtener persona por ID",
             description = "Recupera la información de una persona específica utilizando su identificador único (UUID).")
-    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden acceder a esta información
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.read', 'client.write')") // Solo los usuarios con autoridad 'admin.full' pueden acceder a esta información
     @GetMapping("/v1/api/{id}")
     public Object getPersonById(
             @Parameter(description = "Identificador único de la persona (UUID)", required = true)
@@ -101,7 +101,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Crear nueva persona",
             description = "Crea una nueva persona en el sistema a partir de los datos proporcionados.")
-    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden crear personas
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')") // Solo los usuarios con autoridad 'admin.full' pueden crear personas
     @PostMapping("/v1/api")
     public ResponseEntity<?> createPerson(
             @Valid @RequestBody PersonCreateRequest request) {
@@ -125,7 +125,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Registrar nuevo ingeniero",
             description = "Registra una nueva persona con rol de ingeniero en el sistema a partir de los datos proporcionados.")
-    @PreAuthorize("hasAuthority('admin.full')")// Solo los usuarios con autoridad 'admin.full' pueden registrar ingenieros
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')")// Solo los usuarios con autoridad 'admin.full' pueden registrar ingenieros
     @PostMapping("/vi/api/register/engineer")
     public ResponseEntity<?> registerEngineer(
             @Valid @RequestBody PersonCreateRequest request) {
@@ -150,7 +150,7 @@ public class PersonRestAdapter {
             summary = "Registrar nuevo administrador",
             description = "Registra una nueva persona con rol de administrador en el sistema a partir de los datos proporcionados."
     )
-    @PreAuthorize("hasAuthority('admin.full')")// Solo los usuarios con autoridad 'admin.full' pueden registrar administradores
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')")// Solo los usuarios con autoridad 'admin.full' pueden registrar administradores
     @PostMapping("/v1/api/register/admin")
     public ResponseEntity<?> registerAdimn(
             @Valid @RequestBody PersonCreateRequest request) {
@@ -175,7 +175,7 @@ public class PersonRestAdapter {
             summary = "Registrar nuevo CEO-Client",
             description = "Registra una nueva persona con rol de CEO-Client en el sistema a partir de los datos proporcionados."
     )
-    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden registrar CEO-Client
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')") // Solo los usuarios con autoridad 'admin.full' pueden registrar CEO-Client
     @PostMapping("/v2/api/register/ceo-client")
     public ResponseEntity<?> registerCEOClient(
             @Valid @RequestBody PersonCreateRequest request) {
@@ -200,7 +200,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Actualizar persona",
             description = "Actualiza la información de una persona existente utilizando su identificador único (UUID) y los nuevos datos proporcionados.")
-    @PreAuthorize("hasAuthority('admin.full')") // Solo los usuarios con autoridad 'admin.full' pueden actualizar personas
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')") // Solo los usuarios con autoridad 'admin.full' pueden actualizar personas
     @PutMapping("/v1/api/{id}")
     public ResponseEntity<PersonResponse> updatePerson(
             @Parameter(
@@ -228,7 +228,7 @@ public class PersonRestAdapter {
     @Operation(
             summary = "Eliminar persona",
             description = "Elimina una persona del sistema utilizando su identificador único (UUID).")
-    @PreAuthorize("hasAuthority('admin.full')")// Solo los usuarios con autoridad 'admin.full' pueden eliminar personas
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')")// Solo los usuarios con autoridad 'admin.full' pueden eliminar personas
     @DeleteMapping("/v1/api/{id}")
     public ResponseEntity<Void> deletePerson(
             @Parameter(

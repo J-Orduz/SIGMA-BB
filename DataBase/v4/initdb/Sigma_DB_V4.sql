@@ -115,7 +115,7 @@ CREATE TABLE ciudad
 
 CREATE TABLE cliente
 (
-	k_id_cliente varchar(11) NOT NULL,	-- iD (NIT juridico, NIT natural, CC) unico con el que se identifica al cliente.
+	k_id_cliente varchar(50) NOT NULL,	-- iD (NIT juridico, NIT natural, CC) unico con el que se identifica al cliente.
 	n_tipo_identificacion varchar(12) NOT NULL,	-- Tipo de documento, este puede ser cedula de ciudadania, cedula extrangera, entre otras 
 	n_razon_social varchar(50) NOT NULL,	-- Razon social a la que pertenece al cliente.
 	b_estado_activo boolean NOT NULL   DEFAULT true,	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
@@ -138,7 +138,7 @@ CREATE TABLE correo_cliente
 	k_id_correo_cliente uuid NOT NULL,	-- Este es el PK que representa la los correo_cliente.
 	n_correo_cliente varchar(50) NOT NULL,	-- Informacion de contacto del cliente. El correo tiene ciertas especificaciones 
 	b_estado_activo boolean NOT NULL   DEFAULT true,	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
-	k_id_cliente varchar(11) NULL	-- ID del cliente con el que esta relacionado el correo electronico 
+	k_id_cliente varchar(50) NULL	-- ID del cliente con el que esta relacionado el correo electronico 
 )
 ;
 
@@ -295,7 +295,7 @@ CREATE TABLE representante_legal
 (
 	b_estado_activo boolean NOT NULL   DEFAULT true,	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
 	k_identificador uuid NOT NULL,	-- FK proveniente de la tabla persona.
-	k_id_cliente varchar(11) NOT NULL	--  FK proveniente de la clave cliente.
+	k_id_cliente varchar(50) NOT NULL	--  FK proveniente de la clave cliente.
 )
 ;
 
@@ -307,7 +307,7 @@ CREATE TABLE sede
 	dir_carrera varchar(50) NOT NULL,	-- Parte de la dirección que pertenece a la carrera.
 	dir_num varchar(50) NOT NULL,	-- Parte de la dirección que pertenece al numero.
 	b_estado_activo boolean NOT NULL   DEFAULT true,	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
-	k_id_cliente varchar(11) NOT NULL,	-- FK que viene desde el cliente que representa al dueño de la sede.
+	k_id_cliente varchar(50) NOT NULL,	-- FK que viene desde el cliente que representa al dueño de la sede.
 	k_id_ciudad varchar(10) NOT NULL	-- ID de la ciudad en donde se encuentra la sede 
 )
 ;
@@ -317,7 +317,7 @@ CREATE TABLE telefono_cliente
 	k_id_telefono_cliente uuid NOT NULL,	-- Esta es la PK que identifica a los telefono_cliente.
 	n_telefono_cliente varchar(50) NOT NULL,	-- Número telefonico del cliente 
 	b_estado_activo boolean NOT NULL   DEFAULT true,	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
-	k_id_cliente varchar(11) NULL	-- ID del cliente del cual esta relacionado el numero telefonico 
+	k_id_cliente varchar(50) NULL	-- ID del cliente del cual esta relacionado el numero telefonico 
 )
 ;
 

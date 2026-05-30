@@ -46,6 +46,11 @@ public class ClientResponse {
     private boolean estadoActivo;
 
     /**
+     * Cédula del representante legal asociado al cliente.
+     */
+    private String identificadorRepresentante;
+
+    /**
      * Lista de teléfonos asociados al cliente.
      * Cada elemento es un {@link PhoneClientResponse} con los datos del teléfono a almacenar.
      */

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useClients } from '../hooks/useClients';
 import type { ClientCreateRequest } from '../types/client.types';
 import { TIPO_IDENTIFICACION_OPTIONS } from '../types/client.types';
+import { useCountries } from '../../locations/hooks/useCountries';
+import { usePersons } from '../../persons/hooks/usePersons';
 
 // ─── Estado del modal de confirmación de borrado ────────────────────────────
 interface DeleteModalState {
@@ -25,11 +27,24 @@ const FORM_INITIAL: ClientCreateRequest = {
 // ─── Componente Principal ────────────────────────────────────────────────────
 export const ClientManager: React.FC = () => {
   const { clients, isLoading, error, createClient, deleteClient, setError } = useClients();
+  const { countries } = useCountries();
+  const { persons } = usePersons();
   const navigate = useNavigate();
 
   const [form, setForm] = useState<ClientCreateRequest>(FORM_INITIAL);
   const [successMsg, setSuccessMsg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [repLegal, setRepLegal] = useState('');
+
+  // Set default country once countries are loaded
+  React.useEffect(() => {
+    if (countries.length > 0 && (!form.identificadorPais || form.identificadorPais === 'COL')) {
+      const hasCol = countries.some(c => c.id === 'COL');
+      if (!hasCol) {
+        setForm((prev) => ({ ...prev, identificadorPais: countries[0].id }));
+      }
+    }
+  }, [countries, form.identificadorPais]);
 
   // Campos dinámicos de contacto en el formulario de creación
   const [emailInputs, setEmailInputs] = useState<string[]>(['']);
@@ -48,7 +63,9 @@ export const ClientManager: React.FC = () => {
     setTimeout(() => setSuccessMsg(''), 4000);
   };
 
-  const filteredClients = clients.filter((c) =>
+  const activeClients = clients.filter((c) => c.estadoActivo !== false);
+
+  const filteredClients = activeClients.filter((c) =>
     c.razonSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.identificadorCliente.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -83,8 +100,11 @@ export const ClientManager: React.FC = () => {
     e.preventDefault();
     if (!form.identificadorCliente.trim() || !form.razonSocial.trim()) return;
 
+    const cleanedId = form.identificadorCliente.replace(/[\.\s]/g, '').trim();
+
     const payload: ClientCreateRequest = {
       ...form,
+      identificadorCliente: cleanedId,
       emailClientList: emailInputs
         .filter((e) => e.trim() !== '')
         .map((correoCliente) => ({ correoCliente })),
@@ -92,13 +112,18 @@ export const ClientManager: React.FC = () => {
         .filter((p) => p.trim() !== '')
         .map((telefonoCliente) => ({ telefonoCliente })),
       headquarterList: [],
+      identificadorRepresentante: repLegal || undefined,
     };
 
     try {
       const created = await createClient(payload);
+      if (repLegal) {
+        localStorage.setItem(`rep_legal_${cleanedId}`, repLegal);
+      }
       setForm(FORM_INITIAL);
       setEmailInputs(['']);
       setPhoneInputs(['']);
+      setRepLegal('');
       showSuccess(`¡Cliente "${created.razonSocial}" registrado con éxito!`);
       // Navegar al detalle del cliente recién creado
       navigate(`/clients/${created.identificadorCliente}`);
@@ -219,12 +244,40 @@ export const ClientManager: React.FC = () => {
                 onChange={(e) => handleFormChange('identificadorPais', e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
-                <option value="COL">Colombia</option>
-                <option value="USA">Estados Unidos</option>
-                <option value="MEX">México</option>
-                <option value="VEN">Venezuela</option>
-                <option value="ECU">Ecuador</option>
-                <option value="PER">Perú</option>
+                {countries.length === 0 ? (
+                  <>
+                    <option value="COL">Colombia</option>
+                    <option value="USA">Estados Unidos</option>
+                    <option value="MEX">México</option>
+                    <option value="VEN">Venezuela</option>
+                    <option value="ECU">Ecuador</option>
+                    <option value="PER">Perú</option>
+                  </>
+                ) : (
+                  countries.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))
+                )}
+              </select>
+            </div>
+
+            {/* Representante Legal */}
+            <div>
+              <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">
+                Representante Legal
+              </label>
+              <select
+                id="representanteLegal"
+                value={repLegal}
+                onChange={(e) => setRepLegal(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              >
+                <option value="">-- Seleccione Representante --</option>
+                {persons.filter(p => p.estadoActivo !== false).map((p) => (
+                  <option key={p.cedula} value={p.cedula}>
+                    {p.primerNombre} {p.primerApellido} ({p.cedula})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -363,7 +416,6 @@ export const ClientManager: React.FC = () => {
                     <th className="px-4 py-3">NIT</th>
                     <th className="px-4 py-3">Razón Social</th>
                     <th className="px-4 py-3">Tipo ID</th>
-                    <th className="px-4 py-3">Estado</th>
                     <th className="px-4 py-3 text-right">Acciones</th>
                   </tr>
                 </thead>
@@ -401,21 +453,6 @@ export const ClientManager: React.FC = () => {
                         <span className="text-xs text-slate-500">{client.tipoIdentifiacion}</span>
                       </td>
 
-                      {/* Badge Estado */}
-                      <td className="px-4 py-3">
-                        {client.estadoActivo ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
-                            Activo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
-                            Inactivo
-                          </span>
-                        )}
-                      </td>
-
                       {/* Acciones */}
                       <td className="px-4 py-3 text-right whitespace-nowrap">
                         <div className="flex justify-end gap-2">
@@ -441,9 +478,9 @@ export const ClientManager: React.FC = () => {
           )}
 
           {/* Contador de resultados */}
-          {clients.length > 0 && (
+          {activeClients.length > 0 && (
             <p className="text-xs text-slate-400 text-right">
-              {filteredClients.length} de {clients.length} cliente{clients.length !== 1 ? 's' : ''}
+              {filteredClients.length} de {activeClients.length} cliente{activeClients.length !== 1 ? 's' : ''}
             </p>
           )}
         </div>

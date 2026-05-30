@@ -67,7 +67,7 @@ public class EmailRestAdapter {
      */
     @Operation(summary = "Agregar correo electrónico a una persona",
             description = "Agrega un nuevo correo electrónico a una persona existente, identificada por su ID.")
-    @PreAuthorize("hasAuthority('admin.full')")
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')")
     @PutMapping("/v1/api/{id}")
     public ResponseEntity<PersonResponse> createEmailPerson(
             @Parameter(
@@ -99,7 +99,7 @@ public class EmailRestAdapter {
     @Operation(
             summary = "Actualizar correo electrónico de una persona",
             description = "Actualiza un correo electrónico asociado a una persona utilizando el ID de la persona, el ID del correo electrónico y los nuevos datos proporcionados.")
-    @PreAuthorize("hasAuthority('admin.full')")
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')")
     @PutMapping("/v1/api/{id}/{emailId}")
     public ResponseEntity<PersonResponse> updateEmailPerson(
             @Parameter(
@@ -134,7 +134,7 @@ public class EmailRestAdapter {
     @Operation(
             summary = "Eliminar correo electrónico de una persona",
             description = "Elimina un correo electrónico asociado a una persona utilizando el ID de la persona y el ID del correo electrónico.")
-    @PreAuthorize("hasAuthority('admin.full')")
+    @PreAuthorize("hasAnyAuthority('admin.full', 'client.write')")
     @DeleteMapping("/v1/api/{id}/{emailId}")
     public ResponseEntity<PersonResponse> deleteEmailPerson(
             @Parameter(

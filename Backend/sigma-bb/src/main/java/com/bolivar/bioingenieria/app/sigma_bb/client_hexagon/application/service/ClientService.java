@@ -112,7 +112,12 @@ public class ClientService implements ClientServicePort {
                 }
             }
         }
-        return clientPersistencePort.save(client);
+        Client savedClient = clientPersistencePort.save(client);
+        if (client.getIdentificadorRepresentante() != null) {
+            clientPersistencePort.saveRepresentanteLegal(savedClient.getIdentificadorCliente(), client.getIdentificadorRepresentante());
+        }
+        savedClient.setIdentificadorRepresentante(client.getIdentificadorRepresentante());
+        return savedClient;
     }
 
     /**
@@ -155,7 +160,12 @@ public class ClientService implements ClientServicePort {
                         existingClient.getPhoneClientList().addAll(client.getPhoneClientList());
                     }
                     
-                    return clientPersistencePort.save(existingClient);
+                    Client savedClient = clientPersistencePort.save(existingClient);
+                    if (client.getIdentificadorRepresentante() != null) {
+                        clientPersistencePort.saveRepresentanteLegal(clientId, client.getIdentificadorRepresentante());
+                    }
+                    savedClient.setIdentificadorRepresentante(client.getIdentificadorRepresentante());
+                    return savedClient;
                 })
                 .orElseThrow(ClientNotFoundException::new);
     }

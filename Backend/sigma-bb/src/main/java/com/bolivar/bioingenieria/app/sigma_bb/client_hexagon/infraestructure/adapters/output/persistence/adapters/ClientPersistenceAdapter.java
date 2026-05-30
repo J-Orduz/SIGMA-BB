@@ -34,7 +34,12 @@ public class ClientPersistenceAdapter implements ClientPersistencePort {
     @Override
     public Optional<Client> findById(String clientId) {
         return clientRepository.findById(clientId)
-                .map(clientPersistenceMapper::toClient);
+                .map(clientPersistenceMapper::toClient)
+                .map(client -> {
+                    String cedula = clientRepository.findRepresentanteLegalCedulaByClientId(clientId);
+                    client.setIdentificadorRepresentante(cedula);
+                    return client;
+                });
     }
 
     /**
@@ -44,7 +49,12 @@ public class ClientPersistenceAdapter implements ClientPersistencePort {
     */
     @Override
     public List<Client> findAll() {
-        return clientPersistenceMapper.toClientList(clientRepository.findAll());
+        List<Client> clients = clientPersistenceMapper.toClientList(clientRepository.findAll());
+        for (Client client : clients) {
+            String cedula = clientRepository.findRepresentanteLegalCedulaByClientId(client.getIdentificadorCliente());
+            client.setIdentificadorRepresentante(cedula);
+        }
+        return clients;
     }
 
     /**
@@ -70,5 +80,19 @@ public class ClientPersistenceAdapter implements ClientPersistencePort {
         clientPersistenceMapper.toClient(
                 clientRepository.save(
                         clientPersistenceMapper.toClientEntity(client)));
+    }
+
+    /**
+     * Sincroniza la relación del representante legal en la base de datos para el cliente dado.
+     *
+     * @param clientId identificador del cliente
+     * @param cedula cédula del representante legal a vincular
+     */
+    @Override
+    public void saveRepresentanteLegal(String clientId, String cedula) {
+        clientRepository.deactivateRepresentantesLegalesByClientId(clientId);
+        if (cedula != null && !cedula.trim().isEmpty()) {
+            clientRepository.insertOrUpdateRepresentanteLegal(clientId, cedula.trim());
+        }
     }
 }

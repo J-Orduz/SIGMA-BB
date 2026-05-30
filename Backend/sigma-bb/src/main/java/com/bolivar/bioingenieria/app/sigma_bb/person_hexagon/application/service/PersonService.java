@@ -65,6 +65,7 @@ public class  PersonService implements PersonServicePort {
     @Override
     public Person save(Person person) {
         person.setIdentificador(UUID.randomUUID());
+        person.setEstadoActivo(true);
         for(PhonePerson phone : person.getPhonePersonList()) {
             phone.setIdTelefonoPersona(UUID.randomUUID());
         }
@@ -208,6 +209,14 @@ public class  PersonService implements PersonServicePort {
         personPersistencePort.findById(id)
             .map(existingPerson -> {
                 existingPerson.setEstadoActivo(false);
+                String tipo = existingPerson.getTipoPersona();
+                if ("ADMIN".equals(tipo) || "ENGINEER".equals(tipo) || "CEO_CLIENT".equals(tipo)) {
+                    try {
+                        personIdentityAdapter.deleteUser(existingPerson.getIdentificador().toString());
+                    } catch (Exception e) {
+                        System.err.println("Advertencia: No se pudo eliminar el usuario de Keycloak: " + e.getMessage());
+                    }
+                }
                 return personPersistencePort.save(existingPerson);
             })
             .orElseThrow(PersonNotFoundException::new);
@@ -358,6 +367,7 @@ public class  PersonService implements PersonServicePort {
                     .primerApellido(personCreateRequestUseCase.getPrimerApellido())
                     .segundoApellido(personCreateRequestUseCase.getSegundoApellido())
                     .tipoPersona(roleType.getName())
+                    .estadoActivo(true)
                     .emailPersonList(personCreateRequestUseCase.getEmailPersonList()
                             .stream()
                             .map(emailRequest -> EmailPerson.builder()

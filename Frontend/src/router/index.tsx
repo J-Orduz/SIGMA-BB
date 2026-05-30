@@ -9,6 +9,7 @@ import { ManufacturerManager } from '../features/manufacturers/components/Manufa
 import { ModelManager } from '../features/equipments/components/ModelManager';
 import { ClientManager } from '../features/clients/components/ClientManager';
 import { ClientDetailPage } from '../features/clients/components/ClientDetailPage';
+import { PersonManager } from '../features/persons/components/PersonManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -100,13 +101,22 @@ const DashboardLayout = () => {
 
             {/* Gestión de Clientes: Solo Administrador o SuperUsuario */}
             {(user?.role === 'Administrador' || user?.role === 'SuperUsuario') && (
-              <Link
-                to="/clients"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-              >
-                Gestión de Clientes
-              </Link>
+              <>
+                <Link
+                  to="/clients"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                >
+                  Gestión de Clientes
+                </Link>
+                <Link
+                  to="/persons"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                >
+                  Gestión Personas
+                </Link>
+              </>
             )}
           </nav>
         </div>
@@ -194,6 +204,10 @@ export const router = createBrowserRouter([
               {
                 path: 'clients/:clientId',
                 element: <ClientDetailPage />
+              },
+              {
+                path: 'persons',
+                element: <PersonManager />
               }
             ]
           }

@@ -3,6 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { clientService } from '../services/client.service';
 import { headquarterService } from '../services/headquarter.service';
 import { serviceAreaService } from '../services/serviceArea.service';
+import { useCountries } from '../../locations/hooks/useCountries';
+import { useCities } from '../../locations/hooks/useCities';
+import { usePersons } from '../../persons/hooks/usePersons';
 import type {
   Client,
   Headquarter,
@@ -24,12 +27,14 @@ const HQ_FORM_INITIAL: HeadquarterCreateRequest = {
   direccionCarreraSede: '',
   direccionNumeroSede: '',
   identificadorCiudad: '',
+  identificadorCliente: '',
   serviceAreaList: [],
   managerList: [],
 };
 
 const SA_FORM_INITIAL: ServiceAreaCreateRequest = {
   nombreAreaServicio: '',
+  identificadorSede: '',
   managerList: [],
 };
 
@@ -37,6 +42,10 @@ const SA_FORM_INITIAL: ServiceAreaCreateRequest = {
 export const ClientDetailPage: React.FC = () => {
   const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
+
+  const { countries } = useCountries();
+  const { cities } = useCities();
+  const { persons } = usePersons();
 
   const [client, setClient] = useState<Client | null>(null);
   const [allHqs, setAllHqs] = useState<Headquarter[]>([]);
@@ -53,6 +62,14 @@ export const ClientDetailPage: React.FC = () => {
   const [showHqForm, setShowHqForm] = useState(false);
   const [showSaForm, setShowSaForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Estados de edición de información general
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editRazonSocial, setEditRazonSocial] = useState('');
+  const [editPais, setEditPais] = useState('');
+  const [editEmails, setEditEmails] = useState<string[]>(['']);
+  const [editPhones, setEditPhones] = useState<string[]>(['']);
+  const [editRepLegal, setEditRepLegal] = useState('');
 
   // ── Carga de datos ──────────────────────────────────────────────────────────
 
@@ -72,12 +89,17 @@ export const ClientDetailPage: React.FC = () => {
         serviceAreaService.getAll(),
       ]);
       setClient(clientData);
-      // Filtrar sedes y áreas que pertenecen a este cliente
-      const clientHqIds = new Set(clientData.headquarterClientList.map((h) => h.identificadorSede));
-      const clientHqs = hqData.filter((h) => clientHqIds.has(h.identificadorSede));
+
+      // Filtrar sedes que pertenecen a este cliente y estén activas
+      const activeHqsFromClient = clientData.headquarterClientList?.filter((h) => h.estadoActivo !== false) || [];
+      const clientHqIds = new Set(activeHqsFromClient.map((h) => h.identificadorSede));
+      const clientHqs = hqData.filter((h) => clientHqIds.has(h.identificadorSede) && h.estadoActivo !== false);
       setAllHqs(clientHqs);
-      const hqAreaIds = new Set(clientHqs.flatMap((h) => h.serviceAreaList.map((a) => a.identificadorAreaServicio)));
-      setAllAreas(areaData.filter((a) => hqAreaIds.has(a.identificadorAreaServicio)));
+
+      // Filtrar áreas de servicio activas asociadas a las sedes de este cliente
+      const hqAreaIds = new Set(clientHqs.flatMap((h) => (h.serviceAreaList || []).filter((a) => a.estadoActivo !== false).map((a) => a.identificadorAreaServicio)));
+      const activeAreas = areaData.filter((a) => hqAreaIds.has(a.identificadorAreaServicio) && a.estadoActivo !== false);
+      setAllAreas(activeAreas);
     } catch {
       setError('No se pudo cargar la información del cliente. Verifique la conexión con el servidor.');
     } finally {
@@ -89,6 +111,86 @@ export const ClientDetailPage: React.FC = () => {
     fetchData();
   }, [fetchData]);
 
+  // Sincronizar select de ciudad por defecto en formulario de sedes
+  useEffect(() => {
+    if (cities.length > 0 && !hqForm.identificadorCiudad) {
+      setHqForm((prev) => ({ ...prev, identificadorCiudad: cities[0].id }));
+    }
+  }, [cities, hqForm.identificadorCiudad]);
+
+  // Sincronizar select de sede por defecto en formulario de áreas de servicio
+  useEffect(() => {
+    if (allHqs.length > 0 && !saForm.identificadorSede) {
+      setSaForm((prev) => ({ ...prev, identificadorSede: allHqs[0].identificadorSede }));
+    }
+  }, [allHqs, saForm.identificadorSede]);
+
+  // ── Modificar datos generales del cliente ────────────────────────────────────
+
+  const startEditing = () => {
+    if (!client) return;
+    setEditRazonSocial(client.razonSocial);
+    setEditPais(client.identificadorPais);
+    setEditEmails(client.correosCliente?.filter(e => e.estadoActivo !== false).map(e => e.correoCliente) || ['']);
+    setEditPhones(client.telefonosCliente?.filter(p => p.estadoActivo !== false).map(p => p.telefonoCliente) || ['']);
+    setEditRepLegal(client.identificadorRepresentante || localStorage.getItem(`rep_legal_${client.identificadorCliente}`) || '');
+    setIsEditingInfo(true);
+  };
+
+  const handleEmailChange = (index: number, value: string) => {
+    const updated = [...editEmails];
+    updated[index] = value;
+    setEditEmails(updated);
+  };
+
+  const handlePhoneChange = (index: number, value: string) => {
+    const updated = [...editPhones];
+    updated[index] = value;
+    setEditPhones(updated);
+  };
+
+  const addEmailField = () => setEditEmails((prev) => [...prev, '']);
+  const removeEmailField = (index: number) => setEditEmails((prev) => prev.filter((_, i) => i !== index));
+
+  const addPhoneField = () => setEditPhones((prev) => [...prev, '']);
+  const removePhoneField = (index: number) => setEditPhones((prev) => prev.filter((_, i) => i !== index));
+
+  const handleSaveInfo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!client) return;
+    setIsSaving(true);
+    setError(null);
+    try {
+      const payload = {
+        identificadorCliente: client.identificadorCliente,
+        tipoIdentifiacion: client.tipoIdentifiacion,
+        razonSocial: editRazonSocial.trim(),
+        identificadorPais: editPais,
+        emailClientList: editEmails.filter((email) => email.trim() !== '').map((correoCliente) => ({ correoCliente })),
+        phoneClientList: editPhones.filter((phone) => phone.trim() !== '').map((telefonoCliente) => ({ telefonoCliente })),
+        headquarterList: [],
+        identificadorRepresentante: editRepLegal || undefined,
+      };
+
+      await clientService.update(client.identificadorCliente, payload);
+
+      // Guardar el Representante Legal
+      if (editRepLegal) {
+        localStorage.setItem(`rep_legal_${client.identificadorCliente}`, editRepLegal);
+      } else {
+        localStorage.removeItem(`rep_legal_${client.identificadorCliente}`);
+      }
+
+      setIsEditingInfo(false);
+      showSuccess('¡Información del cliente actualizada exitosamente!');
+      await fetchData();
+    } catch (err: any) {
+      setError(err.message || 'Error al actualizar el cliente.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // ── Agregar Sede ────────────────────────────────────────────────────────────
 
   const handleAddHeadquarter = async (e: React.FormEvent) => {
@@ -96,8 +198,14 @@ export const ClientDetailPage: React.FC = () => {
     setIsSaving(true);
     setError(null);
     try {
-      await headquarterService.create(hqForm);
-      setHqForm(HQ_FORM_INITIAL);
+      await headquarterService.create({
+        ...hqForm,
+        identificadorCliente: clientId!,
+      });
+      setHqForm({
+        ...HQ_FORM_INITIAL,
+        identificadorCiudad: cities[0]?.id || '',
+      });
       setShowHqForm(false);
       showSuccess('¡Sede registrada con éxito!');
       await fetchData();
@@ -112,11 +220,18 @@ export const ClientDetailPage: React.FC = () => {
 
   const handleAddServiceArea = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!saForm.identificadorSede) {
+      setError('Por favor, seleccione una Sede para vincular el área de servicio.');
+      return;
+    }
     setIsSaving(true);
     setError(null);
     try {
       await serviceAreaService.create(saForm);
-      setSaForm(SA_FORM_INITIAL);
+      setSaForm({
+        ...SA_FORM_INITIAL,
+        identificadorSede: allHqs[0]?.identificadorSede || '',
+      });
       setShowSaForm(false);
       showSuccess('¡Área de servicio registrada con éxito!');
       await fetchData();
@@ -200,20 +315,11 @@ export const ClientDetailPage: React.FC = () => {
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-white">{client.razonSocial}</h1>
-              {client.estadoActivo ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span> Activo
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-500/30 text-slate-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span> Inactivo
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-slate-400 font-mono">{client.tipoIdentifiacion}: {client.identificadorCliente}</p>
-            <p className="text-xs text-slate-500">País: {client.identificadorPais}</p>
+            <h1 className="text-xl font-bold text-white">{client.razonSocial}</h1>
+            <p className="text-sm text-slate-400 font-mono">NIT ({client.tipoIdentifiacion}): {client.identificadorCliente}</p>
+            <p className="text-xs text-slate-500">
+              País: {countries.find((c) => c.id === client.identificadorPais)?.name || client.identificadorPais}
+            </p>
           </div>
           <div className="flex gap-2 shrink-0">
             <button
@@ -228,12 +334,12 @@ export const ClientDetailPage: React.FC = () => {
         {/* Info rápida de contacto */}
         {(client.correosCliente?.length > 0 || client.telefonosCliente?.length > 0) && (
           <div className="px-6 py-3 border-t border-slate-100 bg-slate-50 flex flex-wrap gap-x-6 gap-y-1">
-            {client.correosCliente?.filter(e => e.estadoActivo).map((e) => (
+            {client.correosCliente?.filter(e => e.estadoActivo !== false).map((e) => (
               <span key={e.identificadorCorreoCliente} className="text-xs text-slate-500 flex items-center gap-1">
                 <span className="text-slate-400">✉️</span> {e.correoCliente}
               </span>
             ))}
-            {client.telefonosCliente?.filter(p => p.estadoActivo).map((p) => (
+            {client.telefonosCliente?.filter(p => p.estadoActivo !== false).map((p) => (
               <span key={p.identificadorTelefonoCliente} className="text-xs text-slate-500 flex items-center gap-1">
                 <span className="text-slate-400">📞</span> {p.telefonoCliente}
               </span>
@@ -261,7 +367,7 @@ export const ClientDetailPage: React.FC = () => {
         <div className="flex border-b border-slate-200 bg-slate-50">
           {[
             { key: 'info' as Tab, label: '📋 Información General', count: null },
-            { key: 'sedes' as Tab, label: '🏢 Sedes', count: client.headquarterClientList?.length ?? 0 },
+            { key: 'sedes' as Tab, label: '🏢 Sedes', count: allHqs.length },
             { key: 'areas' as Tab, label: '🗂️ Áreas de Servicio', count: allAreas.length },
           ].map((tab) => (
             <button
@@ -288,45 +394,213 @@ export const ClientDetailPage: React.FC = () => {
 
         {/* ── Contenido de la pestaña: Información General ─────────── */}
         {activeTab === 'info' && (
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Datos Institucionales</h3>
-                <InfoRow label="NIT / Identificador" value={client.identificadorCliente} mono />
-                <InfoRow label="Tipo de Identificación" value={client.tipoIdentifiacion} />
-                <InfoRow label="Razón Social" value={client.razonSocial} />
-                <InfoRow label="País" value={client.identificadorPais} />
-                <InfoRow label="Estado" value={client.estadoActivo ? 'Activo' : 'Inactivo'} />
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Información de Contacto</h3>
-                {client.correosCliente?.length > 0 ? (
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Correos Electrónicos</p>
-                    {client.correosCliente.filter(e => e.estadoActivo).map((e) => (
-                      <p key={e.identificadorCorreoCliente} className="text-sm text-slate-800">✉️ {e.correoCliente}</p>
-                    ))}
+          <div className="p-6">
+            {!isEditingInfo ? (
+              <div className="space-y-6 animate-fade-in">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                  <h3 className="text-base font-semibold text-slate-700">Información del Cliente</h3>
+                  <button
+                    onClick={startEditing}
+                    className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-semibold rounded-lg border border-blue-100 transition-colors flex items-center gap-1"
+                  >
+                    ✏️ Editar Información
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Datos Institucionales</h4>
+                    <InfoRow label="NIT / Identificador" value={client.identificadorCliente} mono />
+                    <InfoRow label="Tipo de Identificación" value={client.tipoIdentifiacion === 'NIT_juridico' ? 'NIT (Persona Jurídica)' : 'NIT (Persona Natural)'} />
+                    <InfoRow label="Razón Social" value={client.razonSocial} />
+                    <InfoRow 
+                      label="País" 
+                      value={countries.find((c) => c.id === client.identificadorPais)?.name || client.identificadorPais} 
+                    />
+                    {(() => {
+                      const repCedula = client.identificadorRepresentante || localStorage.getItem(`rep_legal_${client.identificadorCliente}`);
+                      const repPerson = persons.find(p => p.cedula === repCedula);
+                      const repName = repPerson ? `${repPerson.primerNombre} ${repPerson.primerApellido}` : 'No asignado';
+                      return (
+                        <InfoRow 
+                          label="Representante Legal" 
+                          value={repCedula ? `${repName} (${repCedula})` : 'No asignado'} 
+                        />
+                      );
+                    })()}
                   </div>
-                ) : (
-                  <p className="text-sm text-slate-400 italic">Sin correos registrados.</p>
-                )}
-                {client.telefonosCliente?.length > 0 ? (
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Teléfonos</p>
-                    {client.telefonosCliente.filter(p => p.estadoActivo).map((p) => (
-                      <p key={p.identificadorTelefonoCliente} className="text-sm text-slate-800">📞 {p.telefonoCliente}</p>
-                    ))}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Información de Contacto</h4>
+                    {client.correosCliente?.filter(e => e.estadoActivo !== false).length > 0 ? (
+                      <div>
+                        <p className="text-xs text-slate-500 mb-1">Correos Electrónicos</p>
+                        {client.correosCliente.filter(e => e.estadoActivo !== false).map((e) => (
+                          <p key={e.identificadorCorreoCliente} className="text-sm text-slate-800 font-medium">✉️ {e.correoCliente}</p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-slate-400 italic">Sin correos registrados.</p>
+                    )}
+                    {client.telefonosCliente?.filter(p => p.estadoActivo !== false).length > 0 ? (
+                      <div>
+                        <p className="text-xs text-slate-500 mb-1">Teléfonos</p>
+                        {client.telefonosCliente.filter(p => p.estadoActivo !== false).map((p) => (
+                          <p key={p.identificadorTelefonoCliente} className="text-sm text-slate-800 font-medium">📞 {p.telefonoCliente}</p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-slate-400 italic">Sin teléfonos registrados.</p>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-sm text-slate-400 italic">Sin teléfonos registrados.</p>
-                )}
+                </div>
               </div>
-            </div>
-            <div className="pt-2 border-t border-slate-100">
-              <p className="text-xs text-slate-400">
-                Para modificar la información de este cliente, utilice el módulo de administración del backend o contacte al administrador del sistema.
-              </p>
-            </div>
+            ) : (
+              <form onSubmit={handleSaveInfo} className="space-y-6 animate-fade-in">
+                <div className="border-b border-slate-100 pb-3">
+                  <h3 className="text-base font-semibold text-slate-700">Modificar Datos del Cliente</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Formulario izquierdo */}
+                  <div className="space-y-4">
+                    <div>
+                      <FormLabel>Razón Social</FormLabel>
+                      <input
+                        required
+                        type="text"
+                        value={editRazonSocial}
+                        onChange={(e) => setEditRazonSocial(e.target.value)}
+                        className={inputCls}
+                      />
+                    </div>
+                    <div>
+                      <FormLabel>País de Operación</FormLabel>
+                      <select
+                        value={editPais}
+                        onChange={(e) => setEditPais(e.target.value)}
+                        className={inputCls}
+                      >
+                        {countries.length === 0 ? (
+                          <option value={client.identificadorPais}>{client.identificadorPais}</option>
+                        ) : (
+                          countries.map((c) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))
+                        )}
+                      </select>
+                    </div>
+                    <div>
+                      <FormLabel>Representante Legal</FormLabel>
+                      <select
+                        value={editRepLegal}
+                        onChange={(e) => setEditRepLegal(e.target.value)}
+                        className={inputCls}
+                      >
+                        <option value="">-- Seleccione Representante --</option>
+                        {persons.filter(p => p.estadoActivo !== false).map((p) => (
+                          <option key={p.cedula} value={p.cedula}>
+                            {p.primerNombre} {p.primerApellido} ({p.cedula})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Formulario derecho (Contactos) */}
+                  <div className="space-y-4">
+                    {/* Correos */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <FormLabel>Correos Electrónicos</FormLabel>
+                        <button
+                          type="button"
+                          onClick={addEmailField}
+                          className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          + Agregar
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {editEmails.map((email, idx) => (
+                          <div key={idx} className="flex gap-2">
+                            <input
+                              required
+                              type="email"
+                              value={email}
+                              onChange={(e) => handleEmailChange(idx, e.target.value)}
+                              placeholder="correo@empresa.com"
+                              className={inputCls}
+                            />
+                            {editEmails.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeEmailField(idx)}
+                                className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Teléfonos */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <FormLabel>Teléfonos</FormLabel>
+                        <button
+                          type="button"
+                          onClick={addPhoneField}
+                          className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          + Agregar
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {editPhones.map((phone, idx) => (
+                          <div key={idx} className="flex gap-2">
+                            <input
+                              required
+                              type="tel"
+                              value={phone}
+                              onChange={(e) => handlePhoneChange(idx, e.target.value)}
+                              placeholder="Ej. 3123120302"
+                              className={inputCls}
+                            />
+                            {editPhones.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removePhoneField(idx)}
+                                className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingInfo(false)}
+                    className={btnSecondary}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className={btnPrimary}
+                  >
+                    {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         )}
 
@@ -339,13 +613,19 @@ export const ClientDetailPage: React.FC = () => {
                   ? `${allHqs.length} sede${allHqs.length !== 1 ? 's' : ''} registrada${allHqs.length !== 1 ? 's' : ''}.`
                   : 'Este cliente aún no tiene sedes registradas.'}
               </p>
-              <button
-                id="btn-agregar-sede"
-                onClick={() => setShowHqForm((v) => !v)}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
-              >
-                {showHqForm ? '✕ Cancelar' : '+ Agregar Sede'}
-              </button>
+              {cities.length === 0 ? (
+                <span className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg p-2">
+                  ⚠️ Registre ciudades en Ubicaciones para habilitar creación
+                </span>
+              ) : (
+                <button
+                  id="btn-agregar-sede"
+                  onClick={() => setShowHqForm((v) => !v)}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  {showHqForm ? '✕ Cancelar' : '+ Agregar Sede'}
+                </button>
+              )}
             </div>
 
             {/* Formulario de nueva sede */}
@@ -399,14 +679,18 @@ export const ClientDetailPage: React.FC = () => {
                   </div>
                   <div>
                     <FormLabel>Ciudad</FormLabel>
-                    <input
+                    <select
                       required
-                      type="text"
                       value={hqForm.identificadorCiudad}
                       onChange={(e) => setHqForm((p) => ({ ...p, identificadorCiudad: e.target.value }))}
-                      placeholder="Ej. BOG, MDE, CTG"
                       className={inputCls}
-                    />
+                    >
+                      {cities.map((city) => (
+                        <option key={city.id} value={city.id}>
+                          {city.name} ({city.id})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
@@ -423,33 +707,33 @@ export const ClientDetailPage: React.FC = () => {
               <EmptyState icon="🏢" message="No hay sedes registradas para este cliente." />
             )}
             <div className="space-y-3">
-              {allHqs.map((hq) => (
-                <div key={hq.identificadorSede} className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+              {allHqs.map((hq) => {
+                const foundCity = cities.find((city) => city.id === hq.identificadorCiudad);
+                return (
+                  <div key={hq.identificadorSede} className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1">
                         <h4 className="font-semibold text-slate-800 text-sm">{hq.nombreSede}</h4>
-                        {hq.estadoActivo ? (
-                          <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">Activa</span>
-                        ) : (
-                          <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">Inactiva</span>
+                        <p className="text-xs text-slate-500">📍 {buildAddress(hq)}</p>
+                        <p className="text-xs text-slate-400">
+                          Ciudad: <span className="font-medium text-slate-600">{foundCity ? foundCity.name : hq.identificadorCiudad}</span>
+                        </p>
+                        {hq.serviceAreaList?.filter(a => a.estadoActivo !== false).length > 0 && (
+                          <p className="text-xs text-blue-600">
+                            {hq.serviceAreaList.filter(a => a.estadoActivo !== false).length} área(s) de servicio
+                          </p>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500">📍 {buildAddress(hq)}</p>
-                      <p className="text-xs text-slate-400">Ciudad: {hq.identificadorCiudad}</p>
-                      {hq.serviceAreaList?.length > 0 && (
-                        <p className="text-xs text-blue-600">{hq.serviceAreaList.length} área{hq.serviceAreaList.length !== 1 ? 's' : ''} de servicio</p>
-                      )}
+                      <button
+                        onClick={() => handleDeleteHq(hq.identificadorSede, hq.nombreSede)}
+                        className="px-2.5 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-semibold rounded-md border border-red-100 transition-colors shrink-0"
+                      >
+                        Eliminar
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleDeleteHq(hq.identificadorSede, hq.nombreSede)}
-                      className="px-2.5 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-semibold rounded-md border border-red-100 transition-colors shrink-0"
-                    >
-                      Eliminar
-                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -463,30 +747,58 @@ export const ClientDetailPage: React.FC = () => {
                   ? `${allAreas.length} área${allAreas.length !== 1 ? 's' : ''} de servicio registrada${allAreas.length !== 1 ? 's' : ''}.`
                   : 'Este cliente aún no tiene áreas de servicio.'}
               </p>
-              <button
-                id="btn-agregar-area"
-                onClick={() => setShowSaForm((v) => !v)}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
-              >
-                {showSaForm ? '✕ Cancelar' : '+ Agregar Área'}
-              </button>
+              {allHqs.length === 0 ? (
+                <span className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg p-2">
+                  ⚠️ Registre una sede primero para agregar áreas de servicio
+                </span>
+              ) : (
+                <button
+                  id="btn-agregar-area"
+                  onClick={() => setShowSaForm((v) => !v)}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  {showSaForm ? '✕ Cancelar' : '+ Agregar Área'}
+                </button>
+              )}
             </div>
 
             {/* Formulario de nueva área */}
             {showSaForm && (
               <form onSubmit={handleAddServiceArea} className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
                 <h3 className="text-sm font-semibold text-slate-700">Nueva Área de Servicio</h3>
-                <div>
-                  <FormLabel>Nombre del Área</FormLabel>
-                  <input
-                    required
-                    type="text"
-                    value={saForm.nombreAreaServicio}
-                    onChange={(e) => setSaForm((p) => ({ ...p, nombreAreaServicio: e.target.value }))}
-                    placeholder="Ej. Consultorio Médico, UCI, Urgencias"
-                    className={inputCls}
-                  />
+                
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Select Sede */}
+                  <div>
+                    <FormLabel>Sede Vinculada</FormLabel>
+                    <select
+                      required
+                      value={saForm.identificadorSede}
+                      onChange={(e) => setSaForm((p) => ({ ...p, identificadorSede: e.target.value }))}
+                      className={inputCls}
+                    >
+                      {allHqs.map((hq) => (
+                        <option key={hq.identificadorSede} value={hq.identificadorSede}>
+                          {hq.nombreSede}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Nombre */}
+                  <div>
+                    <FormLabel>Nombre del Área</FormLabel>
+                    <input
+                      required
+                      type="text"
+                      value={saForm.nombreAreaServicio}
+                      onChange={(e) => setSaForm((p) => ({ ...p, nombreAreaServicio: e.target.value }))}
+                      placeholder="Ej. Consultorio Médico, UCI, Urgencias"
+                      className={inputCls}
+                    />
+                  </div>
                 </div>
+                
                 <div className="flex justify-end gap-2 pt-1">
                   <button type="button" onClick={() => setShowSaForm(false)} className={btnSecondary}>Cancelar</button>
                   <button type="submit" disabled={isSaving} className={btnPrimary}>
@@ -501,27 +813,27 @@ export const ClientDetailPage: React.FC = () => {
               <EmptyState icon="🗂️" message="No hay áreas de servicio registradas para este cliente." />
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {allAreas.map((area) => (
-                <div key={area.identificadorAreaServicio} className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <h4 className="font-semibold text-slate-800 text-sm">{area.nombreAreaServicio}</h4>
-                      {area.estadoActivo ? (
-                        <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">Activa</span>
-                      ) : (
-                        <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">Inactiva</span>
-                      )}
-                      <p className="text-xs text-slate-400 font-mono mt-1">ID: {area.identificadorAreaServicio.slice(0, 8)}...</p>
+              {allAreas.map((area) => {
+                const associatedHq = allHqs.find((h) => h.identificadorSede === area.identificadorSede);
+                return (
+                  <div key={area.identificadorAreaServicio} className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <h4 className="font-semibold text-slate-800 text-sm">{area.nombreAreaServicio}</h4>
+                        <p className="text-xs text-blue-600 font-medium">
+                          🏢 Sede: <span className="font-semibold">{associatedHq ? associatedHq.nombreSede : 'Sede Desconocida'}</span>
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteArea(area.identificadorAreaServicio, area.nombreAreaServicio)}
+                        className="px-2.5 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-semibold rounded-md border border-red-100 transition-colors shrink-0"
+                      >
+                        Eliminar
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleDeleteArea(area.identificadorAreaServicio, area.nombreAreaServicio)}
-                      className="px-2.5 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-semibold rounded-md border border-red-100 transition-colors shrink-0"
-                    >
-                      Eliminar
-                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -534,13 +846,13 @@ export const ClientDetailPage: React.FC = () => {
 
 const InfoRow: React.FC<{ label: string; value: string; mono?: boolean }> = ({ label, value, mono }) => (
   <div>
-    <p className="text-xs text-slate-500">{label}</p>
-    <p className={`text-sm text-slate-800 font-medium ${mono ? 'font-mono' : ''}`}>{value}</p>
+    <p className="text-xs text-slate-400">{label}</p>
+    <p className={`text-sm text-slate-700 font-semibold ${mono ? 'font-mono' : ''}`}>{value}</p>
   </div>
 );
 
 const FormLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">{children}</label>
+  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">{children}</label>
 );
 
 const EmptyState: React.FC<{ icon: string; message: string }> = ({ icon, message }) => (

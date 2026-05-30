@@ -51,6 +51,7 @@ export interface Client {
   correosCliente: EmailClient[];
   telefonosCliente: PhoneClient[];
   headquarterClientList: Headquarter[];
+  identificadorRepresentante?: string;
 }
 
 // =============================================================================
@@ -72,6 +73,7 @@ export interface ManagerCreateRequest {
 export interface ServiceAreaCreateRequest {
   nombreAreaServicio: string;
   managerList?: ManagerCreateRequest[];
+  identificadorSede: string; // UUID as string linking to Sede
   // clientEquipmentList omitido en MVP
 }
 
@@ -81,6 +83,7 @@ export interface HeadquarterCreateRequest {
   direccionCarreraSede: string;
   direccionNumeroSede: string;
   identificadorCiudad: string;
+  identificadorCliente: string; // NIT linking to Client
   serviceAreaList?: ServiceAreaCreateRequest[];
   managerList?: ManagerCreateRequest[];
 }
@@ -93,6 +96,7 @@ export interface ClientCreateRequest {
   emailClientList?: EmailClientCreateRequest[];
   phoneClientList?: PhoneClientCreateRequest[];
   headquarterList?: HeadquarterCreateRequest[];
+  identificadorRepresentante?: string;
 }
 
 // =============================================================================
@@ -110,8 +114,6 @@ export type ServiceAreaUpdateRequest = ServiceAreaCreateRequest;
 export const TIPO_IDENTIFICACION_OPTIONS = [
   { value: 'NIT_juridico', label: 'NIT (Persona Jurídica)' },
   { value: 'NIT_natural', label: 'NIT (Persona Natural)' },
-  { value: 'CC', label: 'Cédula de Ciudadanía' },
-  { value: 'CE', label: 'Cédula de Extranjería' },
 ] as const;
 
 export type TipoIdentificacion = typeof TIPO_IDENTIFICACION_OPTIONS[number]['value'];
