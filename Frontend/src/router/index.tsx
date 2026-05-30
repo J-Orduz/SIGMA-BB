@@ -114,7 +114,7 @@ const DashboardLayout = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                 >
-                  Gestión Personas
+                  Gestión de Personas
                 </Link>
               </>
             )}

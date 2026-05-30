@@ -13,7 +13,8 @@ import java.util.List;
  * Convierte entre los DTOs de entrada y salida de la capa REST y el modelo de dominio {@link PhonePerson}.
  */
 @Mapper(componentModel = "spring",
-        unmappedSourcePolicy = ReportingPolicy.IGNORE)
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PhonePersonRestMapper {
 
     /**

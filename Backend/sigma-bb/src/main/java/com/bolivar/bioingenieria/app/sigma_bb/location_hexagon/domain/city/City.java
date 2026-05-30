@@ -69,8 +69,4 @@ public class City extends AggregateRoot {
 
         registerEvent(new CityDeletedEvent(metadata, new CityPayload(this.name, this.countryId)));
     }
-
-    private static String createIdFromName(String name) {
-        return name.substring(0, 2).toUpperCase();
-    }
 }

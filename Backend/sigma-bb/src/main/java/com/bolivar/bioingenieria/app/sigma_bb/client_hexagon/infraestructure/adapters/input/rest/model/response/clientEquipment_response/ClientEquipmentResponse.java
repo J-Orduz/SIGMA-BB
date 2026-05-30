@@ -1,7 +1,5 @@
 package com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.adapters.input.rest.model.response.clientEquipment_response;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.util.Date;
@@ -10,8 +8,11 @@ import java.util.UUID;
 /**
  * DTO de salida para representar la información de un equipo de cliente.
  *
- * <p>Contiene los detalles relevantes de un {@link com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.model.client_model.ClientEquipment},
- * incluyendo su identificación, características y estado.</p>
+ * <p>
+ * Contiene los detalles relevantes de un
+ * {@link com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.model.client_model.ClientEquipment},
+ * incluyendo su identificación, características y estado.
+ * </p>
  */
 @Builder
 @Setter

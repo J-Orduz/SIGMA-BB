@@ -8,7 +8,9 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring",
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ManufacturerRestMapper {
     Manufacturer toManufacturer(ManufacturerRequest manufacturerRequest);
     ManufacturerResponse toManufacturerResponse(Manufacturer manufacturer);

@@ -27,7 +27,6 @@ export const PersonManager: React.FC = () => {
 
   // Estados de edición y control
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formSubmitted, setFormSubmitted] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -54,7 +53,6 @@ export const PersonManager: React.FC = () => {
     setEmailInputs(['']);
     setPhoneInputs(['']);
     setEditingId(null);
-    setFormSubmitted(false);
   };
 
   const handleEmailChange = (index: number, value: string) => {
@@ -77,7 +75,6 @@ export const PersonManager: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormSubmitted(true);
 
     if (!cedula.trim() || !primerNombre.trim() || !primerApellido.trim()) {
       setError('Por favor, rellene todos los campos obligatorios.');

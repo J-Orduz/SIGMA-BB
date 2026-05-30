@@ -42,7 +42,9 @@ public class EquipmentType extends AggregateRoot {
     private String predominantTechnology;
     private Boolean verifiable;
     private Long unitMaintenanceValue;
+    @Builder.Default
     private List<MetrologicalData> metrologicalData = new ArrayList<>();
+    @Builder.Default
     private Set<UUID> technicalVerification = new HashSet<>();
 
     public static EquipmentType create(

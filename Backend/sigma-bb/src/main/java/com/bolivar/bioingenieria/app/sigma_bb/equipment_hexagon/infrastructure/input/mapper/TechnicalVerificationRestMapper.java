@@ -9,7 +9,9 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring",
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TechnicalVerificationRestMapper {
     TechnicalVerification toTechnicalVerification(TechnicalVerificationRequest technicalVerificationRequest);
     TechnicalVerificationResponse toTechnicalVerificationResponse(TechnicalVerification technicalVerification);

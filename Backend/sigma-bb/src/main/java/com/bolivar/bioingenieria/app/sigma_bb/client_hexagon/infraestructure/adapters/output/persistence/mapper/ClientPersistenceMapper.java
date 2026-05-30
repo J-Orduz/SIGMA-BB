@@ -4,6 +4,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.model.client
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.adapters.output.persistence.entity.ClientEntity;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
@@ -18,10 +19,13 @@ import java.util.List;
  * y {@link HeadquarterPersistenceMapper} para manejar las relaciones de uno a muchos
  * con correos, teléfonos y sedes respectivamente.
  */
-@Mapper(componentModel = "spring", uses = {
-        EmailClientPersistenceMapper.class,
-        PhoneClientPersistenceMapper.class,
-        HeadquarterPersistenceMapper.class})
+@Mapper(componentModel = "spring",
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = {
+                EmailClientPersistenceMapper.class,
+                PhoneClientPersistenceMapper.class,
+                HeadquarterPersistenceMapper.class})
 public interface ClientPersistenceMapper {
 
     /**

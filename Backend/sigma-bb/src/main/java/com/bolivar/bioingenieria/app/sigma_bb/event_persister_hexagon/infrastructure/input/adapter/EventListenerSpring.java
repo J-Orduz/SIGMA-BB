@@ -19,6 +19,6 @@ public class EventListenerSpring {
     @EventListener(condition = "#event.metadata().eventTopic() == 'events-domain'")
     public void listen(DomainEvent<? extends Payload> event) {
         System.out.println("Spring Event: " + event);
-        //port.handle(event);
+        port.handle(event);
     }
 }

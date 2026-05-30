@@ -1,6 +1,5 @@
 package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.errors;
 
-
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.input.model.response.ErrorResponse;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.BrandNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.ManufacturerNotFoundException;
@@ -9,17 +8,11 @@ import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.o
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.ModelNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.MetrologicalDataNotFoundException;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.TechnicalVerificationNotFoundException;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class EquipmentGlobalHandlerError {
@@ -94,20 +87,23 @@ public class EquipmentGlobalHandlerError {
                 .build();
     }
     /*
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-
-        BindingResult result = ex.getBindingResult();
-
-        return ErrorResponse.builder()
-                .code("VALIDATION_ERROR")
-                .message("Validation failed")
-                .details(result.getFieldErrors()
-                        .stream()
-                        .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                        .collect(Collectors.toList()))
-                .timestamp(LocalDateTime.now())
-                .build();
-    }*/
+     * @ResponseStatus(HttpStatus.BAD_REQUEST)
+     * 
+     * @ExceptionHandler(MethodArgumentNotValidException.class)
+     * public ErrorResponse
+     * handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+     * 
+     * BindingResult result = ex.getBindingResult();
+     * 
+     * return ErrorResponse.builder()
+     * .code("VALIDATION_ERROR")
+     * .message("Validation failed")
+     * .details(result.getFieldErrors()
+     * .stream()
+     * .map(DefaultMessageSourceResolvable::getDefaultMessage)
+     * .collect(Collectors.toList()))
+     * .timestamp(LocalDateTime.now())
+     * .build();
+     * }
+     */
 }
