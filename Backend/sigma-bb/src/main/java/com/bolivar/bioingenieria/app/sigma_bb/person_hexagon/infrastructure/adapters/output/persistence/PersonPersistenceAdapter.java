@@ -74,4 +74,13 @@ public class PersonPersistenceAdapter implements PersonPersistencePort {
                         personPersistenceMapper.toPersonEntity(person)));
     }
 
+    /**
+     * Desactiva los registros de la tabla representante_legal que referencian a esta persona.
+     *
+     * @param personId Identificador único de la persona
+     */
+    @Override
+    public void deactivateRepresentantesLegalesByPersonId(UUID personId) {
+        personRepository.deactivateRepresentantesLegalesByPersonId(personId);
+    }
 }

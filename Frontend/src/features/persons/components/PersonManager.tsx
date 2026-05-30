@@ -98,6 +98,8 @@ export const PersonManager: React.FC = () => {
           primerApellido: primerApellido.trim(),
           segundoApellido: segundoApellido.trim() || '.',
           tipoPersona: role,
+          emailPersonList: emailInputs.filter(e => e.trim() !== '').map(correoPersona => ({ correoPersona })),
+          phonePersonList: phoneInputs.filter(p => p.trim() !== '').map(telefonoPersona => ({ telefonoPersona })),
         };
         await updatePerson(editingId, updatePayload);
         showSuccess('¡Persona actualizada con éxito!');
@@ -335,86 +337,84 @@ export const PersonManager: React.FC = () => {
               </div>
             )}
 
-            {/* Correos y Teléfonos dinámicos (Solo en creación) */}
-            {!editingId && (
-              <div className="space-y-4">
-                {/* Correos */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Correos Electrónicos
-                    </label>
-                    <button
-                      type="button"
-                      onClick={addEmailField}
-                      className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
-                    >
-                      + Agregar
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {emailInputs.map((email, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => handleEmailChange(idx, e.target.value)}
-                          placeholder="correo@empresa.com"
-                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        />
-                        {emailInputs.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeEmailField(idx)}
-                            className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+            {/* Correos y Teléfonos dinámicos */}
+            <div className="space-y-4">
+              {/* Correos */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                    Correos Electrónicos
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addEmailField}
+                    className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
+                  >
+                    + Agregar
+                  </button>
                 </div>
-
-                {/* Teléfonos */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Teléfonos de Contacto
-                    </label>
-                    <button
-                      type="button"
-                      onClick={addPhoneField}
-                      className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
-                    >
-                      + Agregar
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {phoneInputs.map((phone, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => handlePhoneChange(idx, e.target.value)}
-                          placeholder="Ej. 3123000000"
-                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        />
-                        {phoneInputs.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removePhoneField(idx)}
-                            className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                <div className="space-y-2">
+                  {emailInputs.map((email, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => handleEmailChange(idx, e.target.value)}
+                        placeholder="correo@empresa.com"
+                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                      {emailInputs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeEmailField(idx)}
+                          className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
+
+              {/* Teléfonos */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                    Teléfonos de Contacto
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addPhoneField}
+                    className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
+                  >
+                    + Agregar
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {phoneInputs.map((phone, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => handlePhoneChange(idx, e.target.value)}
+                        placeholder="Ej. 3123000000"
+                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                      {phoneInputs.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removePhoneField(idx)}
+                          className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
             {/* Botones de acción */}
             <div className="flex gap-2 pt-2">

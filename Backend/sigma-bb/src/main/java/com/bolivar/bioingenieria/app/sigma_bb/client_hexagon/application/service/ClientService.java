@@ -181,7 +181,33 @@ public class ClientService implements ClientServicePort {
         clientPersistencePort.findById(clientId)
                 .map(existingClient -> {
                     existingClient.setEstadoActivo(false);
-                    return clientPersistencePort.save(existingClient);
+                    
+                    if (existingClient.getEmailClientList() != null) {
+                        for (EmailClient email : existingClient.getEmailClientList()) {
+                            email.setEstadoActivo(false);
+                        }
+                    }
+                    
+                    if (existingClient.getPhoneClientList() != null) {
+                        for (PhoneClient phone : existingClient.getPhoneClientList()) {
+                            phone.setEstadoActivo(false);
+                        }
+                    }
+                    
+                    if (existingClient.getHeadquarterList() != null) {
+                        for (Headquarter hq : existingClient.getHeadquarterList()) {
+                            hq.setEstadoActivo(false);
+                            if (hq.getServiceAreaList() != null) {
+                                for (ServiceArea area : hq.getServiceAreaList()) {
+                                    area.setEstadoActivo(false);
+                                }
+                            }
+                        }
+                    }
+                    
+                    Client savedClient = clientPersistencePort.save(existingClient);
+                    clientPersistencePort.saveRepresentanteLegal(clientId, null);
+                    return savedClient;
                 })
                 .orElseThrow(ClientNotFoundException::new);
     }

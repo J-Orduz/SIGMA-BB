@@ -41,4 +41,11 @@ public interface PersonPersistencePort {
      * @param person Objeto {@link Person} a eliminar
      */
     void delete(Person person);
+
+    /**
+     * Desactiva los registros de la tabla representante_legal que referencian a esta persona.
+     *
+     * @param personId Identificador único de la persona
+     */
+    void deactivateRepresentantesLegalesByPersonId(UUID personId);
 }

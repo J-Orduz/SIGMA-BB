@@ -51,4 +51,6 @@ export interface PersonUpdateRequest {
   segundoApellido?: string;
   tipoPersona: string;
   segundoTipoPersona?: string;
+  phonePersonList?: PhonePersonCreateRequest[];
+  emailPersonList?: EmailPersonCreateRequest[];
 }
