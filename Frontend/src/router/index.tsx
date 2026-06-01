@@ -10,6 +10,7 @@ import { ModelManager } from '../features/equipments/components/ModelManager';
 import { ClientManager } from '../features/clients/components/ClientManager';
 import { ClientDetailPage } from '../features/clients/components/ClientDetailPage';
 import { PersonManager } from '../features/persons/components/PersonManager';
+import { ServiceReportManager } from '../features/reports/components/ServiceReportManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -118,6 +119,15 @@ const DashboardLayout = () => {
                 </Link>
               </>
             )}
+            {(user?.role === 'Administrador' || user?.role === 'SuperUsuario' || user?.role === 'Ingeniero Técnico') && (
+              <Link
+                to="/service-reports"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+              >
+                Reportes de Servicio
+              </Link>
+            )}
           </nav>
         </div>
 
@@ -194,6 +204,15 @@ export const router = createBrowserRouter([
             ]
           },
           // Módulo de Gestión de Clientes — solo SuperUsuario y Administrador
+          {
+            element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador', 'Ingeniero Técnico']} />,
+            children: [
+              {
+                path: 'service-reports',
+                element: <ServiceReportManager />
+              }
+            ]
+          },
           {
             element: <ProtectedRoute allowedRoles={['SuperUsuario', 'Administrador']} />,
             children: [
