@@ -496,7 +496,7 @@ export const ClientDetailPage: React.FC = () => {
                         className={inputCls}
                       >
                         <option value="">-- Seleccione Representante --</option>
-                        {persons.filter(p => p.estadoActivo !== false).map((p) => (
+                        {persons.filter(p => p.estadoActivo !== false && p.tipoPersona === 'CEO_CLIENT').map((p) => (
                           <option key={p.cedula} value={p.cedula}>
                             {p.primerNombre} {p.primerApellido} ({p.cedula})
                           </option>
