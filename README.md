@@ -1,4 +1,4 @@
-# SIGMA-BB
+# SIGMA-BB (Sistema de Gestión de Manteniemieto de BolivaBioingeniería)
 
 SIGMA-BB es el Sistema de Gestión de Mantenimiento de BolivarBioingenieria. El proyecto integra una aplicacion frontend, un backend Spring Boot, base de datos PostgreSQL, autenticacion con Keycloak y servicios de soporte para la operacion del sistema.
 
@@ -16,7 +16,7 @@ SIGMA-BB/
 └── .env                     # Variables locales del entorno
 ```
 
-## Stack Tecnologico
+## Stack Tecnológico
 
 - Frontend: React, TypeScript, Vite, Tailwind CSS y Zustand.
 - Backend: Java 21, Spring Boot, Spring Data JPA, Spring Security, OAuth2 Resource Server, MapStruct y Lombok.
@@ -36,7 +36,7 @@ El archivo `docker-compose.yaml` levanta los siguientes servicios:
 - `keycloak`: servidor de identidad y autenticacion.
 - `bolivarbioingenieria-app`: backend de SIGMA-BB.
 
-## Para Ejecutar el Proyecto
+## Intalación y Ejecución del Proyecto
 
 1. Copie la plantilla de variables de entorno:
 

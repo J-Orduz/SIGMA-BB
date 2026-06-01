@@ -1,26 +1,26 @@
 # Frontend - Sistema de Gestión de Manteniemieto de BolivaBioingeniería (SIGMA-BB)
 
-Este es el proyecto frontend de la aplicación, desarrollado con **React**, **TypeScript**, **Vite** y **Tailwind CSS**. Sigue las instrucciones a continuación para instalar y ejecutar el proyecto en tu entorno local.
+Este es el proyecto frontend de la aplicación, desarrollado con **React**, **TypeScript**, **Vite** y **Tailwind CSS**. Siga las instrucciones a continuación para instalar y ejecutar el proyecto en su entorno local.
 
 ### 1. Instalar dependencias
-Instala todos los paquetes necesarios configurados en el proyecto:
+Instale todos los paquetes necesarios configurados en el proyecto:
 ```bash
 npm install
 ```
 
-### 2. Configurar variables de entorno (Aún no)
-Crea un archivo `.env` en la raíz de la carpeta `front` y añade las variables necesarias (guíate del archivo `.env.templeate` si está disponible):
+### 2. Configurar variables de entorno
+Cree un archivo `.env` en la raíz de la carpeta `front` y añada las variables necesarias (guíese del archivo `.env.templeate` si está disponible):
 ```env
 pendiente
 ```
 ### 3. Iniciar el servidor de desarrollo
-Para levantar la aplicación en modo desarrollo, ejecuta:
+Para levantar la aplicación en modo desarrollo, ejecute:
 ```bash
 npm run dev
 ```
-Abre tu navegador en la ruta local que te indique la terminal (usualmente `http://localhost:5173`).
+Abra su navegador en la ruta local que le indique la terminal (usualmente `http://localhost:5173`).
 
-## Arquitectura de Carpetas
+## Arquitectura
 
 El proyecto sigue una estructura orientada a **Features (Características/Módulos)** para facilitar el escalado y mapear directamente los Requisitos Funcionales (RF) del sistema:
 
