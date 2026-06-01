@@ -5,6 +5,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.ada
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.adapters.output.persistence.entity.ManagerEntity;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
@@ -27,14 +28,16 @@ public interface HeadquarterPersistenceMapper {
      * @param headquarter Objeto de dominio con la información de la sede
      * @return Entidad {@link HeadquarterEntity} lista para persistencia
      */
+    @Mapping(target = "client.identificadorCliente", source = "identificadorCliente")
     HeadquarterEntity toHeadquarterEntity(Headquarter headquarter);
 
     /**
      * Convierte una entidad de persistencia {@link HeadquarterEntity} a su modelo de dominio {@link Headquarter}.
      *
-     * @param headquarterEntity Entidad de persistencia con la información de la sede
+     * @param headquarterEntity Entidad de persistencia con la información del área de servicio
      * @return Modelo de dominio {@link Headquarter} con los datos recuperados
      */
+    @Mapping(target = "identificadorCliente", source = "client.identificadorCliente")
     Headquarter toHeadquarter(HeadquarterEntity headquarterEntity);
 
     /**

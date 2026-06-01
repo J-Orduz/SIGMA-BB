@@ -58,6 +58,11 @@ public class PersonResponse {
     private String segundoTipoPersona;
 
     /**
+     * Indica si la persona se encuentra activa.
+     */
+    private boolean estadoActivo;
+
+    /**
      * Lista de correos electrónicos asociados a la persona.
      */
     private List<EmailPersonResponse> emailPersonList;

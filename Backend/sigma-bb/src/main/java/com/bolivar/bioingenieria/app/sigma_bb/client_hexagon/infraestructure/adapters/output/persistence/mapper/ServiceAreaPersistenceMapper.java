@@ -5,6 +5,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.ada
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.adapters.output.persistence.entity.ServiceAreaEntity;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public interface ServiceAreaPersistenceMapper {
      * @param serviceArea Objeto de dominio con la información del área de servicio
      * @return Entidad {@link ServiceAreaEntity} lista para persistencia
      */
+    @Mapping(target = "headquarter.identificadorSede", source = "identificadorSede")
     ServiceAreaEntity toServiceAreaEntity(ServiceArea serviceArea);
 
     /**
@@ -37,6 +39,7 @@ public interface ServiceAreaPersistenceMapper {
      * @param serviceAreaEntity Entidad de persistencia con la información del área de servicio
      * @return Modelo de dominio {@link ServiceArea} con los datos recuperados
      */
+    @Mapping(target = "identificadorSede", source = "headquarter.identificadorSede")
     ServiceArea toServiceArea(ServiceAreaEntity serviceAreaEntity);
 
     /**

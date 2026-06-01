@@ -42,7 +42,7 @@ public class CityService implements CityServicePort {
 
     @Override
     public City save(CreateCityCommand command) {
-        City city = City.create(command.name(), command.countryId());
+        City city = City.create(command.id(), command.name(), command.countryId());
         cityPersistencePort.save(city);
         dispatchEvents(city);
         return city;

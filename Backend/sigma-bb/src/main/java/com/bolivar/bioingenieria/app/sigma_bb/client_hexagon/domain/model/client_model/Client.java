@@ -52,6 +52,11 @@ public class Client {
     private String identificadorPais;
 
     /**
+     * Cédula del representante legal asociado al cliente.
+     */
+    private String identificadorRepresentante;
+
+    /**
      * Lista de {@link EmailClient} asociados al cliente.
      */
     private List<EmailClient> emailClientList;

@@ -21,9 +21,9 @@ public class City extends AggregateRoot {
     private String name;
     private String countryId;
 
-    public static City create(String name, String countryId) {
+    public static City create(String id, String name, String countryId) {
         City newCity = City.builder()
-                .id(createIdFromName(name))
+                .id(id)
                 .name(name)
                 .countryId(countryId)
                 .build();
@@ -68,9 +68,5 @@ public class City extends AggregateRoot {
                 UUID.randomUUID().toString(), "City", "city.deleted", 1, Instant.now(), this.id);
 
         registerEvent(new CityDeletedEvent(metadata, new CityPayload(this.name, this.countryId)));
-    }
-
-    private static String createIdFromName(String name) {
-        return name.substring(0, 2).toUpperCase();
     }
 }

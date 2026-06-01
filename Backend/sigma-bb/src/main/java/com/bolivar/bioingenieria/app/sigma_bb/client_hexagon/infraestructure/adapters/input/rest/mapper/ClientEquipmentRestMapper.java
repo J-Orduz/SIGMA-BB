@@ -15,7 +15,8 @@ import java.util.List;
  * utilizados en la capa REST hacia y desde el modelo de dominio relacionado con los equipos de los clientes.</p>
  */
 @Mapper(componentModel = "spring",
-        unmappedSourcePolicy = ReportingPolicy.IGNORE)
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ClientEquipmentRestMapper {
 
     /**

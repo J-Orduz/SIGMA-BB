@@ -87,4 +87,13 @@ public class HeadquarterCreateRequest {
             example = "BOG")
     @NotEmpty(message = "El identificador de la ciudad es obligatorio")
     private String identificadorCiudad;
+
+    /**
+     * Identificador único del cliente al que pertenece la sede.
+     */
+    @Schema(description = "Identificador único del cliente al que pertenece la sede",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "123456789")
+    @NotEmpty(message = "El identificador del cliente es obligatorio")
+    private String identificadorCliente;
 }

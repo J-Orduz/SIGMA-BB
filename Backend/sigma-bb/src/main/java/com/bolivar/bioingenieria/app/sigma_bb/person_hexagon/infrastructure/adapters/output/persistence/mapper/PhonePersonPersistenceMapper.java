@@ -3,6 +3,7 @@ package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.ada
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.domain.model.person_model.PhonePerson;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.adapters.output.persistence.entity.PhonePersonEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
@@ -13,7 +14,9 @@ import java.util.List;
  * Utiliza MapStruct para generar automáticamente las implementaciones
  * de conversión entre estas capas arquitectónicas.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PhonePersonPersistenceMapper {
 
     /**

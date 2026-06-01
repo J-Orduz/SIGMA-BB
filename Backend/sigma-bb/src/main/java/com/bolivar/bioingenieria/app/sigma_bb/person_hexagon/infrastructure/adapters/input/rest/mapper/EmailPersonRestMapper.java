@@ -17,7 +17,8 @@ import java.util.List;
  * cuando hay campos en la fuente que no se mapean explícitamente.
  */
 @Mapper(componentModel = "spring",
-        unmappedSourcePolicy = ReportingPolicy.IGNORE)
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EmailPersonRestMapper {
 
     /**

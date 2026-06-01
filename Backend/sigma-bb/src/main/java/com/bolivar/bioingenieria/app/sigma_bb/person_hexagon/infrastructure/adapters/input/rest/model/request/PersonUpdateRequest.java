@@ -77,4 +77,18 @@ public class PersonUpdateRequest {
             requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String segundoTipoPersona;
 
+    /**
+     * Lista de teléfonos asociados a la persona.
+     */
+    @Schema(description = "Lista de teléfonos asociados a la persona",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private java.util.List<PhonePersonCreateRequest> phonePersonList;
+
+    /**
+     * Lista de correos electrónicos asociados a la persona.
+     */
+    @Schema(description = "Lista de correos electrónicos asociados a la persona",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private java.util.List<EmailPersonCreateRequest> emailPersonList;
+
 }

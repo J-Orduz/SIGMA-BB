@@ -43,4 +43,12 @@ public interface ClientPersistencePort {
      * @param client {@link Client} a eliminar
      */
     void delete(Client client);
+
+    /**
+     * Sincroniza la relación del representante legal en la base de datos para el cliente dado.
+     *
+     * @param clientId identificador del cliente
+     * @param cedula cédula del representante legal a vincular
+     */
+    void saveRepresentanteLegal(String clientId, String cedula);
 }

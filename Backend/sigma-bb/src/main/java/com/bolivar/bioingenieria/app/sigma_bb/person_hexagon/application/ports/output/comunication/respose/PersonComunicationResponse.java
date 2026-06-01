@@ -1,7 +1,12 @@
 package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.comunication.respose;
 
 import java.util.UUID;
+import lombok.*;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PersonComunicationResponse {
 
 

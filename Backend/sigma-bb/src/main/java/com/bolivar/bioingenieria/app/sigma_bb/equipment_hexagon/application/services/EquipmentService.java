@@ -2,7 +2,6 @@ package com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ser
 
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.input.EquipmentCommandServicePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.EquipmentPersistencePort;
-import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.ports.output.EquipmentTypePersistencePort;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.CreateEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.DeleteEquipmentCommand;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.services.equipment_services.commands.UpdateEquipmentCommand;
@@ -22,25 +21,16 @@ import java.util.List;
 public class EquipmentService implements EquipmentCommandServicePort {
     private final EquipmentPersistencePort persistencePort;
     private final EventDispatcherPort eventDispatcherPort;
-    private final EquipmentTypePersistencePort equipmentTypePersistencePort;
 
     @Autowired
     public EquipmentService(EquipmentPersistencePort persistencePort,
-                            @Qualifier(value = "springDispatcher") EventDispatcherPort eventDispatcherPort, EquipmentTypePersistencePort equipmentTypePersistencePort) {
+                            @Qualifier(value = "springDispatcher") EventDispatcherPort eventDispatcherPort) {
         this.persistencePort = persistencePort;
         this.eventDispatcherPort = eventDispatcherPort;
-        this.equipmentTypePersistencePort = equipmentTypePersistencePort;
     }
 
     @Override
     public Equipment save(CreateEquipmentCommand command) {
-        /**
-        if(!equipmentTypePersistencePort.exists(UUID.fromString(command.equipmentTypeId()))) {
-            throw new IllegalArgumentException("El tipo de equipo con ID "
-                    + command.equipmentTypeId() + " no existe.");
-        }
-        */
-
         Equipment equipment = Equipment.create(command.equipmentTypeId(), command.brandId());
         equipment = persistencePort.save(equipment);
         dispatchEvents(equipment);

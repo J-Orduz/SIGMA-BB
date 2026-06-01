@@ -65,11 +65,14 @@ public class  PersonService implements PersonServicePort {
     @Override
     public Person save(Person person) {
         person.setIdentificador(UUID.randomUUID());
+        person.setEstadoActivo(true);
         for(PhonePerson phone : person.getPhonePersonList()) {
             phone.setIdTelefonoPersona(UUID.randomUUID());
+            phone.setEstadoActivo(true);
         }
         for(EmailPerson email : person.getEmailPersonList()) {
             email.setIdCorreoPersona(UUID.randomUUID());
+            email.setEstadoActivo(true);
         }
         return personPersistencePort.save(person);
     }
@@ -192,6 +195,31 @@ public class  PersonService implements PersonServicePort {
                     existingPerson.setSegundoApellido(person.getSegundoApellido());
                     existingPerson.setTipoPersona(person.getTipoPersona());
                     existingPerson.setSegundoTipoPersona(person.getSegundoTipoPersona());
+                    
+                    // Actualizar correos de manera segura para Hibernate
+                    if (person.getEmailPersonList() != null) {
+                        for (EmailPerson email : person.getEmailPersonList()) {
+                            if (email.getIdCorreoPersona() == null) {
+                                email.setIdCorreoPersona(UUID.randomUUID());
+                            }
+                            email.setEstadoActivo(true);
+                        }
+                        existingPerson.getEmailPersonList().clear();
+                        existingPerson.getEmailPersonList().addAll(person.getEmailPersonList());
+                    }
+                    
+                    // Actualizar teléfonos de manera segura para Hibernate
+                    if (person.getPhonePersonList() != null) {
+                        for (PhonePerson phone : person.getPhonePersonList()) {
+                            if (phone.getIdTelefonoPersona() == null) {
+                                phone.setIdTelefonoPersona(UUID.randomUUID());
+                            }
+                            phone.setEstadoActivo(true);
+                        }
+                        existingPerson.getPhonePersonList().clear();
+                        existingPerson.getPhonePersonList().addAll(person.getPhonePersonList());
+                    }
+                    
                     return personPersistencePort.save(existingPerson);
                 })
                 .orElseThrow(PersonNotFoundException::new);
@@ -208,7 +236,31 @@ public class  PersonService implements PersonServicePort {
         personPersistencePort.findById(id)
             .map(existingPerson -> {
                 existingPerson.setEstadoActivo(false);
-                return personPersistencePort.save(existingPerson);
+                
+                if (existingPerson.getEmailPersonList() != null) {
+                    for (EmailPerson email : existingPerson.getEmailPersonList()) {
+                        email.setEstadoActivo(false);
+                    }
+                }
+                
+                if (existingPerson.getPhonePersonList() != null) {
+                    for (PhonePerson phone : existingPerson.getPhonePersonList()) {
+                        phone.setEstadoActivo(false);
+                    }
+                }
+                
+                String tipo = existingPerson.getTipoPersona();
+                if ("ADMIN".equals(tipo) || "ENGINEER".equals(tipo) || "CEO_CLIENT".equals(tipo)) {
+                    try {
+                        personIdentityAdapter.deleteUser(existingPerson.getIdentificador().toString());
+                    } catch (Exception e) {
+                        System.err.println("Advertencia: No se pudo eliminar el usuario de Keycloak: " + e.getMessage());
+                    }
+                }
+                
+                Person savedPerson = personPersistencePort.save(existingPerson);
+                personPersistencePort.deactivateRepresentantesLegalesByPersonId(id);
+                return savedPerson;
             })
             .orElseThrow(PersonNotFoundException::new);
     }
@@ -358,11 +410,13 @@ public class  PersonService implements PersonServicePort {
                     .primerApellido(personCreateRequestUseCase.getPrimerApellido())
                     .segundoApellido(personCreateRequestUseCase.getSegundoApellido())
                     .tipoPersona(roleType.getName())
+                    .estadoActivo(true)
                     .emailPersonList(personCreateRequestUseCase.getEmailPersonList()
                             .stream()
                             .map(emailRequest -> EmailPerson.builder()
                                     .idCorreoPersona(UUID.randomUUID())
                                     .correoPersona(emailRequest.getCorreoPersona())
+                                    .estadoActivo(true)
                                     .build())
                             .toList())
                     .phonePersonList(personCreateRequestUseCase.getPhonePersonList()
@@ -370,6 +424,7 @@ public class  PersonService implements PersonServicePort {
                             .map(phoneRequest -> PhonePerson.builder()
                                     .idTelefonoPersona(UUID.randomUUID())
                                     .telefonoPersona(phoneRequest.getTelefonoPersona())
+                                    .estadoActivo(true)
                                     .build())
                             .toList())
                     .build();

@@ -82,6 +82,14 @@ public class PersonCreateRequest {
     private String password;
 
     /**
+     * Tipo principal de la persona.
+     */
+    @Schema(description = "Tipo principal de la persona",
+            example = "MANAGER",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String tipoPersona;
+
+    /**
      * Lista de teléfonos asociados a la persona.
      */
     @Schema(description = "Lista de teléfonos asociados a la persona",

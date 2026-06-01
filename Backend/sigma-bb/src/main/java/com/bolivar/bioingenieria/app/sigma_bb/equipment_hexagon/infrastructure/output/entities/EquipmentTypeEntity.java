@@ -48,6 +48,7 @@ public class EquipmentTypeEntity {
     private Long unitMaintenanceValue;
 
     @Column(name = "b_estado_activo", nullable = false)
+    @Builder.Default
     private Boolean active = true;
 
     @OneToMany(mappedBy = "equipmentType", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE},orphanRemoval = true)

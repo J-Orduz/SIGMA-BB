@@ -11,9 +11,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.o
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
-import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
 @Component
@@ -24,7 +22,7 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
 
     @Autowired
     public EquipmentTypePersistenceAdapter(SpringEquipmentTypeRepository repository,
-                                           EquipmentTypePersistenceMapper mapper) {
+            EquipmentTypePersistenceMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
@@ -65,7 +63,7 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
 
         EquipmentTypeEntity existing = repository.findByIdWithMetrologicalData(uuid)
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(id));
-        
+
         mapper.updateEntityFromDomain(equipmentType, existing);
 
         return mapper.toEquipmentType(repository.save(existing));
@@ -115,10 +113,9 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
     public void removeMetrologicalData(String equipmentTypeId, MetrologicalData data) {
         EquipmentTypeEntity existing = loadExisting(equipmentTypeId);
 
-        boolean removed = existing.getMetrologicalDataEntities().removeIf(child ->
-                child.getId() != null
-                        && valuesEqual(child.getId().getValue(), data.getValue())
-                        && Objects.equals(child.getId().getType(), data.getType()));
+        boolean removed = existing.getMetrologicalDataEntities().removeIf(child -> child.getId() != null
+                && valuesEqual(child.getId().getValue(), data.getValue())
+                && Objects.equals(child.getId().getType(), data.getType()));
         if (!removed) {
             throw new MetrologicalDataNotFoundException(
                     "MetrologicalData not found: value=" + data.getValue() + " type=" + data.getType());
@@ -146,9 +143,9 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
     public void removeMetrologicalDataList(String equipmentTypeId, List<MetrologicalData> dataList) {
         EquipmentTypeEntity existing = loadExisting(equipmentTypeId);
 
-        existing.getMetrologicalDataEntities().removeIf(child ->
-                child.getId() != null && dataList.stream().anyMatch(data ->
-                        valuesEqual(child.getId().getValue(), data.getValue())
+        existing.getMetrologicalDataEntities()
+                .removeIf(child -> child.getId() != null
+                        && dataList.stream().anyMatch(data -> valuesEqual(child.getId().getValue(), data.getValue())
                                 && Objects.equals(child.getId().getType(), data.getType())));
 
         repository.save(existing);
@@ -181,9 +178,10 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
     public void removeTechnicalVerification(String equipmentTypeId, UUID verificationId) {
         EquipmentTypeEntity existing = loadExisting(equipmentTypeId);
 
-        boolean removed = existing.getTechnicalVerificationEquipmentEntities().removeIf(child ->
-                child.getTecnicalVerificationEquipmentId() != null
-                        && Objects.equals(child.getTecnicalVerificationEquipmentId().getVerificationId(), verificationId));
+        boolean removed = existing.getTechnicalVerificationEquipmentEntities()
+                .removeIf(child -> child.getTecnicalVerificationEquipmentId() != null
+                        && Objects.equals(child.getTecnicalVerificationEquipmentId().getVerificationId(),
+                                verificationId));
         if (!removed) {
             throw new EquipmentTypeNotFoundException(
                     "TechnicalVerification not found: " + verificationId);
@@ -216,8 +214,8 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
     public void removeTechnicalVerificationList(String equipmentTypeId, Set<UUID> ids) {
         EquipmentTypeEntity existing = loadExisting(equipmentTypeId);
 
-        existing.getTechnicalVerificationEquipmentEntities().removeIf(child ->
-                child.getTecnicalVerificationEquipmentId() != null
+        existing.getTechnicalVerificationEquipmentEntities()
+                .removeIf(child -> child.getTecnicalVerificationEquipmentId() != null
                         && ids.contains(child.getTecnicalVerificationEquipmentId().getVerificationId()));
 
         repository.save(existing);
@@ -245,8 +243,10 @@ public class EquipmentTypePersistenceAdapter implements EquipmentTypePersistence
     }
 
     private boolean valuesEqual(BigDecimal left, BigDecimal right) {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+            return true;
+        if (left == null || right == null)
+            return false;
         return left.compareTo(right) == 0;
     }
 }

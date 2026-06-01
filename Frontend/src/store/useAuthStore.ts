@@ -16,10 +16,52 @@ interface AuthState {
   logout: () => void;
 }
 
+const isTokenExpired = (token: string | null): boolean => {
+  if (!token) return true;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      window.atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const decoded = JSON.parse(jsonPayload);
+    if (!decoded.exp) return false;
+    const currentTime = Math.floor(Date.now() / 1000);
+    // Agregamos un margen de 10 segundos
+    return decoded.exp < (currentTime + 10);
+  } catch (e) {
+    return true;
+  }
+};
+
+const getInitialState = () => {
+  try {
+    const token = localStorage.getItem('sigma_token');
+    const userStr = localStorage.getItem('sigma_user');
+    
+    if (token && !isTokenExpired(token) && userStr) {
+      return {
+        user: JSON.parse(userStr),
+        isAuthenticated: true
+      };
+    }
+  } catch (e) {
+    // Ignorar errores de lectura
+  }
+  
+  return {
+    user: null,
+    isAuthenticated: false
+  };
+};
+
+const initialState = getInitialState();
+
 export const useAuthStore = create<AuthState>((set) => ({
-  // Intentar recuperar sesión existente al recargar la página
-  user: localStorage.getItem('sigma_user') ? JSON.parse(localStorage.getItem('sigma_user')!) : null,
-  isAuthenticated: !!localStorage.getItem('sigma_token'),
+  ...initialState,
   
   login: (userData) => {
     localStorage.setItem('sigma_token', userData.token);

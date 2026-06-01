@@ -67,6 +67,7 @@ public class RestControllerCity {
             @Valid @RequestBody CityRequest request) {
 
         CreateCityCommand command = new CreateCityCommand(
+                request.getId(),
                 request.getName(),
                 request.getCountryId()
         );

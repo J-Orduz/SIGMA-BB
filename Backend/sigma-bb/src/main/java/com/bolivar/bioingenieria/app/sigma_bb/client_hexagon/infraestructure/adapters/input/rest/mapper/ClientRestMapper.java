@@ -4,6 +4,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.domain.model.client
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.adapters.input.rest.model.request.client_request.ClientCreateRequest;
 import com.bolivar.bioingenieria.app.sigma_bb.client_hexagon.infraestructure.adapters.input.rest.model.response.client_responce.ClientResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -16,7 +17,8 @@ import java.util.List;
  * utilizados en la capa REST hacia y desde el modelo de dominio.</p>
  */
 @Mapper(componentModel = "spring",
-        unmappedSourcePolicy = ReportingPolicy.IGNORE)
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ClientRestMapper {
 
     /**
@@ -33,6 +35,9 @@ public interface ClientRestMapper {
      * @param client modelo de dominio a convertir
      * @return {@link ClientResponse} con la información del cliente
      */
+    @Mapping(target = "correosCliente", source = "emailClientList")
+    @Mapping(target = "telefonosCliente", source = "phoneClientList")
+    @Mapping(target = "headquarterClientList", source = "headquarterList")
     ClientResponse toClientResponse(Client client);
 
     /**

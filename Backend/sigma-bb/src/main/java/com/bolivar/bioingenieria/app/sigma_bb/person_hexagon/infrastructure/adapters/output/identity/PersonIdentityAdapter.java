@@ -3,7 +3,6 @@ package com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.infrastructure.ada
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.identity.PersonIdentityPort;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.application.ports.output.identity.response.PersonIdentityResponse;
 import com.bolivar.bioingenieria.app.sigma_bb.person_hexagon.utils.RoleType;
-import com.sun.codemodel.JStringLiteral;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.Keycloak;
@@ -15,8 +14,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Adaptador de salida para la gestión de identidad del usuario utilizando Keycloak.
- * Implementa el puerto de salida PersonIdentityPort y se encarga de interactuar con Keycloak para crear usuarios con diferentes roles.
+ * Adaptador de salida para la gestión de identidad del usuario utilizando
+ * Keycloak.
+ * Implementa el puerto de salida PersonIdentityPort y se encarga de interactuar
+ * con Keycloak para crear usuarios con diferentes roles.
  */
 @Component
 @RequiredArgsConstructor
@@ -25,9 +26,11 @@ public class PersonIdentityAdapter implements PersonIdentityPort {
     private final Keycloak keycloakClient;
 
     /**
-     * Crea un nuevo usuario con rol de ingeniero en Keycloak a partir de la información proporcionada en el DTO de respuesta.
+     * Crea un nuevo usuario con rol de ingeniero en Keycloak a partir de la
+     * información proporcionada en el DTO de respuesta.
      *
-     * @param personIdentityResponse DTO que contiene la información del usuario a crear
+     * @param personIdentityResponse DTO que contiene la información del usuario a
+     *                               crear
      * @return UUID del usuario creado en Keycloak
      */
     @Override
@@ -43,7 +46,7 @@ public class PersonIdentityAdapter implements PersonIdentityPort {
         user.setFirstName(personIdentityResponse.getFirstName());
         user.setLastName(personIdentityResponse.getLastName());
 
-        switch(roleType) {
+        switch (roleType) {
             case ENGINEER -> user.setGroups(List.of("engineers"));
             case CEO_CLIENT -> user.setGroups(List.of("clients"));
             case ADMIN -> user.setGroups(List.of("admins"));
@@ -73,7 +76,7 @@ public class PersonIdentityAdapter implements PersonIdentityPort {
                     .users()
                     .delete(userId);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error al eliminar usuario en Keycloak: " + e.getMessage());
         }
     }

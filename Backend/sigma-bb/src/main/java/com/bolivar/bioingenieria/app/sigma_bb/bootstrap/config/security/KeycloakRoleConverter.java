@@ -15,6 +15,7 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
     private static final String CLIENT_ID = "sigma-api";
 
     @Override
+    @SuppressWarnings("unchecked")
     public Collection<GrantedAuthority> convert(Jwt jwt) {
 
         Map<String, Object> resourceAccess = jwt.getClaim("resource_access");

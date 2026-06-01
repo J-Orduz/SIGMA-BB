@@ -85,4 +85,12 @@ public class ClientCreateRequest {
             requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "El identificador del país es obligatorio")
     private String identificadorPais;
+
+    /**
+     * Cédula del representante legal asociado al cliente.
+     */
+    @Schema(description = "Cédula del representante legal asociado al cliente",
+            example = "1013099671",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String identificadorRepresentante;
 }
