@@ -93,10 +93,26 @@ export const EquipmentManager: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Inventario de Equipos</h1>
-        <p className="text-sm text-slate-500">Asociación y control operativo de dispositivos biomédicos.</p>
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner">
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Inventario de Equipos</h1>
+            <p className="sigma-manager-description">Asociación y control operativo de dispositivos biomédicos.</p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Ingenieria</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -114,8 +130,9 @@ export const EquipmentManager: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* FORMULARIO */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">
+        <div className="sigma-panel p-5 h-fit space-y-4">
+          <p className="sigma-section-eyebrow">Formulario</p>
+          <h2 className="text-xl font-bold text-slate-800">
             {editingId ? 'Modificar Equipo' : 'Nuevo Equipo'}
           </h2>
 
@@ -176,8 +193,11 @@ export const EquipmentManager: React.FC = () => {
         </div>
 
         {/* LISTADO */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">Equipos Registrados</h2>
+        <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
+          <div>
+            <p className="sigma-list-eyebrow">Bitacora</p>
+            <h2 className="text-xl font-bold text-slate-800">Equipos Registrados</h2>
+          </div>
 
           {isLoading && equipments.length === 0 ? (
             <p className="text-sm text-slate-500 text-center py-8">Cargando inventario...</p>
@@ -186,7 +206,7 @@ export const EquipmentManager: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 gap-3">
               {equipments.map((equip: any) => (
-                <div key={equip.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div key={equip.id} className="p-4 border border-slate-100 rounded-xl bg-white flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:bg-blue-50/50 transition-all duration-200 shadow-sm">
                   <div className="space-y-1.5 flex-1">
                     <div className="flex flex-wrap items-baseline gap-2">
                       <h3 className="font-bold text-slate-800 text-base">
@@ -235,7 +255,7 @@ export const EquipmentManager: React.FC = () => {
       {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN*/}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up">
+          <div className="bg-white rounded-2xl border border-white shadow-2xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up ring-1 ring-slate-200">
             
             {/* Encabezado con Icono de Advertencia */}
             <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
@@ -286,6 +306,7 @@ export const EquipmentManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

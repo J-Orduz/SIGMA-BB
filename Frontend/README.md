@@ -27,33 +27,45 @@ El proyecto sigue una estructura orientada a **Features (Características/Módul
 ```bash
 src/
 ├── features/
-│   ├── auth/                 ← RF-49, RF-50, RF-51, RF-52, RF-53, RNF-23
+│   ├── auth/                 ← Autenticación, login y transiciones de sesión, Requisitos: RF-49, RF-50, RF-51, RF-52, RF-53, RNF-23
+│   │   └── components/
+│   ├── clients/              ← Gestión de clientes y detalle de cliente, Requisitos: RF-08, RF-53
 │   │   ├── components/
 │   │   ├── hooks/
-│   │   └── services/
-│   ├── work-orders/          ← RF-01 al RF-07, RF-31, RF-32, RF-33, RF-34, RNF-02, RNF-16
+│   │   ├── services/
+│   │   └── types/
+│   ├── equipments/           ← Marcas, tipos de equipo, equipos, modelos y verificaciones técnicas, Requisitos: RD-03, RD-04, RD-05
 │   │   ├── components/
 │   │   ├── hooks/
-│   │   └── services/
-│   ├── clients/              ← RF-08, RF-53
+│   │   ├── services/
+│   │   └── types/
+│   ├── locations/            ← Países y ciudades
 │   │   ├── components/
 │   │   ├── hooks/
-│   │   └── services/
-│   ├── reports/              ← RF-09, RF-10, RF-11, RF-13, RF-15, RNF-06, RD-01
+│   │   ├── services/
+│   │   └── types/
+│   ├── manufacturers/        ← Fabricantes
 │   │   ├── components/
 │   │   ├── hooks/
-│   │   └── services/
-│   └── equipments/           ← RD-03, RD-04, RD-05    
+│   │   ├── services/
+│   │   └── types/
+│   ├── persons/              ← Personas, roles y datos de contacto
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   └── types/
+│   ├── reports/              ← Reportes de servicio, Requisitos: RF-09, RF-10, RF-11, RF-13, RF-15, RNF-06, RD-01
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   └── types/
+│   └── work-orders/          ← RF-01 al RF-07, RF-31, RF-32, RF-33, RF-34, RNF-02, RNF-16
 │       ├── components/
 │       ├── hooks/
-│       └── services/         ← Se centralizan las peticiones HTTP
-├── shared/
-│   ├── components/           ← Botones, inputs, modales reutilizables
-│   ├── hooks/                ← useAuth, useFetch, useRole
-│   └── utils/                ← Formateo de fechas, validaciones
-├── router/                   ← Rutas protegidas por rol
-├── store/                    ← Estado global (Zustand)
+│       └── services/         ← Se centralizan las peticiones HTTP, en cada feature.
+├── router/                   ← Rutas protegidas por rol y layout principal
+├── store/                    ← Estado global de autenticación con Zustand
 ├── App.tsx                   ← Componente raíz
-├── index.css                 ← Directivas de Tailwind CSS
+├── index.css                 ← Estilos globales, Tailwind y animaciones
 └── main.tsx                  ← Punto de entrada que renderiza la app en el HTML
 ```

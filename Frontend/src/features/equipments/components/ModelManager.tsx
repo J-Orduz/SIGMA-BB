@@ -112,10 +112,26 @@ export const ModelManager: React.FC = () => {
   });
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Gestión de Modelos y Registros Sanitarios</h1>
-        <p className="text-sm text-slate-500">Mapeo de referencias de fábrica y homologaciones de registros INVIMA vigentes.</p>
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner">
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Gestión de Modelos</h1>
+            <p className="sigma-manager-description">Mapeo de referencias de fábrica y homologaciones de registros INVIMA vigentes.</p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Ingenieria</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -133,8 +149,9 @@ export const ModelManager: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* FORMULARIO */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">
+        <div className="sigma-panel p-5 h-fit space-y-4">
+          <p className="sigma-section-eyebrow">Formulario</p>
+          <h2 className="text-xl font-bold text-slate-800">
             {editingId ? 'Modificar Modelo' : 'Nuevo Modelo'}
           </h2>
 
@@ -228,9 +245,12 @@ export const ModelManager: React.FC = () => {
         </div>
 
         {/* LISTADO CON BARRA DE BÚSQUEDA */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
-            <h2 className="text-lg font-semibold text-slate-700">Modelos Registrados</h2>
+            <div>
+              <p className="sigma-list-eyebrow">Bitacora</p>
+              <h2 className="text-xl font-bold text-slate-800">Modelos Registrados</h2>
+            </div>
             
             <div className="relative w-full sm:w-64">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">
@@ -275,7 +295,7 @@ export const ModelManager: React.FC = () => {
                 const eqName = model.equipmentResponse?.name || (brandName && typeName ? `${brandName}, ${typeName}` : '') || `ID: ${model.equipmentId}`;
 
                 return (
-                  <div key={model.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 flex justify-between items-center gap-4">
+                  <div key={model.id} className="p-4 border border-slate-100 rounded-xl bg-white flex justify-between items-center gap-4 hover:bg-blue-50/50 transition-all duration-200 shadow-sm">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-100">
@@ -316,7 +336,7 @@ export const ModelManager: React.FC = () => {
       {/* MODAL DE CONFIRMACIÓN */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up">
+          <div className="bg-white rounded-2xl border border-white shadow-2xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up ring-1 ring-slate-200">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
               <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-xl shrink-0">
                 ⚠️
@@ -357,6 +377,7 @@ export const ModelManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

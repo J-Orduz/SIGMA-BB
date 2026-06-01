@@ -212,15 +212,31 @@ export const CountryManager: React.FC = () => {
   });
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner">
       {/* Cabecera */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Gestión de Ubicaciones</h1>
-        <p className="text-sm text-slate-500">Administración de locaciones globales, países y mapeo de ciudades.</p>
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Gestión de Ubicaciones</h1>
+            <p className="sigma-manager-description">Administración de locaciones globales, países y mapeo de ciudades.</p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Admin</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-200 bg-white rounded-t-xl overflow-hidden shadow-sm">
+      <div className="sigma-panel flex overflow-hidden">
         <button
           onClick={() => setActiveTab('countries')}
           className={`flex-1 sm:flex-none px-6 py-3.5 text-sm font-semibold border-b-2 transition-all flex items-center justify-center gap-2 ${
@@ -269,8 +285,9 @@ export const CountryManager: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* FORMULARIO */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-              <h2 className="text-lg font-semibold text-slate-700">
+            <div className="sigma-panel p-5 h-fit space-y-4">
+              <p className="sigma-section-eyebrow">Formulario</p>
+              <h2 className="text-xl font-bold text-slate-800">
                 {editingCountryId ? 'Modificar País' : 'Nuevo País'}
               </h2>
 
@@ -333,9 +350,12 @@ export const CountryManager: React.FC = () => {
             </div>
 
             {/* LISTADO CON BARRA DE BÚSQUEDA */}
-            <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
-                <h2 className="text-lg font-semibold text-slate-700">Países Registrados</h2>
+                <div>
+                  <p className="sigma-list-eyebrow">Bitacora</p>
+                  <h2 className="text-xl font-bold text-slate-800">Países Registrados</h2>
+                </div>
                 
                 <div className="relative w-full sm:w-64">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">
@@ -370,7 +390,7 @@ export const CountryManager: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {filteredCountries.map((country) => (
-                    <div key={country.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 flex justify-between items-center gap-2 hover:border-slate-200 transition-colors">
+                    <div key={country.id} className="p-4 border border-slate-100 rounded-xl bg-white flex justify-between items-center gap-2 hover:bg-blue-50/50 transition-all duration-200 shadow-sm">
                       <div>
                         <span className="text-xs font-mono font-bold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded mr-2">
                           {country.id}
@@ -434,8 +454,9 @@ export const CountryManager: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* FORMULARIO DE CIUDADES */}
-              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-                <h2 className="text-lg font-semibold text-slate-700">
+              <div className="sigma-panel p-5 h-fit space-y-4">
+                <p className="sigma-section-eyebrow">Formulario</p>
+                <h2 className="text-xl font-bold text-slate-800">
                   {editingCityId ? 'Modificar Ciudad' : 'Nueva Ciudad'}
                 </h2>
 
@@ -517,9 +538,12 @@ export const CountryManager: React.FC = () => {
               </div>
 
               {/* LISTADO DE CIUDADES */}
-              <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+              <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
-                  <h2 className="text-lg font-semibold text-slate-700">Ciudades Registradas</h2>
+                  <div>
+                    <p className="sigma-list-eyebrow">Bitacora</p>
+                    <h2 className="text-xl font-bold text-slate-800">Ciudades Registradas</h2>
+                  </div>
                   
                   <div className="relative w-full sm:w-64">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">
@@ -556,7 +580,7 @@ export const CountryManager: React.FC = () => {
                     {filteredCities.map((city) => {
                       const parentCountry = countries.find(c => c.id === city.countryId);
                       return (
-                        <div key={city.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 flex justify-between items-center gap-2 hover:border-slate-200 transition-colors">
+                        <div key={city.id} className="p-4 border border-slate-100 rounded-xl bg-white flex justify-between items-center gap-2 hover:bg-blue-50/50 transition-all duration-200 shadow-sm">
                           <div className="space-y-1">
                             <div>
                               <span className="text-xs font-mono font-bold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded mr-2">
@@ -600,7 +624,7 @@ export const CountryManager: React.FC = () => {
           ======================================================================= */}
       {isCountryDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up">
+          <div className="bg-white rounded-2xl border border-white shadow-2xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up ring-1 ring-slate-200">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
               <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-xl shrink-0">
                 🗑️
@@ -650,7 +674,7 @@ export const CountryManager: React.FC = () => {
           ======================================================================= */}
       {isCityDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up">
+          <div className="bg-white rounded-2xl border border-white shadow-2xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up ring-1 ring-slate-200">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
               <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-xl shrink-0">
                 🗑️
@@ -694,6 +718,7 @@ export const CountryManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
