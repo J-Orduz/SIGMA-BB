@@ -1,4 +1,4 @@
-# Frontend - Sistema de Gestión de Manteniemieto de BolivaBioingeniería (SIGMA-BB)
+# Frontend - Sistema de Gestión de Manteniemieto de BolivarBioingeniería (SIGMA-BB)
 
 Este es el proyecto frontend de la aplicación, desarrollado con **React**, **TypeScript**, **Vite** y **Tailwind CSS**. Siga las instrucciones a continuación para instalar y ejecutar el proyecto en su entorno local.
 

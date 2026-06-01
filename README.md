@@ -1,4 +1,4 @@
-# SIGMA-BB (Sistema de Gestión de Manteniemieto de BolivaBioingeniería)
+# SIGMA-BB (Sistema de Gestión de Manteniemieto de BolivarBioingeniería)
 
 SIGMA-BB es el Sistema de Gestión de Mantenimiento de BolivarBioingenieria. El proyecto integra una aplicacion frontend, un backend Spring Boot, base de datos PostgreSQL, autenticacion con Keycloak y servicios de soporte para la operacion del sistema.
 
