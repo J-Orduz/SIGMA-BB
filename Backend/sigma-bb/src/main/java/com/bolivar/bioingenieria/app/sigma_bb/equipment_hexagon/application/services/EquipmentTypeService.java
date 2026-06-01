@@ -10,11 +10,7 @@ import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.application.serv
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.equipment_type.EquipmentType;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.domain.metrological_data.MetrologicalData;
 import com.bolivar.bioingenieria.app.sigma_bb.equipment_hexagon.infrastructure.output.errors.EquipmentTypeNotFoundException;
-import com.bolivar.bioingenieria.app.sigma_bb.shared.application.ports.output.EventDispatcherPort;
-import com.bolivar.bioingenieria.app.sigma_bb.shared.domain.events.DomainEvent;
-import com.bolivar.bioingenieria.app.sigma_bb.shared.domain.events.Payload;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,13 +23,10 @@ import java.util.UUID;
 @Service
 public class EquipmentTypeService implements EquipmentTypeServicePort {
     private final EquipmentTypePersistencePort equipmentTypePersistencePort;
-    private final EventDispatcherPort eventDispatcherPort;
 
     @Autowired
-    public EquipmentTypeService(EquipmentTypePersistencePort equipmentTypePersistencePort,
-                                @Qualifier(value = "springDispatcher") EventDispatcherPort eventDispatcherPort) {
+    public EquipmentTypeService(EquipmentTypePersistencePort equipmentTypePersistencePort) {
         this.equipmentTypePersistencePort = equipmentTypePersistencePort;
-        this.eventDispatcherPort = eventDispatcherPort;
     }
 
     @Override
@@ -62,7 +55,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 command.metrologicalData());
 
         equipmentTypePersistencePort.save(et);
-        dispatchEvents(et);
         return et;
     }
 
@@ -75,7 +67,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 command.careRecommendations(), command.voltage(), command.amperage(),
                 command.predominantTechnology(), command.verifiable(), command.unitMaintenanceValue());
         equipmentTypePersistencePort.update(id, et);
-        dispatchEvents(et);
         return et;
     }
 
@@ -85,7 +76,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(command.id()));
         et.deleteEquipmentType();
         equipmentTypePersistencePort.delete(command.id());
-        dispatchEvents(et);
     }
 
     @Override
@@ -97,7 +87,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 command.careRecommendations(), command.voltage(), command.amperage(),
                 command.predominantTechnology(), command.verifiable(), command.unitMaintenanceValue());
         equipmentTypePersistencePort.update(id, et);
-        dispatchEvents(et);
         return et;
     }
 
@@ -112,7 +101,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
                 .build();
         et.addMetrologicalData(md);
         equipmentTypePersistencePort.addMetrologicalData(equipmentTypeId, md);
-        dispatchEvents(et);
         return et;
     }
 
@@ -130,7 +118,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         System.out.println(md.toString());
         et.removeMetrologicalData(md);
         equipmentTypePersistencePort.removeMetrologicalData(equipmentTypeId, md);
-        dispatchEvents(et);
         return et;
     }
 
@@ -152,7 +139,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         et.updateMetrologicalData(oldMd, newMd);
         equipmentTypePersistencePort.removeMetrologicalData(equipmentTypeId, oldMd);
         equipmentTypePersistencePort.addMetrologicalData(equipmentTypeId, newMd);
-        dispatchEvents(et);
         return et;
     }
 
@@ -173,7 +159,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         }
 
         equipmentTypePersistencePort.addMetrologicalDataList(equipmentTypeId, mdList);
-        dispatchEvents(et);
         return et;
     }
 
@@ -193,7 +178,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         }
 
         equipmentTypePersistencePort.removeMetrologicalDataList(equipmentTypeId, mdList);
-        dispatchEvents(et);
         return et;
     }
 
@@ -231,7 +215,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
 
         equipmentTypePersistencePort.removeMetrologicalDataList(equipmentTypeId, oldMdList);
         equipmentTypePersistencePort.addMetrologicalDataList(equipmentTypeId, newMdList);
-        dispatchEvents(et);
         return et;
     }
 
@@ -242,7 +225,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
 
         et.addTechicalVerificationId(technicalVerificationId);
         equipmentTypePersistencePort.addTechnicalVerification(equipmentTypeId, technicalVerificationId);
-        dispatchEvents(et);
         return et;
     }
 
@@ -253,7 +235,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
 
         et.removeTechicalVerificationId(technicalVerificationId);
         equipmentTypePersistencePort.removeTechnicalVerification(equipmentTypeId, technicalVerificationId);
-        dispatchEvents(et);
         return et;
     }
 
@@ -267,7 +248,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         et.updateTechicalVerificationId(oldTechnicalVerificationId, newTechnicalVerificationId);
         equipmentTypePersistencePort.removeTechnicalVerification(equipmentTypeId, oldTechnicalVerificationId);
         equipmentTypePersistencePort.addTechnicalVerification(equipmentTypeId, newTechnicalVerificationId);
-        dispatchEvents(et);
         return et;
     }
 
@@ -281,7 +261,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         }
 
         equipmentTypePersistencePort.addTechnicalVerificationList(equipmentTypeId, technicalVerificationIds);
-        dispatchEvents(et);
         return et;
     }
 
@@ -295,7 +274,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
         }
 
         equipmentTypePersistencePort.removeTechnicalVerificationList(equipmentTypeId, technicalVerificationIds);
-        dispatchEvents(et);
         return et;
     }
 
@@ -316,12 +294,6 @@ public class EquipmentTypeService implements EquipmentTypeServicePort {
 
         equipmentTypePersistencePort.removeTechnicalVerificationList(equipmentTypeId, oldTechnicalVerificationIds);
         equipmentTypePersistencePort.addTechnicalVerificationList(equipmentTypeId, newTechnicalVerificationIds);
-        dispatchEvents(et);
         return et;
-    }
-
-    private void dispatchEvents(EquipmentType aggregate) {
-        List<DomainEvent<? extends Payload>> events = aggregate.pullEvents();
-        events.forEach(eventDispatcherPort::dispatch);
     }
 }
