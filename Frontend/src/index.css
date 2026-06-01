@@ -1,1 +1,1256 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --sigma-ink: #0f172a;
+    --sigma-muted: #64748b;
+    --sigma-line: rgba(148, 163, 184, 0.28);
+    --sigma-blue: #2563eb;
+    --sigma-emerald: #059669;
+    --sigma-surface: rgba(255, 255, 255, 0.82);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    color: var(--sigma-ink);
+    background:
+      radial-gradient(circle at 12% 10%, rgba(59, 130, 246, 0.16), transparent 28rem),
+      radial-gradient(circle at 88% 0%, rgba(16, 185, 129, 0.12), transparent 24rem),
+      linear-gradient(135deg, #f8fafc 0%, #eef2f7 52%, #e2e8f0 100%);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    color: white;
+    background: rgba(37, 99, 235, 0.82);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #94a3b8, #64748b);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .sigma-login-aurora {
+    animation: sigma-aurora-shift 12s ease-in-out infinite alternate;
+    transform-origin: center;
+  }
+
+  .sigma-login-grid {
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(circle at center, black 0, transparent 68%);
+    animation: sigma-grid-drift 18s linear infinite;
+  }
+
+  .sigma-login-orbit {
+    position: absolute;
+    border-radius: 999px;
+    border: 1px solid rgba(147, 197, 253, 0.2);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.1));
+    filter: blur(0.2px);
+    pointer-events: none;
+  }
+
+  .sigma-login-orbit-one {
+    width: 18rem;
+    height: 18rem;
+    left: -5rem;
+    top: 8%;
+    animation: sigma-float-one 9s ease-in-out infinite;
+  }
+
+  .sigma-login-orbit-two {
+    width: 24rem;
+    height: 24rem;
+    right: -8rem;
+    bottom: -4rem;
+    animation: sigma-float-two 11s ease-in-out infinite;
+  }
+
+  .sigma-login-orbit-three {
+    width: 8rem;
+    height: 8rem;
+    right: 18%;
+    top: 18%;
+    background: rgba(255, 255, 255, 0.06);
+    animation: sigma-pulse-orbit 5s ease-in-out infinite;
+  }
+
+  .sigma-login-card {
+    animation: sigma-login-card-in 520ms ease both;
+  }
+
+  .sigma-login-mark {
+    animation: sigma-login-mark-glow 3.8s ease-in-out infinite;
+  }
+
+  .sigma-login-title {
+    background: linear-gradient(90deg, #0f172a, #2563eb, #0f172a);
+    background-size: 220% 100%;
+    background-clip: text;
+    color: transparent;
+    animation: sigma-title-sheen 4.5s ease-in-out infinite;
+  }
+
+  .sigma-auth-celebration {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 1.5rem;
+    background:
+      radial-gradient(circle at 22% 18%, rgba(59, 130, 246, 0.38), transparent 24rem),
+      radial-gradient(circle at 82% 12%, rgba(16, 185, 129, 0.24), transparent 22rem),
+      linear-gradient(135deg, rgba(2, 6, 23, 0.96), rgba(15, 23, 42, 0.94));
+    backdrop-filter: blur(14px);
+    animation: sigma-auth-overlay-in 240ms ease both;
+  }
+
+  .sigma-auth-celebration-glow {
+    position: absolute;
+    width: min(38rem, 86vw);
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: conic-gradient(from 180deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.28), rgba(147, 197, 253, 0.12), rgba(37, 99, 235, 0.1));
+    filter: blur(12px);
+    animation: sigma-auth-glow-spin 4s linear infinite;
+  }
+
+  .sigma-auth-celebration-card {
+    position: relative;
+    width: min(28rem, 100%);
+    overflow: hidden;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(18px);
+    animation: sigma-auth-card-pop 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .sigma-auth-celebration-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.75), transparent),
+      radial-gradient(circle at top, rgba(219, 234, 254, 0.9), transparent 48%);
+    transform: translateX(-120%);
+    animation: sigma-auth-card-sheen 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .sigma-auth-celebration-title {
+    color: #0f172a;
+    font-size: clamp(2rem, 7vw, 3.25rem);
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+
+  .sigma-auth-celebration-title span {
+    display: block;
+    margin-top: 0.35rem;
+    background: linear-gradient(90deg, #2563eb, #059669, #2563eb);
+    background-size: 220% 100%;
+    background-clip: text;
+    color: transparent;
+    animation: sigma-title-sheen 3.2s ease-in-out infinite;
+  }
+
+  .sigma-auth-mascot {
+    position: relative;
+    width: 8rem;
+    height: 9.5rem;
+    margin: 0 auto 1.5rem;
+    animation: sigma-auth-mascot-float 2.4s ease-in-out infinite;
+  }
+
+  .sigma-auth-mascot-head {
+    position: absolute;
+    inset: 0.4rem 1.45rem auto;
+    height: 4.3rem;
+    border-radius: 1.6rem;
+    border: 2px solid rgba(37, 99, 235, 0.25);
+    background: linear-gradient(145deg, #ffffff, #dbeafe);
+    box-shadow: inset 0 -8px 18px rgba(37, 99, 235, 0.12), 0 18px 34px rgba(37, 99, 235, 0.18);
+  }
+
+  .sigma-auth-mascot-head::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -1rem;
+    width: 2px;
+    height: 1rem;
+    background: #93c5fd;
+    transform: translateX(-50%);
+  }
+
+  .sigma-auth-mascot-head::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -1.35rem;
+    width: 0.58rem;
+    height: 0.58rem;
+    border-radius: 999px;
+    background: #10b981;
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.9);
+    transform: translateX(-50%);
+    animation: sigma-auth-antenna 1.2s ease-in-out infinite;
+  }
+
+  .sigma-auth-mascot-eye {
+    position: absolute;
+    top: 1.55rem;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 999px;
+    background: #2563eb;
+    animation: sigma-auth-blink 3.2s ease-in-out infinite;
+  }
+
+  .sigma-auth-mascot-eye-left {
+    left: 1.55rem;
+  }
+
+  .sigma-auth-mascot-eye-right {
+    right: 1.55rem;
+  }
+
+  .sigma-auth-mascot-smile {
+    position: absolute;
+    left: 50%;
+    bottom: 1.1rem;
+    width: 1.7rem;
+    height: 0.8rem;
+    border-bottom: 3px solid #059669;
+    border-radius: 0 0 999px 999px;
+    transform: translateX(-50%);
+  }
+
+  .sigma-auth-mascot-body {
+    position: absolute;
+    left: 50%;
+    bottom: 0.5rem;
+    width: 4.8rem;
+    height: 3.9rem;
+    border-radius: 1.4rem 1.4rem 1.8rem 1.8rem;
+    background: linear-gradient(145deg, #2563eb, #0f766e);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.24);
+    transform: translateX(-50%);
+  }
+
+  .sigma-auth-mascot-core {
+    position: absolute;
+    inset: 1rem 1.55rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 22px rgba(219, 234, 254, 0.8);
+    animation: sigma-auth-core-pulse 1.6s ease-in-out infinite;
+  }
+
+  .sigma-auth-mascot-arm {
+    position: absolute;
+    bottom: 2.6rem;
+    width: 1rem;
+    height: 3rem;
+    border-radius: 999px;
+    background: #93c5fd;
+    transform-origin: top center;
+  }
+
+  .sigma-auth-mascot-arm-left {
+    left: 0.75rem;
+    transform: rotate(26deg);
+    animation: sigma-auth-wave-left 1.7s ease-in-out infinite;
+  }
+
+  .sigma-auth-mascot-arm-right {
+    right: 0.75rem;
+    transform: rotate(-26deg);
+    animation: sigma-auth-wave-right 1.7s ease-in-out infinite;
+  }
+
+  .sigma-auth-progress {
+    position: relative;
+    height: 0.45rem;
+    margin-top: 1.75rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e2e8f0;
+  }
+
+  .sigma-auth-progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #2563eb, #10b981);
+    transform-origin: left center;
+    animation: sigma-auth-progress 2.5s linear both;
+  }
+
+  .sigma-mobile-header,
+  .sigma-sidebar {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(59, 130, 246, 0.34), transparent 18rem),
+      radial-gradient(circle at 100% 10%, rgba(16, 185, 129, 0.2), transparent 16rem),
+      linear-gradient(160deg, #020617 0%, #0f172a 56%, #111827 100%);
+  }
+
+  .sigma-mobile-header::before,
+  .sigma-sidebar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: radial-gradient(circle at top, black 0, transparent 72%);
+    animation: sigma-sidebar-grid 16s linear infinite;
+    pointer-events: none;
+  }
+
+  .sigma-mobile-header > *,
+  .sigma-sidebar > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sigma-mobile-menu-button {
+    border: 1px solid rgba(147, 197, 253, 0.22);
+    background: rgba(255, 255, 255, 0.09);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.2);
+    backdrop-filter: blur(10px);
+  }
+
+  .sigma-sidebar {
+    box-shadow: 20px 0 50px rgba(15, 23, 42, 0.16);
+  }
+
+  .sigma-sidebar-brand {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(147, 197, 253, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .sigma-sidebar-brand::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+    transform: translateX(-120%);
+    animation: sigma-sidebar-brand-sheen 5.5s ease-in-out infinite;
+  }
+
+  .sigma-sidebar-link {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .sigma-sidebar-link::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #60a5fa, #10b981);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform 220ms ease;
+  }
+
+  .sigma-sidebar-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.18), rgba(16, 185, 129, 0.08), transparent);
+    opacity: 0;
+    transform: translateX(-14px);
+    transition: opacity 220ms ease, transform 220ms ease;
+  }
+
+  .sigma-sidebar-link:hover {
+    border-color: rgba(147, 197, 253, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    transform: translateX(4px) translateY(-1px);
+  }
+
+  .sigma-sidebar-link:hover::before {
+    transform: scaleY(1);
+  }
+
+  .sigma-sidebar-link:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .sigma-sidebar-link {
+    animation: sigma-sidebar-link-in 360ms ease both;
+  }
+
+  .sigma-sidebar-link:nth-child(2) {
+    animation-delay: 35ms;
+  }
+
+  .sigma-sidebar-link:nth-child(3) {
+    animation-delay: 70ms;
+  }
+
+  .sigma-sidebar-link:nth-child(4) {
+    animation-delay: 105ms;
+  }
+
+  .sigma-sidebar-link:nth-child(5) {
+    animation-delay: 140ms;
+  }
+
+  .sigma-sidebar-user {
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 1rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+  }
+
+  .sigma-sidebar-logout {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    box-shadow: 0 14px 30px rgba(220, 38, 38, 0.22);
+  }
+
+  .sigma-sidebar-logout:hover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 18px 36px rgba(220, 38, 38, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .sigma-manager-shell {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: calc(100vh - 4rem);
+    border-radius: 1rem;
+    background:
+      radial-gradient(circle at 12% 10%, rgba(37, 99, 235, 0.18), transparent 22rem),
+      radial-gradient(circle at 88% 2%, rgba(16, 185, 129, 0.14), transparent 20rem),
+      radial-gradient(circle at top left, #dbeafe 0, #f8fafc 34%, #eef2f7 100%);
+    background-size: 120% 120%, 120% 120%, 100% 100%;
+    padding: 1rem;
+    animation: sigma-manager-bg-breathe 14s ease-in-out infinite alternate;
+  }
+
+  .sigma-manager-shell::before,
+  .sigma-manager-shell::after {
+    content: "";
+    position: absolute;
+    inset: auto;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .sigma-manager-shell::before {
+    width: 26rem;
+    height: 26rem;
+    top: -10rem;
+    right: -8rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.22), transparent 68%);
+    animation: sigma-manager-orb-one 13s ease-in-out infinite;
+  }
+
+  .sigma-manager-shell::after {
+    width: 20rem;
+    height: 20rem;
+    left: -8rem;
+    bottom: -8rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.16), transparent 70%);
+    animation: sigma-manager-orb-two 15s ease-in-out infinite;
+  }
+
+  @media (min-width: 768px) {
+    .sigma-manager-shell {
+      padding: 1.5rem;
+    }
+  }
+
+  .sigma-manager-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .sigma-manager-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: #020617;
+    color: #ffffff;
+    box-shadow: 0 20px 45px rgba(148, 163, 184, 0.4);
+    animation: sigma-hero-in 520ms ease both;
+  }
+
+  .sigma-manager-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(37, 99, 235, 0.36), rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0));
+    pointer-events: none;
+    animation: sigma-hero-aurora 10s ease-in-out infinite alternate;
+  }
+
+  .sigma-manager-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.13) 42%, transparent 58%);
+    transform: translateX(-120%);
+    animation: sigma-hero-sheen 6.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .sigma-manager-hero-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .sigma-manager-hero-content {
+      padding: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .sigma-manager-hero-content {
+      align-items: flex-end;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  .sigma-manager-kicker {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(147, 197, 253, 0.4);
+    background: rgba(96, 165, 250, 0.1);
+    padding: 0.25rem 0.75rem;
+    color: #dbeafe;
+    font-size: 0.75rem;
+    font-weight: 700;
+    animation: sigma-kicker-pulse 3.8s ease-in-out infinite;
+  }
+
+  .sigma-manager-title {
+    margin-top: 0.75rem;
+    color: #ffffff;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-shadow: 0 10px 30px rgba(96, 165, 250, 0.22);
+  }
+
+  @media (min-width: 768px) {
+    .sigma-manager-title {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+  }
+
+  .sigma-manager-description {
+    margin-top: 0.5rem;
+    max-width: 42rem;
+    color: #cbd5e1;
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .sigma-manager-description {
+      font-size: 1rem;
+    }
+  }
+
+  .sigma-hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .sigma-hero-stat {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1rem;
+    backdrop-filter: blur(8px);
+    transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
+  }
+
+  .sigma-hero-stat::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 42%);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .sigma-hero-stat:hover {
+    transform: translateY(-2px);
+    border-color: rgba(147, 197, 253, 0.32);
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .sigma-hero-stat:hover::before {
+    opacity: 1;
+  }
+
+  .sigma-hero-stat-label {
+    color: #cbd5e1;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .sigma-hero-stat-value {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .sigma-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 20px 45px rgba(148, 163, 184, 0.28);
+    backdrop-filter: blur(10px);
+    animation: sigma-panel-in 520ms ease both;
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
+  }
+
+  .sigma-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #10b981, #2563eb);
+    background-size: 200% 100%;
+    opacity: 0.82;
+    animation: sigma-panel-accent 5s linear infinite;
+  }
+
+  .sigma-panel:hover {
+    transform: translateY(-2px);
+    border-color: rgba(147, 197, 253, 0.75);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 24px 60px rgba(37, 99, 235, 0.13), 0 18px 45px rgba(148, 163, 184, 0.26);
+  }
+
+  .sigma-section-eyebrow {
+    color: #2563eb;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .sigma-list-eyebrow {
+    color: #059669;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .sigma-empty-state {
+    border: 1px dashed rgba(148, 163, 184, 0.42);
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    padding-block: 2.5rem;
+    text-align: center;
+  }
+
+  .sigma-manager-inner > * {
+    animation: sigma-stagger-up 520ms ease both;
+  }
+
+  .sigma-manager-inner > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+
+  .sigma-manager-inner > *:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .sigma-manager-inner > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  .sigma-manager-inner > *:nth-child(n + 4) {
+    animation-delay: 160ms;
+  }
+
+  .sigma-manager-shell :is(.grid > div[class*='border'][class*='rounded-xl'][class*='p-4'], .grid > div[class*='border'][class*='rounded-xl'][class*='p-3']) {
+    transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background-color 200ms ease;
+  }
+
+  .sigma-manager-shell :is(.grid > div[class*='border'][class*='rounded-xl'][class*='p-4'], .grid > div[class*='border'][class*='rounded-xl'][class*='p-3']):hover {
+    transform: translateY(-2px);
+    border-color: rgba(147, 197, 253, 0.72);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.09);
+  }
+
+  .sigma-manager-shell :is(table, .grid) {
+    animation: sigma-content-soft-in 440ms ease both;
+  }
+
+  .sigma-manager-shell thead {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sigma-manager-shell thead::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    transform: translateX(-120%);
+    animation: sigma-table-sheen 7s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .sigma-manager-shell tbody tr:hover {
+    transform: translateX(2px);
+  }
+
+  .sigma-manager-shell :is(button[type='submit'], button[class*='bg-blue-600'], button[class*='bg-slate-900']) {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sigma-manager-shell :is(button[type='submit'], button[class*='bg-blue-600'], button[class*='bg-slate-900'])::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    transform: translateX(-120%);
+    transition: transform 420ms ease;
+  }
+
+  .sigma-manager-shell :is(button[type='submit'], button[class*='bg-blue-600'], button[class*='bg-slate-900']):hover::after {
+    transform: translateX(120%);
+  }
+
+  .sigma-manager-shell [class*='fixed'][class*='inset-0'] > div {
+    animation: sigma-modal-pop 220ms ease both;
+  }
+
+  .sigma-manager-shell :is(.bg-red-50, .bg-green-50, .bg-emerald-50, .bg-amber-50) {
+    animation: sigma-alert-slide 260ms ease both;
+  }
+
+  .sigma-manager-shell input:focus,
+  .sigma-manager-shell select:focus,
+  .sigma-manager-shell textarea:focus {
+    transform: translateY(-1px);
+  }
+
+  main > div {
+    animation: sigma-rise 360ms ease both;
+  }
+
+  main :is(.bg-white, .bg-slate-50) {
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.07);
+  }
+
+  main :is(.rounded-xl, .rounded-lg) {
+    border-radius: 1rem;
+  }
+
+  main :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+    border-color: rgba(148, 163, 184, 0.42);
+    background-color: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, transform 180ms ease;
+  }
+
+  main :is(input:not([type='checkbox']):not([type='radio']), select, textarea):focus {
+    border-color: rgba(37, 99, 235, 0.7);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), inset 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  main button {
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+
+  main button:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+
+  main table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  main thead {
+    box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.22);
+  }
+
+  main tbody tr {
+    transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  main tbody tr:hover {
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  }
+
+  main [class*='border-dashed'] {
+    background-image: linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(239, 246, 255, 0.7));
+  }
+}
+
+@keyframes sigma-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sigma-sidebar-grid {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 36px 36px;
+  }
+}
+
+@keyframes sigma-sidebar-brand-sheen {
+  0%, 44% {
+    transform: translateX(-120%);
+  }
+  68%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes sigma-sidebar-link-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sigma-auth-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sigma-auth-glow-spin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1.04);
+  }
+}
+
+@keyframes sigma-auth-card-pop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sigma-auth-card-sheen {
+  0%, 34% {
+    transform: translateX(-120%);
+  }
+  64%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes sigma-auth-mascot-float {
+  0%, 100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes sigma-auth-antenna {
+  0%, 100% {
+    opacity: 0.75;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.18);
+  }
+}
+
+@keyframes sigma-auth-blink {
+  0%, 88%, 100% {
+    transform: scaleY(1);
+  }
+  92% {
+    transform: scaleY(0.12);
+  }
+}
+
+@keyframes sigma-auth-core-pulse {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.78;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes sigma-auth-wave-left {
+  0%, 100% {
+    transform: rotate(24deg);
+  }
+  50% {
+    transform: rotate(42deg);
+  }
+}
+
+@keyframes sigma-auth-wave-right {
+  0%, 100% {
+    transform: rotate(-24deg);
+  }
+  50% {
+    transform: rotate(-42deg);
+  }
+}
+
+@keyframes sigma-auth-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes sigma-manager-bg-breathe {
+  from {
+    background-position: 0% 0%, 100% 0%, center;
+  }
+  to {
+    background-position: 12% 8%, 86% 10%, center;
+  }
+}
+
+@keyframes sigma-manager-orb-one {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(-3rem, 2rem, 0) scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes sigma-manager-orb-two {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.72;
+  }
+  50% {
+    transform: translate3d(3rem, -2rem, 0) scale(1.08);
+    opacity: 0.95;
+  }
+}
+
+@keyframes sigma-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sigma-hero-aurora {
+  from {
+    filter: saturate(1);
+    transform: scale(1);
+  }
+  to {
+    filter: saturate(1.22);
+    transform: scale(1.04);
+  }
+}
+
+@keyframes sigma-hero-sheen {
+  0%, 45% {
+    transform: translateX(-120%);
+  }
+  68%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes sigma-kicker-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(96, 165, 250, 0);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(96, 165, 250, 0.22);
+  }
+}
+
+@keyframes sigma-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sigma-panel-accent {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes sigma-stagger-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sigma-content-soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sigma-table-sheen {
+  0%, 48% {
+    transform: translateX(-120%);
+  }
+  68%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes sigma-modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sigma-alert-slide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sigma-aurora-shift {
+  from {
+    transform: scale(1) rotate(0deg);
+    filter: saturate(1);
+  }
+  to {
+    transform: scale(1.08) rotate(2deg);
+    filter: saturate(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@keyframes sigma-grid-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 56px 56px;
+  }
+}
+
+@keyframes sigma-float-one {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(2rem, 1.5rem, 0) rotate(8deg);
+  }
+}
+
+@keyframes sigma-float-two {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-2rem, -1.25rem, 0) rotate(-6deg);
+  }
+}
+
+@keyframes sigma-pulse-orbit {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes sigma-login-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sigma-login-mark-glow {
+  0%, 100% {
+    box-shadow: 0 18px 36px rgba(147, 197, 253, 0.34);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 22px 48px rgba(37, 99, 235, 0.42);
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes sigma-title-sheen {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}

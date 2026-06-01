@@ -129,35 +129,64 @@ export const ServiceReportManager: React.FC = () => {
   };
 
   const requiredInputClass = (value: string) =>
-    `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-      formSubmitted && !value.trim() ? 'border-red-400 bg-red-50/40' : 'border-slate-300'
+    `w-full px-3 py-2.5 border rounded-lg text-sm bg-white/90 shadow-inner shadow-slate-100/70 transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 ${
+      formSubmitted && !value.trim() ? 'border-red-400 bg-red-50/60' : 'border-slate-200 hover:border-slate-300'
     }`;
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Reportes de Servicio</h1>
-        <p className="text-sm text-slate-500">Registro operativo de reportes asociados a ordenes de trabajo y equipos cliente.</p>
+    <div className="sigma-manager-shell min-h-[calc(100vh-4rem)] rounded-2xl bg-[radial-gradient(circle_at_top_left,#dbeafe_0,#f8fafc_34%,#eef2f7_100%)] p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="relative overflow-hidden rounded-2xl border border-white/70 bg-slate-950 text-white shadow-xl shadow-slate-300/40">
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(37,99,235,0.36),rgba(16,185,129,0.18),rgba(15,23,42,0))]" />
+        <div className="relative p-6 md:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+          <div className="space-y-3">
+            <span className="inline-flex w-fit items-center rounded-full border border-blue-300/40 bg-blue-400/10 px-3 py-1 text-xs font-semibold text-blue-100">
+              Modulo operativo
+            </span>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Reportes de Servicio</h1>
+              <p className="mt-2 max-w-2xl text-sm md:text-base text-slate-300">Registro operativo de reportes asociados a ordenes de trabajo y equipos cliente.</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase text-slate-300">Estado</p>
+              <p className="font-semibold text-white">Activo</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p className="text-xs uppercase text-slate-300">Acceso</p>
+              <p className="font-semibold text-white">Ingenieria y admin</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex justify-between items-center">
+        <div className="p-3 bg-red-50/95 border border-red-200 text-red-700 text-sm rounded-xl flex justify-between items-center shadow-sm">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold ml-2">Cerrar</button>
+          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold ml-2 rounded-md px-2 py-1 hover:bg-red-100 transition-colors">Cerrar</button>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
+        <div className="p-3 bg-emerald-50/95 border border-emerald-200 text-emerald-700 text-sm rounded-xl shadow-sm">
           {successMsg}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">
-            {editingId ? 'Editar Reporte' : 'Nuevo Reporte'}
-          </h2>
+        <div className="bg-white/85 backdrop-blur p-5 rounded-2xl border border-white shadow-xl shadow-slate-200/70 h-fit space-y-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase text-blue-600">Formulario</p>
+              <h2 className="text-xl font-bold text-slate-800">
+                {editingId ? 'Editar Reporte' : 'Nuevo Reporte'}
+              </h2>
+            </div>
+            <div className="h-10 w-10 rounded-xl bg-blue-600 text-white grid place-items-center text-sm font-bold shadow-lg shadow-blue-200">
+              RS
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div>
@@ -200,7 +229,7 @@ export const ServiceReportManager: React.FC = () => {
                 maxLength={50}
                 onChange={(event) => updateField('technicalVerificationResult', event.target.value)}
                 placeholder="Ej. CONFORME"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-white/90 shadow-inner shadow-slate-100/70 transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
               />
             </div>
 
@@ -214,7 +243,7 @@ export const ServiceReportManager: React.FC = () => {
                 rows={4}
                 onChange={(event) => updateField('observations', event.target.value)}
                 placeholder="Detalle del trabajo realizado, hallazgos o recomendaciones."
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-white/90 shadow-inner shadow-slate-100/70 transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 resize-none"
               />
               <p className="mt-1 text-[11px] text-slate-400">{formData.observations?.length || 0}/250 caracteres.</p>
             </div>
@@ -223,7 +252,7 @@ export const ServiceReportManager: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 px-4 rounded-lg disabled:bg-blue-400"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm py-2.5 px-4 rounded-lg disabled:bg-blue-400 shadow-lg shadow-blue-200 transition-all duration-200 hover:-translate-y-0.5"
               >
                 {editingId ? 'Actualizar Reporte' : 'Crear Reporte'}
               </button>
@@ -231,7 +260,7 @@ export const ServiceReportManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium text-sm py-2 px-3 rounded-lg"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm py-2.5 px-3 rounded-lg border border-slate-200 transition-colors"
                 >
                   Cancelar
                 </button>
@@ -240,30 +269,33 @@ export const ServiceReportManager: React.FC = () => {
           </form>
         </div>
 
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-2 bg-white/85 backdrop-blur p-5 rounded-2xl border border-white shadow-xl shadow-slate-200/70 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 className="text-lg font-semibold text-slate-700">Reportes Registrados</h2>
+            <div>
+              <p className="text-xs font-semibold uppercase text-emerald-600">Bitacora</p>
+              <h2 className="text-xl font-bold text-slate-800">Reportes Registrados</h2>
+            </div>
             <input
               type="text"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Buscar por orden, equipo o resultado..."
-              className="w-full sm:w-72 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+              className="w-full sm:w-80 px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 shadow-inner shadow-slate-100/70 placeholder:text-slate-400 transition-all"
             />
           </div>
 
           {isLoading && serviceReports.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-8">Cargando reportes de servicio...</p>
+            <p className="text-sm text-slate-500 text-center py-10 rounded-xl bg-slate-50 border border-dashed border-slate-200">Cargando reportes de servicio...</p>
           ) : serviceReports.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">No hay reportes de servicio registrados.</p>
+            <p className="text-sm text-slate-400 text-center py-10 rounded-xl bg-slate-50 border border-dashed border-slate-200">No hay reportes de servicio registrados.</p>
           ) : filteredReports.length === 0 ? (
-            <p className="text-sm text-slate-400 bg-slate-50 p-4 rounded-lg text-center border border-dashed border-slate-200">
+            <p className="text-sm text-slate-400 bg-slate-50 p-6 rounded-xl text-center border border-dashed border-slate-200">
               No se encontraron reportes para "{searchTerm}".
             </p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-slate-100">
+            <div className="overflow-x-auto rounded-xl border border-slate-100 shadow-sm">
               <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 text-xs text-slate-700 uppercase tracking-wider border-b border-slate-100">
+                <thead className="bg-slate-900 text-xs text-slate-200 uppercase border-b border-slate-800">
                   <tr>
                     <th className="px-4 py-3">Orden</th>
                     <th className="px-4 py-3">Equipo Cliente</th>
@@ -274,11 +306,11 @@ export const ServiceReportManager: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredReports.map((report) => (
-                    <tr key={report.id} className="hover:bg-slate-50/60 transition-colors">
+                    <tr key={report.id} className="bg-white hover:bg-blue-50/50 transition-all duration-200">
                       <td className="px-4 py-3 font-semibold text-slate-800">{report.workOrderId}</td>
                       <td className="px-4 py-3">{report.clientEquipmentId}</td>
                       <td className="px-4 py-3">
-                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-semibold border border-blue-100">
+                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold border border-emerald-100">
                           {report.technicalVerificationResult || 'Sin resultado'}
                         </span>
                       </td>
@@ -291,13 +323,13 @@ export const ServiceReportManager: React.FC = () => {
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleStartEdit(report)}
-                            className="px-2.5 py-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold rounded-md border border-blue-200 transition-colors"
+                            className="px-3 py-1.5 text-blue-700 hover:text-white hover:bg-blue-600 text-xs font-semibold rounded-lg border border-blue-200 transition-all duration-200"
                           >
                             Editar
                           </button>
                           <button
                             onClick={() => setDeleteModal({ isOpen: true, report })}
-                            className="px-2.5 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-semibold rounded-md border border-red-100 transition-colors"
+                            className="px-3 py-1.5 text-red-600 hover:text-white hover:bg-red-600 text-xs font-semibold rounded-lg border border-red-100 transition-all duration-200"
                           >
                             Eliminar
                           </button>
@@ -313,16 +345,17 @@ export const ServiceReportManager: React.FC = () => {
       </div>
 
       {deleteModal.isOpen && deleteModal.report && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-md">
+          <div className="bg-white rounded-2xl shadow-2xl border border-white max-w-md w-full p-6 space-y-5 ring-1 ring-slate-200">
             <div>
-              <h3 className="text-lg font-bold text-slate-800">Eliminar reporte de servicio</h3>
+              <p className="text-xs font-semibold uppercase text-red-600">Confirmacion</p>
+              <h3 className="text-xl font-bold text-slate-800">Eliminar reporte de servicio</h3>
               <p className="text-sm text-slate-500 mt-1">
                 Se eliminara el reporte asociado a la orden <span className="font-semibold text-slate-700">{deleteModal.report.workOrderId}</span>.
               </p>
             </div>
 
-            <div className="bg-slate-50 border border-slate-100 rounded-lg p-3 text-sm text-slate-600">
+            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm text-slate-600">
               <p><span className="font-semibold">Equipo cliente:</span> {deleteModal.report.clientEquipmentId}</p>
               <p><span className="font-semibold">Resultado:</span> {deleteModal.report.technicalVerificationResult || 'Sin resultado'}</p>
             </div>
@@ -331,14 +364,14 @@ export const ServiceReportManager: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setDeleteModal({ isOpen: false, report: null })}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-lg transition-colors"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDelete}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-sm rounded-lg transition-colors"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-lg shadow-lg shadow-red-100 transition-all hover:-translate-y-0.5"
               >
                 Eliminar
               </button>
@@ -346,6 +379,7 @@ export const ServiceReportManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

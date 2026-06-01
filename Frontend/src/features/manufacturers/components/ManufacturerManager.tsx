@@ -95,10 +95,26 @@ export const ManufacturerManager: React.FC = () => {
   });
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Gestión de Fabricantes</h1>
-        <p className="text-sm text-slate-500">Administración de fábricas matrices proveedoras de equipamiento biomédico.</p>
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner">
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Gestión de Fabricantes</h1>
+            <p className="sigma-manager-description">Administración de fábricas matrices proveedoras de equipamiento biomédico.</p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Admin</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -116,8 +132,9 @@ export const ManufacturerManager: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* FORMULARIO */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">
+        <div className="sigma-panel p-5 h-fit space-y-4">
+          <p className="sigma-section-eyebrow">Formulario</p>
+          <h2 className="text-xl font-bold text-slate-800">
             {editingId ? 'Modificar Fabricante' : 'Nuevo Fabricante'}
           </h2>
 
@@ -182,9 +199,12 @@ export const ManufacturerManager: React.FC = () => {
         </div>
 
         {/* LISTADO CON BUSCADOR INTEGRADO */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
-            <h2 className="text-lg font-semibold text-slate-700">Fabricantes Autorizados</h2>
+            <div>
+              <p className="sigma-list-eyebrow">Bitacora</p>
+              <h2 className="text-xl font-bold text-slate-800">Fabricantes Autorizados</h2>
+            </div>
             
             {/* Input de Búsqueda Estilizado */}
             <div className="relative w-full sm:w-64">
@@ -224,7 +244,7 @@ export const ManufacturerManager: React.FC = () => {
                 const countryLabel = manu.countryResponse?.name || matchingCountry?.name || manu.countryId;
 
                 return (
-                  <div key={manu.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 flex justify-between items-center gap-4">
+                  <div key={manu.id} className="p-4 border border-slate-100 rounded-xl bg-white flex justify-between items-center gap-4 hover:bg-blue-50/50 transition-all duration-200 shadow-sm">
                     <div>
                       <h3 className="font-bold text-slate-800 text-base">{manu.name}</h3>
                       <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -258,7 +278,7 @@ export const ManufacturerManager: React.FC = () => {
       {/* MODAL DE ELIMINACIÓN DE FABRICANTE */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up">
+          <div className="bg-white rounded-2xl border border-white shadow-2xl max-w-md w-full overflow-hidden p-6 space-y-4 relative animate-scale-up ring-1 ring-slate-200">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
               <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 text-xl shrink-0">
                 ⚙️
@@ -302,6 +322,7 @@ export const ManufacturerManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

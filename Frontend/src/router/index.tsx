@@ -15,39 +15,66 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
 import React from 'react';
+import { AuthCelebration } from '../features/auth/components/AuthCelebration';
 
 const DashboardLayout = () => {
   const { user, logout } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [goodbyeName, setGoodbyeName] = React.useState<string | null>(null);
+  const logoutTimerRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (logoutTimerRef.current) {
+        window.clearTimeout(logoutTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleLogout = () => {
+    if (goodbyeName) return;
+
+    setIsMobileMenuOpen(false);
+    setGoodbyeName(user?.name || 'Usuario');
+
+    logoutTimerRef.current = window.setTimeout(() => {
+      logout();
+    }, 2500);
+  };
+
+  const navLinkClass = 'sigma-sidebar-link block px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white transition-all';
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-slate-100 text-slate-800">
       {/* BARRA DE NAVEGACIÓN SUPERIOR (Móviles) */}
-      <header className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
-        <h2 className="text-xl font-bold text-blue-400 tracking-wider">SIGMA-BB</h2>
+      <header className="sigma-mobile-header md:hidden text-white p-4 flex justify-between items-center shadow-xl">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-wider">SIGMA-BB</h2>
+          <p className="text-xs text-blue-100">Bioingeniería</p>
+        </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="text-slate-200 p-2 focus:outline-none bg-slate-800 rounded-lg"
+          className="sigma-mobile-menu-button text-slate-100 px-3 py-2 focus:outline-none rounded-xl"
         >
-          {isMobileMenuOpen ? '✕ Cerrar' : '☰ Menú'}
+          {isMobileMenuOpen ? 'Cerrar' : 'Menú'}
         </button>
       </header>
 
       {/* BARRA LATERAL */}
       <aside className={`
         ${isMobileMenuOpen ? 'block' : 'hidden'} 
-        md:flex w-full md:w-64 bg-slate-900 text-slate-200 flex-col justify-between p-4 fixed md:sticky top-0 h-[calc(100vh-60px)] md:h-screen z-50 transition-all duration-300
+        sigma-sidebar md:flex w-full md:w-72 text-slate-200 flex-col justify-between p-4 fixed md:sticky top-[72px] md:top-0 h-[calc(100vh-72px)] md:h-screen z-50 transition-all duration-300 overflow-y-auto
       `}>
         <div className="space-y-6">
-          <div className="hidden md:block px-2 py-3 border-b border-slate-800">
-            <h2 className="text-xl font-bold text-blue-400 tracking-wider">SIGMA-BB</h2>
-            <p className="text-xs text-slate-400">Bioingeniería</p>
+          <div className="sigma-sidebar-brand hidden md:block px-3 py-4">
+            <h2 className="text-2xl font-black text-white tracking-wider">SIGMA-BB</h2>
+            <p className="text-xs text-blue-100">Bioingeniería</p>
           </div>
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             <Link
               to="/equipments/brands"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+              className={navLinkClass}
             >
               Gestión de Marcas
             </Link>
@@ -58,42 +85,42 @@ const DashboardLayout = () => {
                 <Link
                   to="/equipments/types"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Tipos de Equipos
                 </Link>
                 <Link
                   to="/equipments/technical-verifications"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Verificaciones Técnicas
                 </Link>
                 <Link
                   to="/equipments/list"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Inventario de Equipos
                 </Link>
                 <Link
                   to="/countries"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Gestión de Ubicaciones
                 </Link>
                 <Link
                   to="/manufacturers"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Gestión de Fabricantes
                 </Link>
                 <Link
                   to="/equipments/models"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Gestión de Modelos
                 </Link>
@@ -106,14 +133,14 @@ const DashboardLayout = () => {
                 <Link
                   to="/clients"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Gestión de Clientes
                 </Link>
                 <Link
                   to="/persons"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className={navLinkClass}
                 >
                   Gestión de Personas
                 </Link>
@@ -123,7 +150,7 @@ const DashboardLayout = () => {
               <Link
                 to="/service-reports"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                className={navLinkClass}
               >
                 Reportes de Servicio
               </Link>
@@ -131,14 +158,16 @@ const DashboardLayout = () => {
           </nav>
         </div>
 
-        <div className="border-t border-slate-800 pt-4 space-y-3 bg-slate-900">
-          <div className="px-2 text-xs text-slate-400">
-            Usuario: <span className="text-slate-200 font-medium block truncate">{user?.name}</span>
-            Rol: <span className="text-blue-400 font-semibold uppercase block">{user?.role}</span>
+        <div className="sigma-sidebar-user mt-6 space-y-3">
+          <div className="px-2 text-xs text-slate-300">
+            <span className="text-slate-400 uppercase font-bold">Usuario</span>
+            <span className="text-white font-semibold block truncate">{user?.name}</span>
+            <span className="text-slate-400 uppercase font-bold block mt-2">Rol</span>
+            <span className="text-blue-100 font-semibold uppercase block">{user?.role}</span>
           </div>
           <button
-            onClick={logout}
-            className="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+            onClick={handleLogout}
+            className="sigma-sidebar-logout w-full px-3 py-2 text-white text-sm font-semibold rounded-xl transition-all"
           >
             Cerrar Sesión
           </button>
@@ -148,6 +177,7 @@ const DashboardLayout = () => {
       <main className="flex-1 p-4 md:p-8 overflow-y-auto">
         <Outlet />
       </main>
+      {goodbyeName && <AuthCelebration mode="goodbye" name={goodbyeName} />}
     </div>
   );
 };

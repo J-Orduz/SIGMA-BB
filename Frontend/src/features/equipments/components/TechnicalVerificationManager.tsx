@@ -107,10 +107,26 @@ export const TechnicalVerificationManager: React.FC = () => {
     : [];
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 relative">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Verificaciones Técnicas</h1>
-        <p className="text-sm text-slate-500">Configuración de criterios de calibración y pruebas para tipos de equipos.</p>
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner">
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Verificaciones Técnicas</h1>
+            <p className="sigma-manager-description">Configuración de criterios de calibración y pruebas para tipos de equipos.</p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Ingenieria</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -128,8 +144,9 @@ export const TechnicalVerificationManager: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* FORMULARIO */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">
+        <div className="sigma-panel p-5 h-fit space-y-4">
+          <p className="sigma-section-eyebrow">Formulario</p>
+          <h2 className="text-xl font-bold text-slate-800">
             {editingId ? '📝 Modificar Criterio' : 'Nuevo Criterio Técnico'}
           </h2>
 
@@ -194,9 +211,12 @@ export const TechnicalVerificationManager: React.FC = () => {
         </div>
 
         {/* LISTADO */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 className="text-lg font-semibold text-slate-700">Criterios Registrados</h2>
+            <div>
+              <p className="sigma-list-eyebrow">Bitacora</p>
+              <h2 className="text-xl font-bold text-slate-800">Criterios Registrados</h2>
+            </div>
             <input
               type="text"
               value={searchTerm}
@@ -213,7 +233,7 @@ export const TechnicalVerificationManager: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 gap-3">
               {filteredVerifications.map((v) => (
-                <div key={v.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 hover:border-slate-200 transition-all space-y-2">
+                <div key={v.id} className="p-4 border border-slate-100 rounded-xl bg-white hover:bg-blue-50/50 transition-all duration-200 shadow-sm space-y-2">
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="px-2 py-0.5 bg-blue-100 text-blue-800 font-semibold text-[11px] rounded-full uppercase tracking-wide">
@@ -246,7 +266,7 @@ export const TechnicalVerificationManager: React.FC = () => {
       {/* MODAL ELIMINAR */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white max-w-md w-full rounded-xl shadow-xl border border-slate-200 p-6 space-y-4">
+          <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl border border-white p-6 space-y-4 ring-1 ring-slate-200">
             <div className="flex items-center space-x-3 text-red-600">
               <h3 className="text-lg font-bold text-slate-800">¿Confirmar Eliminación?</h3>
             </div>
@@ -273,6 +293,7 @@ export const TechnicalVerificationManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

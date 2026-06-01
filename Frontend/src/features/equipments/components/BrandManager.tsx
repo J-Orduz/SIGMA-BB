@@ -91,10 +91,26 @@ export const BrandManager: React.FC = () => {
   );
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-8 relative">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Gestión de Marcas</h1>
-        <p className="text-sm text-slate-500">Módulo administrativo para registrar, modificar y dar de baja fabricantes biomédicos.</p>
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner max-w-5xl">
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Gestión de Marcas</h1>
+            <p className="sigma-manager-description">Módulo administrativo para registrar, modificar y dar de baja fabricantes biomédicos.</p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Admin</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Alertas de Feedback globales */}
@@ -113,8 +129,9 @@ export const BrandManager: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Formulario de Registro */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit">
-          <h2 className="text-lg font-semibold text-slate-700 mb-4">Nueva Marca</h2>
+        <div className="sigma-panel p-5 h-fit">
+          <p className="sigma-section-eyebrow">Formulario</p>
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Nueva Marca</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">
@@ -140,9 +157,12 @@ export const BrandManager: React.FC = () => {
         </div>
 
         {/* Tabla / Grid de Marcas */}
-        <div className="md:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="md:col-span-2 sigma-panel p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 className="text-lg font-semibold text-slate-700">Marcas Registradas</h2>
+            <div>
+              <p className="sigma-list-eyebrow">Bitacora</p>
+              <h2 className="text-xl font-bold text-slate-800">Marcas Registradas</h2>
+            </div>
             
             {brands.length > 0 && (
               <div className="relative w-full sm:w-64">
@@ -169,9 +189,9 @@ export const BrandManager: React.FC = () => {
               No se encontraron coincidencias para "{searchTerm}"
             </p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-slate-100">
+            <div className="overflow-x-auto rounded-xl border border-slate-100 shadow-sm">
               <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 text-xs text-slate-700 uppercase tracking-wider border-b border-slate-100">
+                <thead className="bg-slate-900 text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800">
                   <tr>
                     <th className="px-4 py-3">Nombre de la Marca</th>
                     <th className="px-4 py-3 text-right">Acciones</th>
@@ -179,7 +199,7 @@ export const BrandManager: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredBrands.map((brand) => (
-                    <tr key={brand.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={brand.id} className="bg-white hover:bg-blue-50/50 transition-all duration-200">
                       <td className="px-4 py-3">
                         {editingId === brand.id ? (
                           <input
@@ -241,7 +261,7 @@ export const BrandManager: React.FC = () => {
       {deleteModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
           {/* Tarjeta contenedora del diálogo */}
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-6 transform scale-100 transition-all">
+          <div className="bg-white rounded-2xl shadow-2xl border border-white max-w-md w-full p-6 space-y-6 ring-1 ring-slate-200 transform scale-100 transition-all">
             
             {/* Encabezado e Icono de Advertencia */}
             <div className="flex items-start gap-4">
@@ -279,7 +299,7 @@ export const BrandManager: React.FC = () => {
           </div>
         </div>
       )}
-
+      </div>
     </div>
   );
 };

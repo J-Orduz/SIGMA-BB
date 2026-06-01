@@ -278,10 +278,26 @@ export const EquipmentTypeManager: React.FC = () => {
     : [];
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 relative">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Tipos de Equipos</h1>
-        <p className="text-sm text-slate-500">Configuración de fichas técnicas maestras de dispositivos biomédicos.</p>
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner">
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Tipos de Equipos</h1>
+            <p className="sigma-manager-description">Configuración de fichas técnicas maestras de dispositivos biomédicos.</p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Ingenieria</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -299,8 +315,9 @@ export const EquipmentTypeManager: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* FORMULARIO DE CREACIÓN / EDICIÓN */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">
+        <div className="sigma-panel p-5 h-fit space-y-4">
+          <p className="sigma-section-eyebrow">Formulario</p>
+          <h2 className="text-xl font-bold text-slate-800">
             {editingId ? 'Modificar Tipo' : 'Nuevo Tipo de Equipo'}
           </h2>
 
@@ -586,9 +603,12 @@ export const EquipmentTypeManager: React.FC = () => {
         </div>
 
         {/* LISTADO PRINCIPAL */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 className="text-lg font-semibold text-slate-700">Catálogo de Fichas Configuradas</h2>
+            <div>
+              <p className="sigma-list-eyebrow">Bitacora</p>
+              <h2 className="text-xl font-bold text-slate-800">Catálogo de Fichas Configuradas</h2>
+            </div>
             <input
               type="text"
               value={searchTerm}
@@ -605,7 +625,7 @@ export const EquipmentTypeManager: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {filteredTypes.map((type) => (
-                <div key={type.id} className="p-4 border border-slate-100 rounded-xl bg-slate-50/30 hover:border-slate-200 transition-all space-y-3">
+                <div key={type.id} className="p-4 border border-slate-100 rounded-xl bg-white hover:bg-blue-50/50 transition-all duration-200 shadow-sm space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-bold text-slate-800 text-base">{type.equipmentTypeName}</h3>
@@ -685,7 +705,7 @@ export const EquipmentTypeManager: React.FC = () => {
       {/* MODAL ERROR METROLOGÍA */}
       {isMetroAlertOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in">
-          <div className="bg-white max-w-md w-full rounded-xl shadow-xl border border-slate-200 p-6 space-y-4 transform transition-all scale-100">
+          <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl border border-white p-6 space-y-4 ring-1 ring-slate-200 transform transition-all scale-100">
             <div className="flex items-center space-x-3 text-orange-600">
               <h3 className="text-lg font-bold text-slate-800">Se requiere configuración metrológica</h3>
             </div>
@@ -717,7 +737,7 @@ export const EquipmentTypeManager: React.FC = () => {
       {/* VENTANA MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in">
-          <div className="bg-white max-w-md w-full rounded-xl shadow-xl border border-slate-200 p-6 space-y-4 transform transition-all scale-100">
+          <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl border border-white p-6 space-y-4 ring-1 ring-slate-200 transform transition-all scale-100">
             <div className="flex items-center space-x-3 text-red-600">
               <div className="p-2 bg-red-50 rounded-lg"><span className="text-xl">⚠️</span></div>
               <h3 className="text-lg font-bold text-slate-800">¿Confirmar Eliminación?</h3>
@@ -745,6 +765,7 @@ export const EquipmentTypeManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

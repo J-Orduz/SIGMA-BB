@@ -182,13 +182,29 @@ export const PersonManager: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-8 relative">
+    <div className="sigma-manager-shell">
+      <div className="sigma-manager-inner">
       {/* ── Encabezado ──────────────────────────────────────────────── */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Gestión de Personas</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Módulo para registrar personal de la empresa, ingenieros de servicio, administradores y representantes legales de clientes en SIGMA-BB.
-        </p>
+      <div className="sigma-manager-hero">
+        <div className="sigma-manager-hero-content">
+          <div>
+            <span className="sigma-manager-kicker">Modulo operativo</span>
+            <h1 className="sigma-manager-title">Gestión de Personas</h1>
+            <p className="sigma-manager-description">
+              Módulo para registrar personal de la empresa, ingenieros de servicio, administradores y representantes legales de clientes en SIGMA-BB.
+            </p>
+          </div>
+          <div className="sigma-hero-stats">
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Estado</p>
+              <p className="sigma-hero-stat-value">Activo</p>
+            </div>
+            <div className="sigma-hero-stat">
+              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-value">Admin</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Alertas de Feedback ──────────────────────────────────────── */}
@@ -208,8 +224,9 @@ export const PersonManager: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* ── Formulario de Registro/Edición (1/3) ─────────────────── */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold text-slate-700">
+        <div className="sigma-panel p-5 h-fit space-y-4">
+          <p className="sigma-section-eyebrow">Formulario</p>
+          <h2 className="text-xl font-bold text-slate-800">
             {editingId ? '✏️ Modificar Persona' : '👤 Nueva Persona'}
           </h2>
 
@@ -440,9 +457,12 @@ export const PersonManager: React.FC = () => {
         </div>
 
         {/* ── Tabla de Personas Registradas (2/3) ──────────────────── */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-2 sigma-panel p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
-            <h2 className="text-lg font-semibold text-slate-700">Personas Registradas</h2>
+            <div>
+              <p className="sigma-list-eyebrow">Bitacora</p>
+              <h2 className="text-xl font-bold text-slate-800">Personas Registradas</h2>
+            </div>
             
             {/* Input de Búsqueda */}
             {persons.length > 0 && (
@@ -483,9 +503,9 @@ export const PersonManager: React.FC = () => {
               No se encontraron coincidencias para "{searchTerm}".
             </p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-slate-100">
+            <div className="overflow-x-auto rounded-xl border border-slate-100 shadow-sm">
               <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 text-xs text-slate-700 uppercase tracking-wider border-b border-slate-100">
+                <thead className="bg-slate-900 text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800">
                   <tr>
                     <th className="px-4 py-3">Cédula</th>
                     <th className="px-4 py-3">Nombre Completo</th>
@@ -497,7 +517,7 @@ export const PersonManager: React.FC = () => {
                   {filteredPersons.map((p) => {
                     const fullName = `${p.primerNombre} ${p.segundoNombre || ''} ${p.primerApellido} ${p.segundoApellido || ''}`;
                     return (
-                      <tr key={p.identificador} className="hover:bg-slate-50/70 transition-colors group">
+                      <tr key={p.identificador} className="bg-white hover:bg-blue-50/50 transition-all duration-200 group">
                         <td className="px-4 py-3">
                           <span className="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-semibold">
                             {p.cedula}
@@ -557,7 +577,7 @@ export const PersonManager: React.FC = () => {
       {/* ── Modal de Eliminación de Persona ───────────────────────── */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-6">
+          <div className="bg-white rounded-2xl shadow-2xl border border-white max-w-md w-full p-6 space-y-6 ring-1 ring-slate-200">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-red-50 text-red-600 rounded-full shrink-0">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -592,6 +612,7 @@ export const PersonManager: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
