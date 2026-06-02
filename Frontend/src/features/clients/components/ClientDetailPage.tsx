@@ -6,6 +6,7 @@ import { serviceAreaService } from '../services/serviceArea.service';
 import { useCountries } from '../../locations/hooks/useCountries';
 import { useCities } from '../../locations/hooks/useCities';
 import { usePersons } from '../../persons/hooks/usePersons';
+import { useModels } from '../../equipments/hooks/useModels';
 import type {
   Client,
   Headquarter,
@@ -46,6 +47,7 @@ export const ClientDetailPage: React.FC = () => {
   const { countries } = useCountries();
   const { cities } = useCities();
   const { persons } = usePersons();
+  const { models } = useModels();
 
   const [client, setClient] = useState<Client | null>(null);
   const [allHqs, setAllHqs] = useState<Headquarter[]>([]);
@@ -70,6 +72,14 @@ export const ClientDetailPage: React.FC = () => {
   const [editEmails, setEditEmails] = useState<string[]>(['']);
   const [editPhones, setEditPhones] = useState<string[]>(['']);
   const [editRepLegal, setEditRepLegal] = useState('');
+
+  // ── Estados para Gestión de Equipos biomédicos (Solución 2) ───────────────────
+  const [activeAreaIdForEquipmentForm, setActiveAreaIdForEquipmentForm] = useState<string | null>(null);
+  const [eqSerie, setEqSerie] = useState('');
+  const [eqInventario, setEqInventario] = useState('');
+  const [eqFechaCompra, setEqFechaCompra] = useState('');
+  const [eqValorCompra, setEqValorCompra] = useState('');
+  const [eqModeloId, setEqModeloId] = useState('');
 
   // ── Carga de datos ──────────────────────────────────────────────────────────
 
@@ -265,6 +275,52 @@ export const ClientDetailPage: React.FC = () => {
       await fetchData();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo eliminar el área de servicio.');
+    }
+  };
+
+  // ── Gestión de Equipos biomédicos (Solución 2) ───────────────────────────────
+
+  const handleAddEquipment = async (e: React.FormEvent, areaId: string) => {
+    e.preventDefault();
+    if (!eqSerie.trim()) {
+      setError('El número de serie es obligatorio.');
+      return;
+    }
+    setIsSaving(true);
+    setError(null);
+    try {
+      const payload = {
+        serie: eqSerie.trim(),
+        numeroInventario: eqInventario.trim() || undefined,
+        fechaCompra: eqFechaCompra ? new Date(eqFechaCompra).toISOString() : undefined,
+        valorCompra: eqValorCompra ? parseInt(eqValorCompra, 10) : undefined,
+        identificadorModelo: eqModeloId || undefined,
+      };
+
+      await serviceAreaService.addEquipment(areaId, payload);
+      setEqSerie('');
+      setEqInventario('');
+      setEqFechaCompra('');
+      setEqValorCompra('');
+      setEqModeloId('');
+      setActiveAreaIdForEquipmentForm(null);
+      showSuccess('¡Equipo biomédico vinculado con éxito!');
+      await fetchData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al registrar el equipo biomédico.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteEquipment = async (areaId: string, equipId: string, serial: string) => {
+    if (!confirm(`¿Desvincular el equipo biomédico con serie "${serial}"? Esta acción lo dará de baja.`)) return;
+    try {
+      await serviceAreaService.deleteEquipment(areaId, equipId);
+      showSuccess('Equipo biomédico desvinculado con éxito.');
+      await fetchData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo desvincular el equipo.');
     }
   };
 
@@ -812,24 +868,184 @@ export const ClientDetailPage: React.FC = () => {
             {allAreas.length === 0 && !showSaForm && (
               <EmptyState icon="🗂️" message="No hay áreas de servicio registradas para este cliente." />
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {allAreas.map((area) => {
                 const associatedHq = allHqs.find((h) => h.identificadorSede === area.identificadorSede);
+                const activeEquipments = (area.clientEquipmentList ?? []).filter(e => e.estadoActivo !== false);
+                const isFormOpen = activeAreaIdForEquipmentForm === area.identificadorAreaServicio;
+
                 return (
-                  <div key={area.identificadorAreaServicio} className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <h4 className="font-semibold text-slate-800 text-sm">{area.nombreAreaServicio}</h4>
-                        <p className="text-xs text-blue-600 font-medium">
-                          🏢 Sede: <span className="font-semibold">{associatedHq ? associatedHq.nombreSede : 'Sede Desconocida'}</span>
-                        </p>
+                  <div key={area.identificadorAreaServicio} className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-all flex flex-col justify-between shadow-sm">
+                    <div>
+                      <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3 mb-3">
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-slate-800 text-base">{area.nombreAreaServicio}</h4>
+                          <p className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                            <span>🏢 Sede:</span>
+                            <span className="font-semibold text-slate-700">{associatedHq ? associatedHq.nombreSede : 'Sede Desconocida'}</span>
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteArea(area.identificadorAreaServicio, area.nombreAreaServicio)}
+                          className="px-2 py-1 text-red-500 hover:text-red-700 hover:bg-red-50 text-xs font-bold rounded-lg border border-transparent hover:border-red-100 transition-colors shrink-0"
+                        >
+                          ✕ Eliminar Área
+                        </button>
                       </div>
-                      <button
-                        onClick={() => handleDeleteArea(area.identificadorAreaServicio, area.nombreAreaServicio)}
-                        className="px-2.5 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-semibold rounded-md border border-red-100 transition-colors shrink-0"
-                      >
-                        Eliminar
-                      </button>
+
+                      {/* LISTADO DE EQUIPOS BIOMÉDICOS */}
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Equipos Biomédicos ({activeEquipments.length})</h5>
+                          <button
+                            onClick={() => {
+                              if (isFormOpen) {
+                                setActiveAreaIdForEquipmentForm(null);
+                              } else {
+                                setActiveAreaIdForEquipmentForm(area.identificadorAreaServicio);
+                                setEqSerie('');
+                                setEqInventario('');
+                                setEqFechaCompra('');
+                                setEqValorCompra('');
+                                setEqModeloId('');
+                              }
+                            }}
+                            className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1"
+                          >
+                            {isFormOpen ? '✕ Cancelar' : '+ Vincular Equipo'}
+                          </button>
+                        </div>
+
+                        {/* Formulario para agregar equipo */}
+                        {isFormOpen && (
+                          <form onSubmit={(e) => handleAddEquipment(e, area.identificadorAreaServicio)} className="bg-slate-50/70 border border-slate-200 rounded-xl p-3.5 space-y-3 animate-fade-in my-2">
+                            <p className="text-xs font-bold text-slate-700">Registrar Equipo Físico</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Modelo del Equipo</label>
+                                <select
+                                  value={eqModeloId}
+                                  onChange={(e) => setEqModeloId(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-700 font-medium"
+                                >
+                                  <option value="">-- Sin Modelo (Opcional) --</option>
+                                  {models.map((m) => {
+                                    const mfg = m.manufacturerResponse?.name || '';
+                                    const eqName = m.equipmentResponse?.name || '';
+                                    const label = mfg && eqName ? `${mfg} - ${eqName} (${m.invima})` : `${m.invima} (ID: ${m.id.substring(0,8)})`;
+                                    return (
+                                      <option key={m.id} value={m.id}>
+                                        {label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Serie *</label>
+                                <input
+                                  required
+                                  type="text"
+                                  placeholder="Ej. SN-B10293"
+                                  value={eqSerie}
+                                  onChange={(e) => setEqSerie(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">No. Inventario</label>
+                                <input
+                                  type="text"
+                                  placeholder="Ej. INV-9982"
+                                  value={eqInventario}
+                                  onChange={(e) => setEqInventario(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Valor de Compra</label>
+                                <input
+                                  type="number"
+                                  placeholder="Ej. 1200000"
+                                  value={eqValorCompra}
+                                  onChange={(e) => setEqValorCompra(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Fecha de Compra</label>
+                                <input
+                                  type="date"
+                                  value={eqFechaCompra}
+                                  onChange={(e) => setEqFechaCompra(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex justify-end gap-1.5 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => setActiveAreaIdForEquipmentForm(null)}
+                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-semibold rounded-lg transition-colors"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                type="submit"
+                                disabled={isSaving}
+                                className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-[11px] font-semibold rounded-lg transition-colors"
+                              >
+                                {isSaving ? 'Guardando...' : 'Vincular'}
+                              </button>
+                            </div>
+                          </form>
+                        )}
+
+                        {/* Listado de equipos asignados */}
+                        {activeEquipments.length === 0 ? (
+                          <p className="text-xs text-slate-400 italic py-1">No hay equipos vinculados a este área de servicio.</p>
+                        ) : (
+                          <div className="space-y-1.5 max-h-[180px] overflow-y-auto pr-1">
+                            {activeEquipments.map((equip) => {
+                              const eqModel = models.find(m => m.id === equip.identificadorModelo);
+                              const mfg = eqModel?.manufacturerResponse?.name || '';
+                              const eqName = eqModel?.equipmentResponse?.name || '';
+                              const modelDisplay = mfg && eqName ? `${mfg} ${eqName}` : (eqModel?.invima || '');
+
+                              return (
+                                <div key={equip.identificadorEquipoCliente} className="flex justify-between items-center p-2 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-blue-50/30 transition-all">
+                                  <div className="space-y-0.5">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] font-bold text-slate-400 uppercase">Serie:</span>
+                                      <span className="text-xs font-semibold text-slate-800">{equip.serie}</span>
+                                    </div>
+                                    {modelDisplay && (
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Modelo:</span>
+                                        <span className="text-[11px] font-medium text-slate-700 bg-blue-50/60 text-blue-700 px-1.5 py-0.5 rounded">{modelDisplay}</span>
+                                      </div>
+                                    )}
+                                    {equip.numeroInventario && (
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Inventario:</span>
+                                        <span className="text-xs font-mono font-medium text-slate-600">{equip.numeroInventario}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteEquipment(area.identificadorAreaServicio, equip.identificadorEquipoCliente, equip.serie)}
+                                    className="text-red-400 hover:text-red-600 p-1.5 font-bold text-sm shrink-0 hover:bg-red-50 rounded-lg transition-colors"
+                                    title="Desvincular Equipo"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );

@@ -11,6 +11,7 @@ import { ClientManager } from '../features/clients/components/ClientManager';
 import { ClientDetailPage } from '../features/clients/components/ClientDetailPage';
 import { PersonManager } from '../features/persons/components/PersonManager';
 import { ServiceReportManager } from '../features/reports/components/ServiceReportManager';
+import { WorkOrderManager } from '../features/workOrders/components/WorkOrderManager';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, Outlet } from 'react-router-dom';
@@ -155,6 +156,15 @@ const DashboardLayout = () => {
                 Reportes de Servicio
               </Link>
             )}
+            {(user?.role === 'Administrador' || user?.role === 'SuperUsuario' || user?.role === 'Ingeniero Técnico') && (
+              <Link
+                to="/work-orders"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={navLinkClass}
+              >
+                Órdenes de Trabajo
+              </Link>
+            )}
           </nav>
         </div>
 
@@ -240,7 +250,11 @@ export const router = createBrowserRouter([
               {
                 path: 'service-reports',
                 element: <ServiceReportManager />
-              }
+              },
+              {
+                path: 'work-orders',
+                element: <WorkOrderManager />
+              },
             ]
           },
           {

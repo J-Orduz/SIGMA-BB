@@ -3,6 +3,7 @@ import { create } from 'zustand';
 export type AppRole = 'SuperUsuario' | 'Administrador' | 'Ingeniero Técnico';
 
 interface User {
+  id: string;
   username: string;
   name: string;
   role: AppRole;

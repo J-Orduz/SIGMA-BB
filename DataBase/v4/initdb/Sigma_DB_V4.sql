@@ -51,6 +51,9 @@ DROP TABLE IF EXISTS modelo CASCADE
 DROP TABLE IF EXISTS orden_trabajo CASCADE
 ;
 
+DROP TABLE IF EXISTS orden_trabajo_equipo_cliente CASCADE
+;
+
 DROP TABLE IF EXISTS pais CASCADE
 ;
 
@@ -240,6 +243,13 @@ CREATE TABLE orden_trabajo
 	k_identificador uuid NULL,	-- Este campo es la FK la persona que representa al ingeniero encargado de la orden de trabajo.
 	t_estado_ejecucion varchar(15) NOT NULL   DEFAULT 'CREATED',	-- Este campo es el encargado de reflejar el estado de ejecución de la orden de trabajo (CREADO, EJECUCION, EJECUTADO).
 	b_estado_activo boolean NOT NULL   DEFAULT true	-- Esta columna se encarga de indicar si el dato está activo o no, permitiendo conservar el historial de la base de datos sin necesidad de eliminar registros.
+)
+;
+
+CREATE TABLE orden_trabajo_equipo_cliente
+(
+	k_id_orden_trabajo uuid NOT NULL,	-- FK que viene desde la tabla orden_trabajo.
+	k_id_equipo_cliente uuid NOT NULL	-- FK que viene desde la tabla equipo_cliente.
 )
 ;
 
@@ -525,6 +535,16 @@ ALTER TABLE orden_trabajo ADD CONSTRAINT "PK_mantenimiento"
 	PRIMARY KEY (k_id_orden_trabajo)
 ;
 
+ALTER TABLE orden_trabajo_equipo_cliente ADD CONSTRAINT "PK_orden_trabajo_equipo_cliente"
+	PRIMARY KEY (k_id_orden_trabajo, k_id_equipo_cliente)
+;
+
+CREATE INDEX "IXFK_orden_trabajo_equipo_cliente_orden_trabajo" ON orden_trabajo_equipo_cliente (k_id_orden_trabajo ASC)
+;
+
+CREATE INDEX "IXFK_orden_trabajo_equipo_cliente_equipo_cliente" ON orden_trabajo_equipo_cliente (k_id_equipo_cliente ASC)
+;
+
 ALTER TABLE orden_trabajo ADD CONSTRAINT "CHK_periodicidad" CHECK (n_periodicidad IN ('MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANUAL'))
 ;
 
@@ -736,6 +756,14 @@ ALTER TABLE modelo ADD CONSTRAINT "FK_modelo_fabricante"
 
 ALTER TABLE orden_trabajo ADD CONSTRAINT "FK_orden_trabajo_persona"
 	FOREIGN KEY (k_identificador) REFERENCES persona (k_identificador) ON DELETE No Action ON UPDATE No Action
+;
+
+ALTER TABLE orden_trabajo_equipo_cliente ADD CONSTRAINT "FK_orden_trabajo_equipo_cliente_orden_trabajo"
+	FOREIGN KEY (k_id_orden_trabajo) REFERENCES orden_trabajo (k_id_orden_trabajo) ON DELETE No Action ON UPDATE No Action
+;
+
+ALTER TABLE orden_trabajo_equipo_cliente ADD CONSTRAINT "FK_orden_trabajo_equipo_cliente_equipo_cliente"
+	FOREIGN KEY (k_id_equipo_cliente) REFERENCES equipo_cliente (k_id_equipo_cliente) ON DELETE No Action ON UPDATE No Action
 ;
 
 ALTER TABLE protocolo_mantenimiento ADD CONSTRAINT "FK_protocolo_mantenimiento_reporte_servicio"
@@ -1050,6 +1078,18 @@ COMMENT ON COLUMN modelo.k_id_equipo
 
 COMMENT ON TABLE orden_trabajo
 	IS 'Esta tabla se encarga de almacenar todas las órdenes de trabajo que serán generadas y ejecutadas.'
+;
+
+COMMENT ON TABLE orden_trabajo_equipo_cliente
+	IS 'Tabla intermedia que relaciona una orden de trabajo con los equipos del cliente que serán intervenidos en dicha orden.'
+;
+
+COMMENT ON COLUMN orden_trabajo_equipo_cliente.k_id_orden_trabajo
+	IS 'FK que viene desde la tabla orden_trabajo.'
+;
+
+COMMENT ON COLUMN orden_trabajo_equipo_cliente.k_id_equipo_cliente
+	IS 'FK que viene desde la tabla equipo_cliente.'
 ;
 
 COMMENT ON COLUMN orden_trabajo.k_id_orden_trabajo
