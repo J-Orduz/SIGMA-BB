@@ -8,8 +8,18 @@ interface DeleteModalState {
   personName: string;
 }
 
+// Interfaz para controlar los errores individuales por campo
+interface FormErrors {
+  cedula?: string;
+  primerNombre?: string;
+  primerApellido?: string;
+  nombreUsuario?: string;
+  password?: string;
+  email?: string;
+}
+
 export const PersonManager: React.FC = () => {
-  const { persons, isLoading, error, createPerson, updatePerson, deletePerson, setError } = usePersons();
+  const { persons, isLoading, createPerson, updatePerson, deletePerson } = usePersons();
 
   // Estados del Formulario
   const [cedula, setCedula] = useState('');
@@ -25,10 +35,11 @@ export const PersonManager: React.FC = () => {
   const [emailInputs, setEmailInputs] = useState<string[]>(['']);
   const [phoneInputs, setPhoneInputs] = useState<string[]>(['']);
 
-  // Estados de edición y control
+  // Estados de edición, control y errores específicos
   const [editingId, setEditingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const [deleteModal, setDeleteModal] = useState<DeleteModalState>({
     isOpen: false,
@@ -53,12 +64,40 @@ export const PersonManager: React.FC = () => {
     setEmailInputs(['']);
     setPhoneInputs(['']);
     setEditingId(null);
+    setFormErrors({});
+  };
+
+  // Manejadores de cambios que limpian el error específico del campo modificado
+  const handleCedulaChange = (value: string) => {
+    setCedula(value);
+    if (formErrors.cedula) setFormErrors(prev => ({ ...prev, cedula: undefined }));
+  };
+
+  const handlePrimerNombreChange = (value: string) => {
+    setPrimerNombre(value);
+    if (formErrors.primerNombre) setFormErrors(prev => ({ ...prev, primerNombre: undefined }));
+  };
+
+  const handlePrimerApellidoChange = (value: string) => {
+    setPrimerApellido(value);
+    if (formErrors.primerApellido) setFormErrors(prev => ({ ...prev, primerApellido: undefined }));
+  };
+
+  const handleNombreUsuarioChange = (value: string) => {
+    setNombreUsuario(value);
+    if (formErrors.nombreUsuario) setFormErrors(prev => ({ ...prev, nombreUsuario: undefined }));
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (formErrors.password) setFormErrors(prev => ({ ...prev, password: undefined }));
   };
 
   const handleEmailChange = (index: number, value: string) => {
     const updated = [...emailInputs];
     updated[index] = value;
     setEmailInputs(updated);
+    if (formErrors.email) setFormErrors(prev => ({ ...prev, email: undefined }));
   };
 
   const handlePhoneChange = (index: number, value: string) => {
@@ -68,29 +107,45 @@ export const PersonManager: React.FC = () => {
   };
 
   const addEmailField = () => setEmailInputs((prev) => [...prev, '']);
-  const removeEmailField = (index: number) => setEmailInputs((prev) => prev.filter((_, i) => i !== index));
+  const removeEmailField = (index: number) => {
+    setEmailInputs((prev) => prev.filter((_, i) => i !== index));
+    if (formErrors.email) setFormErrors(prev => ({ ...prev, email: undefined }));
+  };
 
   const addPhoneField = () => setPhoneInputs((prev) => [...prev, '']);
   const removePhoneField = (index: number) => setPhoneInputs((prev) => prev.filter((_, i) => i !== index));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: FormErrors = {};
 
-    if (!cedula.trim() || !primerNombre.trim() || !primerApellido.trim()) {
-      setError('Por favor, rellene todos los campos obligatorios.');
-      return;
+    // Validaciones de campos obligatorios básicos
+    if (!cedula.trim()) errors.cedula = 'El número de cédula es obligatorio.';
+    if (!primerNombre.trim()) errors.primerNombre = 'El primer nombre es obligatorio.';
+    if (!primerApellido.trim()) errors.primerApellido = 'El primer apellido es obligatorio.';
+
+    // Validación de correos electrónicos
+    const tieneEmailValido = emailInputs.some(email => email.trim() !== '');
+    if (!tieneEmailValido) {
+      errors.email = 'Por favor, introduzca al menos un correo electrónico válido.';
     }
 
     const isRepLegal = role === 'CEO_CLIENT';
 
-    if (!editingId && !isRepLegal && (!nombreUsuario.trim() || !password.trim())) {
-      setError('El nombre de usuario y la contraseña son obligatorios para crear una identidad.');
+    // Validación de identidad en Keycloak (Solo en creación y si no es Representante Legal)
+    if (!editingId && !isRepLegal) {
+      if (!nombreUsuario.trim()) errors.nombreUsuario = 'El nombre de usuario es obligatorio.';
+      if (!password.trim()) errors.password = 'La contraseña es obligatoria.';
+    }
+
+    // Si existen errores en el objeto, detenemos el envío y los guardamos en el estado
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       return;
     }
 
     try {
       if (editingId) {
-        // En actualización el backend requiere PersonUpdateRequest
         const updatePayload: PersonUpdateRequest = {
           cedula: cedula.trim(),
           primerNombre: primerNombre.trim(),
@@ -104,7 +159,6 @@ export const PersonManager: React.FC = () => {
         await updatePerson(editingId, updatePayload);
         showSuccess('¡Persona actualizada con éxito!');
       } else {
-        // Creación
         const createPayload: PersonCreateRequest = {
           cedula: cedula.trim(),
           primerNombre: primerNombre.trim(),
@@ -134,9 +188,9 @@ export const PersonManager: React.FC = () => {
     setPrimerApellido(person.primerApellido);
     setSegundoApellido(person.segundoApellido === '.' ? '' : person.segundoApellido || '');
     setRole((person.tipoPersona as any) || 'ADMIN');
-    // Para correos y teléfonos
     setEmailInputs(person.emailPersonList?.map(e => e.correoPersona) || ['']);
     setPhoneInputs(person.phonePersonList?.map(p => p.telefonoPersona) || ['']);
+    setFormErrors({});
   };
 
   const triggerDeleteClick = (id: string, name: string) => {
@@ -200,22 +254,16 @@ export const PersonManager: React.FC = () => {
               <p className="sigma-hero-stat-value">Activo</p>
             </div>
             <div className="sigma-hero-stat">
-              <p className="sigma-hero-stat-label">Acceso</p>
+              <p className="sigma-hero-stat-label">Accesso</p>
               <p className="sigma-hero-stat-value">Admin</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Alertas de Feedback ──────────────────────────────────────── */}
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex justify-between items-center animate-fade-in">
-          <span>⚠️ {error}</span>
-          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold ml-2">✕</button>
-        </div>
-      )}
+      {/* ── Alertas de Feedback Global ──────────────────────────────── */}
       {successMsg && (
-        <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg animate-fade-in">
+        <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg animate-fade-in mb-4">
           💡 {successMsg}
         </div>
       )}
@@ -230,7 +278,7 @@ export const PersonManager: React.FC = () => {
             {editingId ? '✏️ Modificar Persona' : '👤 Nueva Persona'}
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             
             {/* Cédula */}
             <div>
@@ -238,13 +286,21 @@ export const PersonManager: React.FC = () => {
                 Número de Cédula *
               </label>
               <input
-                required
                 type="text"
                 value={cedula}
-                onChange={(e) => setCedula(e.target.value)}
+                onChange={(e) => handleCedulaChange(e.target.value)}
                 placeholder="Ej. 1012345678"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+                  formErrors.cedula 
+                    ? 'border-red-400 focus:ring-red-500 bg-red-50/30' 
+                    : 'border-slate-300 focus:ring-blue-500'
+                }`}
               />
+              {formErrors.cedula && (
+                <p className="text-xs text-red-600 mt-1 flex items-center gap-1 animate-fade-in">
+                  ⚠️ {formErrors.cedula}
+                </p>
+              )}
             </div>
 
             {/* Nombres */}
@@ -254,13 +310,21 @@ export const PersonManager: React.FC = () => {
                   Primer Nombre *
                 </label>
                 <input
-                  required
                   type="text"
                   value={primerNombre}
-                  onChange={(e) => setPrimerNombre(e.target.value)}
+                  onChange={(e) => handlePrimerNombreChange(e.target.value)}
                   placeholder="Ej. Juan"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+                    formErrors.primerNombre 
+                      ? 'border-red-400 focus:ring-red-500 bg-red-50/30' 
+                      : 'border-slate-300 focus:ring-blue-500'
+                  }`}
                 />
+                {formErrors.primerNombre && (
+                  <p className="text-xs text-red-600 mt-1 flex items-center gap-1 animate-fade-in">
+                    ⚠️ {formErrors.primerNombre}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
@@ -283,13 +347,21 @@ export const PersonManager: React.FC = () => {
                   Primer Apellido *
                 </label>
                 <input
-                  required
                   type="text"
                   value={primerApellido}
-                  onChange={(e) => setPrimerApellido(e.target.value)}
+                  onChange={(e) => handlePrimerApellidoChange(e.target.value)}
                   placeholder="Ej. Pérez"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+                    formErrors.primerApellido 
+                      ? 'border-red-400 focus:ring-red-500 bg-red-50/30' 
+                      : 'border-slate-300 focus:ring-blue-500'
+                  }`}
                 />
+                {formErrors.primerApellido && (
+                  <p className="text-xs text-red-600 mt-1 flex items-center gap-1 animate-fade-in">
+                    ⚠️ {formErrors.primerApellido}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
@@ -312,7 +384,10 @@ export const PersonManager: React.FC = () => {
               </label>
               <select
                 value={role}
-                onChange={(e: any) => setRole(e.target.value)}
+                onChange={(e: any) => {
+                  setRole(e.target.value);
+                  setFormErrors(prev => ({ ...prev, nombreUsuario: undefined, password: undefined }));
+                }}
                 disabled={!!editingId}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
               >
@@ -331,26 +406,42 @@ export const PersonManager: React.FC = () => {
                     Nombre de Usuario *
                   </label>
                   <input
-                    required
                     type="text"
                     value={nombreUsuario}
-                    onChange={(e) => setNombreUsuario(e.target.value)}
+                    onChange={(e) => handleNombreUsuarioChange(e.target.value)}
                     placeholder="Ej. juan.perez"
-                    className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-xs focus:outline-none focus:ring-2 focus:border-transparent transition-all bg-white ${
+                      formErrors.nombreUsuario 
+                        ? 'border-red-400 focus:ring-red-500 bg-red-50/30' 
+                        : 'border-slate-300 focus:ring-blue-500'
+                    }`}
                   />
+                  {formErrors.nombreUsuario && (
+                    <p className="text-[11px] text-red-600 mt-1 flex items-center gap-1 animate-fade-in">
+                      ⚠️ {formErrors.nombreUsuario}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-slate-600 uppercase mb-0.5">
                     Contraseña *
                   </label>
                   <input
-                    required
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
                     placeholder="Contraseña del usuario"
-                    className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-xs focus:outline-none focus:ring-2 focus:border-transparent transition-all bg-white ${
+                      formErrors.password 
+                        ? 'border-red-400 focus:ring-red-500 bg-red-50/30' 
+                        : 'border-slate-300 focus:ring-blue-500'
+                    }`}
                   />
+                  {formErrors.password && (
+                    <p className="text-[11px] text-red-600 mt-1 flex items-center gap-1 animate-fade-in">
+                      ⚠️ {formErrors.password}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -361,7 +452,7 @@ export const PersonManager: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Correos Electrónicos
+                    Correos Electrónicos *
                   </label>
                   <button
                     type="button"
@@ -373,25 +464,36 @@ export const PersonManager: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   {emailInputs.map((email, idx) => (
-                    <div key={idx} className="flex gap-2">
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => handleEmailChange(idx, e.target.value)}
-                        placeholder="correo@empresa.com"
-                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      />
-                      {emailInputs.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeEmailField(idx)}
-                          className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
-                        >
-                          ✕
-                        </button>
-                      )}
+                    <div key={idx} className="flex flex-col gap-1">
+                      <div className="flex gap-2">
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => handleEmailChange(idx, e.target.value)}
+                          placeholder="correo@empresa.com"
+                          className={`flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+                            formErrors.email 
+                              ? 'border-red-400 focus:ring-red-500 bg-red-50/30' 
+                              : 'border-slate-300 focus:ring-blue-500'
+                          }`}
+                        />
+                        {emailInputs.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeEmailField(idx)}
+                            className="text-red-400 hover:text-red-600 px-1 font-bold text-sm"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
+                  {formErrors.email && (
+                    <p className="text-xs text-red-600 mt-1 flex items-center gap-1 animate-fade-in">
+                      ⚠️ {formErrors.email}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -545,12 +647,14 @@ export const PersonManager: React.FC = () => {
                         <td className="px-4 py-3 text-right whitespace-nowrap">
                           <div className="flex justify-end gap-1.5">
                             <button
+                              type="button"
                               onClick={() => handleStartEdit(p)}
                               className="px-2 py-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold rounded border border-blue-200 transition-colors"
                             >
                               Editar
                             </button>
                             <button
+                              type="button"
                               onClick={() => triggerDeleteClick(p.identificador, fullName)}
                               className="px-2 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-semibold rounded border border-red-100 transition-colors"
                             >

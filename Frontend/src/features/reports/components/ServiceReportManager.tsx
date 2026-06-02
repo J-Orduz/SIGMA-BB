@@ -1,10 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useServiceReports } from '../hooks/useServiceReports';
 import type { CreateServiceReportDTO, ServiceReport } from '../types/service-report.types';
 
 interface DeleteModalState {
   isOpen: boolean;
   report: ServiceReport | null;
+}
+
+interface WorkOrderOption {
+  id: string;
+  label: string;
+  equipoClienteIds: string[];
 }
 
 const initialForm: CreateServiceReportDTO = {
@@ -17,7 +23,7 @@ const initialForm: CreateServiceReportDTO = {
 export const ServiceReportManager: React.FC = () => {
   const {
     serviceReports,
-    isLoading,
+    isLoading: isReportsLoading,
     error,
     createServiceReport,
     updateServiceReport,
@@ -34,6 +40,92 @@ export const ServiceReportManager: React.FC = () => {
     isOpen: false,
     report: null,
   });
+
+  // Estado para las ordenes de trabajo CREATED
+  const [workOrders, setWorkOrders] = useState<WorkOrderOption[]>([]);
+  const [isWorkOrdersLoading, setIsWorkOrdersLoading] = useState(false);
+
+  // Filtrado de equipos cliente según la orden seleccionada
+  const clientEquipmentOptions = useMemo(() => {
+    if (!formData.workOrderId) return [];
+    const selectedOrder = workOrders.find((order) => order.id === formData.workOrderId);
+    return selectedOrder ? selectedOrder.equipoClienteIds : [];
+  }, [formData.workOrderId, workOrders]);
+
+  // Función para formatear la fecha de la API (2026-06-02T19:32:00) a (2026/06/02 19:32)
+  const formatOrderDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const hh = String(date.getHours()).padStart(2, '0');
+      const min = String(date.getMinutes()).padStart(2, '0');
+      return `${yyyy}/${mm}/${dd} ${hh}:${min}`;
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Effect para traer las ordenes y sus ingenieros
+  useEffect(() => {
+    const fetchWorkOrdersAndEngineers = async () => {
+      setIsWorkOrdersLoading(true);
+      const token = localStorage.getItem('sigma_token') || ''; 
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      try {
+        const response = await fetch('http://localhost:8100/work-order/v1/api', { headers });
+        if (!response.ok) throw new Error('Error al obtener órdenes de trabajo');
+        
+        const data = await response.json();
+        
+        // 1. Filtrar solo las ordenes con estado CREATED
+        const createdOrders = data.filter((order: any) => order.estadoEjecucion === 'CREATED');
+
+        // 2. Traer la información del ingeniero para cada orden en paralelo
+        const ordersWithEngineersPromises = createdOrders.map(async (order: any) => {
+          let engineerName = 'Ingeniero Desconocido';
+          
+          if (order.identificadorIngeniero) {
+            try {
+              const engResponse = await fetch(`http://localhost:8100/person/v1/api/${order.identificadorIngeniero}`, { headers });
+              if (engResponse.ok) {
+                const engData = await engResponse.json();
+                engineerName = `${engData.primerNombre} ${engData.primerApellido}`;
+              }
+            } catch (err) {
+              console.error(`Error trayendo ingeniero ${order.identificadorIngeniero}`, err);
+            }
+          }
+
+          const formattedDate = formatOrderDate(order.fechaMantenimiento);
+
+          return {
+            id: order.identificadorOrdenTrabajo,
+            label: `${formattedDate}, ${engineerName}`,
+            equipoClienteIds: order.equipoClienteIds || []
+          };
+        });
+
+        const formattedOptions = await Promise.all(ordersWithEngineersPromises);
+        setWorkOrders(formattedOptions);
+      } catch (err) {
+        console.error(err);
+        setError('No se pudieron cargar las órdenes de trabajo activas.');
+      } finally {
+        setIsWorkOrdersLoading(false);
+      }
+    };
+
+    fetchWorkOrdersAndEngineers();
+  }, [setError]);
+
+  const isLoading = isReportsLoading || isWorkOrdersLoading;
 
   const filteredReports = useMemo(() => {
     const term = searchTerm.toLowerCase().trim();
@@ -62,15 +154,20 @@ export const ServiceReportManager: React.FC = () => {
   };
 
   const updateField = (field: keyof CreateServiceReportDTO, value: string) => {
-    setFormData((current) => ({
-      ...current,
-      [field]: value,
-    }));
+    setFormData((current) => {
+      const updated = { ...current, [field]: value };
+      
+      // Si cambia la orden de trabajo, reinicia el equipo seleccionado automáticamente
+      if (field === 'workOrderId') {
+        updated.clientEquipmentId = '';
+      }
+      return updated;
+    });
   };
 
   const buildPayload = (): CreateServiceReportDTO => ({
-    workOrderId: formData.workOrderId.trim(),
-    clientEquipmentId: formData.clientEquipmentId.trim(),
+    workOrderId: formData.workOrderId.trim().substring(0, 10),
+    clientEquipmentId: formData.clientEquipmentId.trim().substring(0, 10),
     observations: formData.observations?.trim() || '',
     technicalVerificationResult: formData.technicalVerificationResult?.trim() || '',
   });
@@ -84,11 +181,6 @@ export const ServiceReportManager: React.FC = () => {
 
     if (!payload.workOrderId || !payload.clientEquipmentId) {
       setError('Complete la orden de trabajo y el equipo cliente para guardar el reporte.');
-      return;
-    }
-
-    if (payload.workOrderId.length > 10 || payload.clientEquipmentId.length > 10) {
-      setError('La orden de trabajo y el equipo cliente no pueden superar 10 caracteres.');
       return;
     }
 
@@ -193,30 +285,42 @@ export const ServiceReportManager: React.FC = () => {
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
                 Orden de Trabajo
               </label>
-              <input
-                type="text"
+              <select
                 value={formData.workOrderId}
-                maxLength={10}
                 onChange={(event) => updateField('workOrderId', event.target.value)}
-                placeholder="Ej. OT-001"
                 className={requiredInputClass(formData.workOrderId)}
-              />
-              <p className="mt-1 text-[11px] text-slate-400">Maximo 10 caracteres.</p>
+              >
+                <option value="">Seleccione una Orden...</option>
+                {workOrders.map((order) => (
+                  <option key={order.id} value={order.id}>
+                    {order.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-[11px] text-slate-400">Seleccione una de las órdenes disponibles.</p>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
                 Equipo Cliente
               </label>
-              <input
-                type="text"
+              {/* SELECT Equipo CLiente*/}
+              <select
                 value={formData.clientEquipmentId}
-                maxLength={10}
                 onChange={(event) => updateField('clientEquipmentId', event.target.value)}
-                placeholder="Ej. EQC-001"
+                disabled={!formData.workOrderId}
                 className={requiredInputClass(formData.clientEquipmentId)}
-              />
-              <p className="mt-1 text-[11px] text-slate-400">Maximo 10 caracteres.</p>
+              >
+                <option value="">
+                  {formData.workOrderId ? 'Seleccione un Equipo...' : 'Seleccione primero una Orden'}
+                </option>
+                {clientEquipmentOptions.map((equipmentId) => (
+                  <option key={equipmentId} value={equipmentId}>
+                    {equipmentId}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-[11px] text-slate-400">Equipos asociados a la Orden seleccionada.</p>
             </div>
 
             <div>
