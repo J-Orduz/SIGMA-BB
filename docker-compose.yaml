@@ -104,6 +104,18 @@ services:
         condition: service_started
     restart: always
 
+  sigma-frontend:
+    container_name: sigma-frontend-app
+    build:
+      context: ./Frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" 
+    networks:
+      - sigma-bb-network
+    depends_on:
+      - bolivarbioingenieria-app # No levanta el front hasta que el back esté listo
+    restart: always
 
 volumes:
   data-postgres:

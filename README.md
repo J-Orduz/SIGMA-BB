@@ -107,6 +107,25 @@ keycloak/
 └── themes/
 ```
 
+## Configuración de Keycloak
+
+1. Dirijase a `Manage realms` y en `Create realm` cargar el archivo `./keycloak/configuration/realm-export.json`
+
+2. En el apartado de `Clients` seleccione `sigma-frontend` luego presione `Client scopes` y `sigma-frontend-dedicated`, luego escoja `Configure a new mapper` y seleccione la opción de `Group Membership`, configurelo de la siguiente manera:
+
+- Name: groups-mapper
+- Token Claim Name: rol
+- Full group path: Off
+- Add to ID token: On
+- Add to access token: On
+- Add to lightweight access token: Off
+- Add to userinfo: Off
+- Add to token introspection: Off
+
+Y presione en `Save`.
+
+3. Cree un usario en `Users` y asignele una contraseña en `Credentials`.
+
 ## Base de Datos
 
 Los scripts de inicializacion y versiones de base de datos se encuentran en `DataBase`. Docker Compose monta la version `DataBase/v4/initdb` para inicializar PostgreSQL.
