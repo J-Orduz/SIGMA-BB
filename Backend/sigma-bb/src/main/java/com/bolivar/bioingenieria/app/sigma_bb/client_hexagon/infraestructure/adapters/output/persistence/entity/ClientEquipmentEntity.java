@@ -43,23 +43,20 @@ public class ClientEquipmentEntity {
      * Fecha de compra del equipo.
      * Tipo: {@link Date}
      */
-    @Column(name = "f_fecha_compra", nullable = false)
-    @NotBlank
+    @Column(name = "f_fecha_compra", nullable = true)
     private Date fechaCompra;
 
     /**
      * Valor monetario de compra del equipo.
      * Expresado en unidades monetarias (pesos, dólares, etc.).
      */
-    @Column(name = "v_valor_compra", nullable = false)
-    @NotBlank
+    @Column(name = "v_valor_compra", nullable = true)
     private Long valorCompra;
 
     /**
      * Número de inventario asignado al equipo en la institución.
      */
-    @Column(name = "n_no_inventario", nullable = false)
-    @NotBlank
+    @Column(name = "n_no_inventario", nullable = true)
     private String numeroInventario;
 
     /**
@@ -73,11 +70,8 @@ public class ClientEquipmentEntity {
      * Identificador único del modelo del equipo.
      * Referencia a la entidad {@link UUID} que representa el modelo.
      */
-    /*
-    @ManyToOne
-    @JoinColumn(name = "k_id_modelo", nullable = false)
-    private UUID modelo;
-    */
+    @Column(name = "k_id_modelo", nullable = true)
+    private UUID identificadorModelo;
 
     /**
      * Área de servicio a la que está asociado el equipo.

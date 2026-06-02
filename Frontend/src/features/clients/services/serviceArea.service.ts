@@ -1,4 +1,4 @@
-import type { ServiceArea, ServiceAreaCreateRequest } from '../types/client.types';
+import type { ServiceArea, ServiceAreaCreateRequest, ClientEquipmentCreateRequest } from '../types/client.types';
 
 const BASE_URL = 'http://localhost:8100/service-area/v1/api';
 
@@ -73,4 +73,48 @@ export const serviceAreaService = {
       throw new Error('No es posible eliminar esta área de servicio. Puede tener equipos asociados.');
     }
   },
+
+  // ─── Gestión de Equipos de Cliente (Solución 2) ──────────────────────────
+  
+  // Agregar un equipo a un área de servicio
+  addEquipment: async (areaId: string, data: ClientEquipmentCreateRequest): Promise<ServiceArea> => {
+    const response = await fetch(`http://localhost:8100/service-area/equipment/v1/api/${areaId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errMsg = await response.text().catch(() => '');
+      throw new Error(errMsg || 'Error al agregar el equipo al área de servicio.');
+    }
+    return response.json();
+  },
+
+  // Actualizar un equipo existente dentro de un área de servicio
+  updateEquipment: async (areaId: string, equipId: string, data: ClientEquipmentCreateRequest): Promise<ServiceArea> => {
+    const response = await fetch(`http://localhost:8100/service-area/equipment/v1/api/${areaId}/${equipId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errMsg = await response.text().catch(() => '');
+      throw new Error(errMsg || 'Error al actualizar el equipo biomédico.');
+    }
+    return response.json();
+  },
+
+  // Eliminar (desactivar) un equipo biomédico
+  deleteEquipment: async (areaId: string, equipId: string): Promise<ServiceArea> => {
+    const response = await fetch(`http://localhost:8100/service-area/equipment/v1/api/${areaId}/${equipId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(null),
+    });
+    if (!response.ok) {
+      const errMsg = await response.text().catch(() => '');
+      throw new Error(errMsg || 'Error al desvincular el equipo biomédico.');
+    }
+    return response.json();
+  },
 };
+

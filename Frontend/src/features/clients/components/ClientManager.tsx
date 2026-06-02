@@ -290,7 +290,7 @@ export const ClientManager: React.FC = () => {
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
                 <option value="">-- Seleccione Representante --</option>
-                {persons.filter(p => p.estadoActivo !== false).map((p) => (
+                {persons.filter(p => p.estadoActivo !== false && p.tipoPersona === 'CEO_CLIENT').map((p) => (
                   <option key={p.cedula} value={p.cedula}>
                     {p.primerNombre} {p.primerApellido} ({p.cedula})
                   </option>

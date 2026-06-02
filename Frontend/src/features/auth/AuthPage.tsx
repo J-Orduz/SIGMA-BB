@@ -40,6 +40,7 @@ export const AuthPage: React.FC = () => {
 
     // Guardar en el Store Global de Zustand
     const loggedUser = {
+      id: decodedToken.sub || '',
       username: decodedToken.preferred_username || 'Usuario',
       name: decodedToken.name || 'Usuario SIGMA',
       role: assignedRole,

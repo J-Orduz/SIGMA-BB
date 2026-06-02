@@ -55,4 +55,9 @@ public class ClientEquipmentResponse {
      * true: equipo en servicio; false: equipo inactivo o retirado.
      */
     private boolean estadoActivo;
+
+    /**
+     * Identificador único del modelo del equipo.
+     */
+    private UUID identificadorModelo;
 }

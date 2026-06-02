@@ -53,4 +53,11 @@ public class ClientEquipmentCreateRequest {
             requiredMode = Schema.RequiredMode.NOT_REQUIRED,
             example = "INV-2023-001")
     private String numeroInventario;
+
+    /**
+     * Identificador único del modelo del equipo.
+     */
+    @Schema(description = "Identificador único del modelo del equipo.",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private java.util.UUID identificadorModelo;
 }

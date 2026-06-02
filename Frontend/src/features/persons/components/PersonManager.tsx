@@ -313,7 +313,8 @@ export const PersonManager: React.FC = () => {
               <select
                 value={role}
                 onChange={(e: any) => setRole(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                disabled={!!editingId}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
               >
                 <option value="ADMIN">Administrador (admin)</option>
                 <option value="ENGINEER">Ingeniero Técnico (engineer)</option>
