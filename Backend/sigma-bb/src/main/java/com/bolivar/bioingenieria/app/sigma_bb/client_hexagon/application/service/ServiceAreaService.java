@@ -135,6 +135,7 @@ public class ServiceAreaService implements ServiceAreaServicePort {
                 .map(existingServiceArea -> {
                     clientEquipment.setIdentificadorAreaServicio(existingServiceArea.getIdentificadorAreaServicio());
                     clientEquipment.setIdentificadorEquipoCliente(UUID.randomUUID());
+                    clientEquipment.setEstadoActivo(true);
                     existingServiceArea.addServiceArea(clientEquipment);
                     return serviceAreaPersistencePort.save(existingServiceArea);
                 }).orElseThrow(ServiceAreaFoundException::new);

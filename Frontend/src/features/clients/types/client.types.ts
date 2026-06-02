@@ -20,14 +20,34 @@ export interface Manager {
   estadoActivo: boolean;
 }
 
+export interface ClientEquipment {
+  identificadorEquipoCliente: string; // UUID
+  serie: string;
+  fechaCompra?: string;
+  valorCompra?: number;
+  numeroInventario?: string;
+  estadoActivo: boolean;
+  identificadorAreaServicio: string;
+  identificadorModelo?: string;
+}
+
+export interface ClientEquipmentCreateRequest {
+  serie: string;
+  fechaCompra?: string;
+  valorCompra?: number;
+  numeroInventario?: string;
+  identificadorModelo?: string;
+}
+
 export interface ServiceArea {
   identificadorAreaServicio: string; // UUID as string
   nombreAreaServicio: string;
   estadoActivo: boolean;
   identificadorSede: string; // UUID as string
   managerList: Manager[];
-  // clientEquipmentList omitido en MVP
+  clientEquipmentList?: ClientEquipment[];
 }
+
 
 export interface Headquarter {
   identificadorSede: string; // UUID as string
@@ -74,7 +94,7 @@ export interface ServiceAreaCreateRequest {
   nombreAreaServicio: string;
   managerList?: ManagerCreateRequest[];
   identificadorSede: string; // UUID as string linking to Sede
-  // clientEquipmentList omitido en MVP
+  clientEquipmentList?: ClientEquipmentCreateRequest[];
 }
 
 export interface HeadquarterCreateRequest {
